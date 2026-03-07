@@ -1,0 +1,58 @@
+<div class="max-w-md mt-6">
+  <form (ngSubmit)="enviarLogin()" class="space-y-4">
+    <div class="flex flex-col">
+      <label class="font-medium">E-mail</label>
+      <input
+        type="email"
+        placeholder="seu@email.com"
+        [(ngModel)]="email"
+        name="email"
+        required
+        class="border border-gray-300 rounded-lg p-2 focus:outline-gray-400"
+      />
+    </div>
+
+    <div class="flex flex-col relative">
+      <label class="font-medium">Senha</label>
+      <input
+        [type]="mostrarSenha ? 'text' : 'password'"
+        [(ngModel)]="senha"
+        name="senha"
+        required
+        class="border border-gray-300 rounded-lg p-2 pr-10 focus:outline-gray-400"
+      />
+      <button
+        type="button"
+        (click)="toggleSenha()"
+        class="absolute right-3 top-8 text-gray-500"
+      >
+        <mat-icon class="text-sm">
+          {{ mostrarSenha ? 'visibility_off' : 'visibility' }}
+        </mat-icon>
+      </button>
+    </div>
+
+    <div class="flex justify-between items-center text-sm">
+      <label class="flex items-center gap-2 cursor-pointer">
+        <input type="checkbox" [(ngModel)]="lembrarLogin" name="lembrar">
+        Lembrar-me
+      </label>
+      <a
+        routerLink=""
+        class="text-indigo-600 hover:text-indigo-800 transition cursor-pointer"
+      >
+        Esqueci a senha
+      </a>
+    </div>
+
+    <app-button-submit
+      nameButton="Entrar"
+      icon="arrow_forward"
+      info="Não tem conta?"
+      linkText="Cadastre-se"
+      routerLink="/cadastro"
+      [disabled]="!formValido"
+      (action)="enviarLogin()"
+    ></app-button-submit>
+  </form>
+</div>

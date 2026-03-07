@@ -2,10 +2,11 @@ import { Component, ViewChild } from '@angular/core';
 import { FormLogin } from './components/form-login/form-login';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
+import { AuthSidePanel } from '../../components/auth-side-panel/auth-side-panel';
 
 @Component({
   selector: 'app-login',
-  imports: [FormLogin, CommonModule, MatIconModule],
+  imports: [FormLogin, CommonModule, MatIconModule, AuthSidePanel],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })

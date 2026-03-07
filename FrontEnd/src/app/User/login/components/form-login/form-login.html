@@ -1,50 +1,52 @@
-<div class="max-w-md mt-6">
-  <form (ngSubmit)="enviarLogin()" class="space-y-4">
-    <div class="flex flex-col">
-      <label class="font-medium">E-mail</label>
+<div class="flex mt-6 ">
+  <form (ngSubmit)="enviarLogin()" class="space-y-4 w-full gap-8 flex flex-col">
+    <div class="flex flex-col gap-4">
+      <label class="font-medium" for="email">E-mail</label>
       <input
         type="email"
         placeholder="seu@email.com"
         [(ngModel)]="email"
         name="email"
+        id="email"
         required
         class="border border-gray-300 rounded-lg p-2 focus:outline-gray-400"
       />
     </div>
 
-    <div class="flex flex-col relative">
-      <label class="font-medium">Senha</label>
-      <input
-        [type]="mostrarSenha ? 'text' : 'password'"
-        [(ngModel)]="senha"
-        name="senha"
-        required
-        class="border border-gray-300 rounded-lg p-2 pr-10 focus:outline-gray-400"
-      />
-      <button
-        type="button"
-        (click)="toggleSenha()"
-        class="absolute right-3 top-8 text-gray-500"
-      >
-        <mat-icon class="text-sm">
-          {{ mostrarSenha ? 'visibility_off' : 'visibility' }}
-        </mat-icon>
-      </button>
+    <div class="flex flex-col relative w-full gap-2">
+      <label class="font-medium" for="senha">Senha</label>
+      <div class="flex relative w-full">
+        <input
+          [type]="mostrarSenha ? 'text' : 'password'"
+          [(ngModel)]="senha"
+          name="senha"
+          id="senha"
+          required
+          class="border border-gray-300 rounded-lg p-2 pr-10 focus:outline-gray-400 w-full"
+        />
+        <button
+          type="button"
+          (click)="toggleSenha()"
+          class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+        >
+          <mat-icon class="text-sm cursor-pointer">
+            {{ mostrarSenha ? 'visibility_off' : 'visibility' }}
+          </mat-icon>
+        </button>
+      </div>
+      <div class="flex justify-between items-center text-sm">
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" [(ngModel)]="lembrarLogin" name="lembrar">
+          Lembrar-me
+        </label>
+        <a
+          routerLink=""
+          class="text-indigo-600 hover:text-indigo-800 transition cursor-pointer"
+        >
+          Esqueci a senha
+        </a>
+      </div>
     </div>
-
-    <div class="flex justify-between items-center text-sm">
-      <label class="flex items-center gap-2 cursor-pointer">
-        <input type="checkbox" [(ngModel)]="lembrarLogin" name="lembrar">
-        Lembrar-me
-      </label>
-      <a
-        routerLink=""
-        class="text-indigo-600 hover:text-indigo-800 transition cursor-pointer"
-      >
-        Esqueci a senha
-      </a>
-    </div>
-
     <app-button-submit
       nameButton="Entrar"
       icon="arrow_forward"

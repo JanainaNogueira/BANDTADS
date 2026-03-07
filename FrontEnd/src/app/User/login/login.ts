@@ -3,10 +3,11 @@ import { FormLogin } from './components/form-login/form-login';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthSidePanel } from '../../components/auth-side-panel/auth-side-panel';
+import { FormTitle } from '../../components/form-title/form-title';
 
 @Component({
   selector: 'app-login',
-  imports: [FormLogin, CommonModule, MatIconModule, AuthSidePanel],
+  imports: [FormLogin, CommonModule, MatIconModule, AuthSidePanel, FormTitle],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })

@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
+import { Logo } from '../logo/logo';
 
 interface Step {
   title: string;
@@ -8,7 +9,7 @@ interface Step {
 
 @Component({
   selector: 'app-auth-side-panel',
-  imports: [CommonModule],
+  imports: [CommonModule, Logo],
   templateUrl: './auth-side-panel.html',
   styleUrl: './auth-side-panel.css',
 })

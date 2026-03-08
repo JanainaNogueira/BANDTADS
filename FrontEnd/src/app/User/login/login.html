@@ -1,0 +1,33 @@
+<div class="flex w-screen h-screen justify-around gap-10">
+    <div class="w-[45%]">
+        <app-auth-side-panel
+            title="Banco Digital"
+            subtitle="Seguro e Moderno"
+            about="Gerencie suas finanças com inteligência, segurança e praticidade - de qualquer lugar."
+            [features]="[
+                'Transações em tempo real',
+                'Segurança de nível bancário',
+                'Suporte 24 horas'
+            ]"
+        >
+        </app-auth-side-panel>
+    </div>
+    <div class="flex flex-col w-[55%] h-full justify-center items-center p-20">
+        <app-form-title
+            class="w-full pb-10"
+            title="Bem-vindo de volta"
+            label="Informe seus dados para acessar o sistema."
+        ></app-form-title>
+        <div class="flex p-1 rounded-xl w-[80%] align-middle">
+            <button
+                *ngFor="let t of tipos"
+                (click)="selecionarTipo(t.valor)"
+                class="flex-1 py-2 transition cursor-pointer bg-white"
+                [ngClass]="tipo === t.valor ? 'text-[#4F46E5] shadow font-medium' : 'text-gray-500'"
+            >
+                {{ t.label }}
+            </button>
+        </div>
+        <app-form-login (loginSubmit)="fazerLogin($event)" class="w-[80%]"></app-form-login>
+    </div>
+</div>

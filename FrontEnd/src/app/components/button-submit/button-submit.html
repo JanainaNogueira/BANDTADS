@@ -1,0 +1,20 @@
+<div class="mt-6">
+  <button
+    (click)="clickButton()"
+    [disabled]="disabled"
+    class="w-full py-3 rounded-xl bg-indigo-600 text-white shadow-lg flex justify-center items-center gap-2 cursor-pointer hover:bg-indigo-700 transition-colors duration-200  disabled:opacity-50 disabled:cursor-not-allowed"
+  >
+    <span>{{nameButton}}</span>
+    <mat-icon>{{icon}}</mat-icon>
+  </button>
+
+  <div class="text-center mt-4 text-sm">
+    <span>{{info}}</span>
+    <a
+      class="text-indigo-600 ml-1 font-medium hover:text-indigo-800 transition-colors duration-200"
+      [routerLink]="routerLink"
+    >
+      {{linkText}}
+    </a>
+  </div>
+</div>

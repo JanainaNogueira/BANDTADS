@@ -1,0 +1,101 @@
+<div class="flex h-screen bg-gray-100">
+
+
+  
+    <!-- CONTEÚDO -->
+    <main class="flex-1 p-10">
+  
+      <h1 class="text-2xl font-bold">Configurações</h1>
+      <p class="text-gray-500 mb-6">
+        Altere suas informações de perfil e renda
+      </p>
+  
+      <!-- TAB -->
+      <div class="border-b mb-6">
+        <span class="border-b-2 border-indigo-500 pb-2 text-indigo-600 font-medium">
+          Perfil
+        </span>
+      </div>
+  
+      <!-- CARD CONTA -->
+      <div class="bg-gradient-to-r from-indigo-500 to-purple-400 text-white rounded-xl p-6 flex justify-between mb-8">
+  
+        <div>
+          <p class="text-sm">Saldo Atual</p>
+          <h2 class="text-2xl font-bold">R$24,582.50</h2>
+  
+          <p class="mt-4 font-semibold">Maria Silva</p>
+          <p class="text-sm opacity-80">CPF: 123.456.789-00</p>
+        </div>
+  
+        <div>
+          <p class="text-sm">Limite de crédito total</p>
+          <h2 class="text-2xl font-bold">R$ 2250.00</h2>
+        </div>
+  
+      </div>
+  
+      <!-- FORM -->
+      <div class="bg-white p-8 rounded-xl shadow">
+  
+        <div class="flex justify-between mb-6">
+          <h2 class="font-semibold text-lg">Informações Pessoais</h2>
+          <button routerLink="/editProfile" class="text-indigo-500 text-sm">
+            Edit Profile
+          </button>
+        </div>
+  
+        <div class="grid gap-4">
+  
+          <div>
+            <label class="text-sm text-gray-600">Nome Completo</label>
+            <input
+              type="text"
+              class="w-full border rounded-lg p-2 mt-1"
+              placeholder="John Doe"
+            >
+          </div>
+  
+          <div>
+            <label class="text-sm text-gray-600">Email</label>
+            <input
+              type="email"
+              class="w-full border rounded-lg p-2 mt-1"
+              placeholder="john@example.com"
+            >
+          </div>
+  
+          <div>
+            <label class="text-sm text-gray-600">Telefone</label>
+            <input
+              type="text"
+              class="w-full border rounded-lg p-2 mt-1"
+              placeholder="(555) 123-4567"
+            >
+          </div>
+  
+          <div>
+            <label class="text-sm text-gray-600">Endereço</label>
+            <input
+              type="text"
+              class="w-full border rounded-lg p-2 mt-1"
+              placeholder="123 Main St"
+            >
+          </div>
+  
+          <div>
+            <label class="text-sm text-gray-600">Salário Mensal</label>
+            <input
+              type="number"
+              class="w-full border rounded-lg p-2 mt-1"
+              placeholder="4500"
+            >
+          </div>
+  
+        </div>
+  
+      </div>
+  
+    </main>
+  
+  </div>

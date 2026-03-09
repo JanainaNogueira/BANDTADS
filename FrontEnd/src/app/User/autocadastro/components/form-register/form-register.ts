@@ -4,10 +4,12 @@ import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { ButtonSubmit } from '../../../../components/button-submit/button-submit';
 import { CommonModule } from '@angular/common';
 import { FormTitle } from '../../../../components/form-title/form-title';
+import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 
 @Component({
   selector: 'app-form-register',
-  imports: [ReactiveFormsModule, ButtonSubmit, CommonModule, FormsModule, FormTitle],
+  imports: [ReactiveFormsModule, ButtonSubmit, CommonModule, FormsModule, FormTitle, NgxMaskDirective],
+  providers: [provideNgxMask()],
   templateUrl: './form-register.html',
   styleUrl: './form-register.css',
 })
@@ -19,10 +21,10 @@ export class FormRegister {
   constructor(private http: HttpClient, private form: FormBuilder) {
 
     this.dadosPessoais = this.form.group({
-      nome: ['', Validators.required],
-      cpf: ['', Validators.required],
-      telefone: ['', Validators.required],
-      email: ['', Validators.required, Validators.email],
+      nome: ['', [Validators.required, Validators.pattern(/^[A-Za-zÀ-ÿ\s]+$/)]],
+      cpf: ['', [Validators.required, Validators.minLength(11)]],
+      telefone: ['', [Validators.required, Validators.minLength(11)]],
+      email: ['', [Validators.required, Validators.email]]
     });
 
     this.endereco = this.form.group({
@@ -75,5 +77,22 @@ export class FormRegister {
 
     voltarPagina1() {
       this.paginaAtual = 1;
+    }
+
+    bloquearNumeros(event: KeyboardEvent) {
+      const char = event.key;
+      if (!/[a-zA-ZÀ-ÿ\s]/.test(char)) {
+        event.preventDefault();
+      }
+    }
+
+    campoInvalido(campo: string) {
+      const control = this.dadosPessoais.get(campo);
+      return control?.invalid && control?.touched;
+    }
+
+    campoTemErro(campo: string, erro: string) {
+      const control = this.dadosPessoais.get(campo);
+      return control?.touched && control?.hasError(erro);
     }
 }

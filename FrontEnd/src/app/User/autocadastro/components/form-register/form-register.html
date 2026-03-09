@@ -11,7 +11,7 @@
         <div class="flex flex-col w-[50%] bg-[#EEF2FF] h-2 rounded-4xl"></div>
     </div>
   <form class="space-y-4 w-full gap-2 flex flex-col" [formGroup]="dadosPessoais">
-    <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-2">
       <label class="font-medium" for="nome">Nome</label>
       <input
         type="text"
@@ -19,35 +19,71 @@
         name="nome"
         id="nome"
         formControlName="nome"
+        autofocus
         class="border border-gray-300 rounded-lg p-2 focus:outline-gray-400"
+        (keypress)="bloquearNumeros($event)"
+        [ngClass]="{'border-red-500': campoInvalido('nome')}"
       />
+      @if (campoTemErro('nome','pattern')) {
+      <div class="text-red-500 text-sm mt-1"> 
+          Nome inválido
+      </div>
+      }
+      @if (campoTemErro('nome','required')) {
+      <div class="text-red-500 text-sm mt-1"> 
+          Campo obrigatório
+      </div>
+      }
     </div>
     <div class="flex flex-row w-full gap-2">
-        <div class="flex flex-col gap-4 w-[50%]">
+        <div class="flex flex-col gap-2 w-[50%]">
           <label class="font-medium" for="cpf">CPF</label>
           <input
-            type="number"
+            type="text"
             placeholder="123.456.789-12"
             name="cpf"
             id="cpf"
             formControlName="cpf"
-            required
             class="border border-gray-300 rounded-lg p-2 focus:outline-gray-400"
+            [ngClass]="{'border-red-500': campoInvalido('cpf')}"
+            mask="000.000.000-00"
           />
+          @if (campoTemErro('cpf','minlength')) {
+          <div class="text-red-500 text-sm mt-1"> 
+              CPF inválido
+          </div>
+          }
+          @if (campoTemErro('cpf','required')) {
+          <div class="text-red-500 text-sm mt-1"> 
+              Campo obrigatório
+          </div>
+          }
         </div>
-        <div class="flex flex-col gap-4 w-[50%]">
+        <div class="flex flex-col gap-2 w-[50%]">
           <label class="font-medium" for="telefone">Telefone</label>
           <input
-            type="number"
+            type="text"
             placeholder="(11) 99999-9999"
             name="telefone"
             id="telefone"
             formControlName="telefone"
             class="border border-gray-300 rounded-lg p-2 focus:outline-gray-400"
+            [ngClass]="{'border-red-500': campoInvalido('telefone')}"
+            mask="(00) 00000-0000"
           />
+          @if (campoTemErro('telefone','minlength')) {
+          <div class="text-red-500 text-sm"> 
+              Telefone inválido
+          </div>
+          }
+          @if (campoTemErro('telefone','required')) {
+          <div class="text-red-500 text-sm mt-1"> 
+              Campo obrigatório
+          </div>
+          }
         </div>
     </div>
-    <div class="flex flex-col gap-4">
+    <div class="flex flex-col gap-2">
       <label class="font-medium" for="email">E-mail</label>
       <input
         type="email"
@@ -56,7 +92,18 @@
         id="email"
         formControlName="email"
         class="border border-gray-300 rounded-lg p-2 focus:outline-gray-400"
+        [ngClass]="{'border-red-500': campoInvalido('email')}"
       />
+      @if (campoTemErro('email','email')) {
+      <div class="text-red-500 text-sm mt-1"> 
+          Email inválido
+      </div>
+      }
+      @if (campoTemErro('email','required')) {
+      <div class="text-red-500 text-sm mt-1"> 
+          Campo obrigatório
+      </div>
+      }
     </div>
     
     <app-button-submit
@@ -97,8 +144,8 @@
             formControlName="cep"
             (blur)="consultaCEP()"
             (keydown.enter)="consultaCEP()"
-            required
             class="border border-gray-300 rounded-lg p-2 focus:outline-gray-400"
+            mask="00000-000"
           />
         </div>
         <div class="flex flex-col gap-4 w-[50%]">
@@ -163,14 +210,17 @@
         <app-button-submit
           icon="arrow_backward"
           (click)="voltarPagina1()"
-          class="w-[20%]"
+          class="w-[8%]"
         ></app-button-submit>
         <app-button-submit
           nameButton="Enviar Cadastro"
           icon="arrow_forward"
           (click)="enviarDados()"
-          class="w-[80%]"
+          class="w-[92%]"
           [disabled]="endereco.invalid"
+          info="Já tem uma conta?"
+          linkText="Entrar"
+          routerLink="/login"
         ></app-button-submit>
     </div>
   </form>

@@ -12,7 +12,7 @@
     <div class="w-[95%] bg-white rounded-2xl p-5 flex flex-wrap items-end gap-4 shadow-sm">
       <mat-form-field appearance="outline" class="w-48">
         <mat-label>Data de Início</mat-label>
-        <input matInput [matDatepicker]="pickerInicio" [formControl]="dataInicio" placeholder="mm/dd/yyyy" />
+        <input matInput [matDatepicker]="pickerInicio" [formControl]="dataInicio" placeholder="dd/mm/yyyy" />
         <mat-datepicker-toggle matIconSuffix [for]="pickerInicio"></mat-datepicker-toggle>
         <mat-datepicker #pickerInicio></mat-datepicker>
       </mat-form-field>
@@ -33,6 +33,10 @@
         <mat-icon>search</mat-icon>
         Pesquisar
       </button>
+      
+      <div *ngIf="erroValidacao" class="text-red-600 text-sm font-medium">
+       {{ erroValidacao }}
+      </div>
     </div>
 
     <div *ngIf="!pesquisaRealizada" class="flex flex-col items-center justify-center py-16 text-gray-300">

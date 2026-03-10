@@ -1,0 +1,228 @@
+@if (paginaAtual === 1) {
+<app-form-title
+        class="w-[80%]"
+        tag="Etapa 1 de 2"
+        title="Dados Pessoais"
+        label="Informe seus dados pessoais e de contato."
+    ></app-form-title>
+    <div class="flex mt-6 flex-col">
+    <div class="flex flex-row w-full pt-4 pb-8">
+        <div class="flex flex-col w-[50%] bg-indigo-600 h-2 rounded-4xl"></div>
+        <div class="flex flex-col w-[50%] bg-[#EEF2FF] h-2 rounded-4xl"></div>
+    </div>
+  <form class="space-y-4 w-full gap-2 flex flex-col" [formGroup]="dadosPessoais">
+    <div class="flex flex-col gap-2">
+      <label class="font-medium" for="nome">Nome</label>
+      <input
+        type="text"
+        placeholder="João da Silva"
+        name="nome"
+        id="nome"
+        formControlName="nome"
+        autofocus
+        class="border border-gray-300 rounded-lg p-2 focus:outline-gray-400"
+        (keypress)="bloquearNumeros($event)"
+        [ngClass]="{'border-red-500': campoInvalido('nome')}"
+      />
+      @if (campoTemErro('nome','pattern')) {
+      <div class="text-red-500 text-sm mt-1"> 
+          Nome inválido
+      </div>
+      }
+      @if (campoTemErro('nome','required')) {
+      <div class="text-red-500 text-sm mt-1"> 
+          Campo obrigatório
+      </div>
+      }
+    </div>
+    <div class="flex flex-row w-full gap-2">
+        <div class="flex flex-col gap-2 w-[50%]">
+          <label class="font-medium" for="cpf">CPF</label>
+          <input
+            type="text"
+            placeholder="123.456.789-12"
+            name="cpf"
+            id="cpf"
+            formControlName="cpf"
+            class="border border-gray-300 rounded-lg p-2 focus:outline-gray-400"
+            [ngClass]="{'border-red-500': campoInvalido('cpf')}"
+            mask="000.000.000-00"
+          />
+          @if (campoTemErro('cpf','minlength')) {
+          <div class="text-red-500 text-sm mt-1"> 
+              CPF inválido
+          </div>
+          }
+          @if (campoTemErro('cpf','required')) {
+          <div class="text-red-500 text-sm mt-1"> 
+              Campo obrigatório
+          </div>
+          }
+        </div>
+        <div class="flex flex-col gap-2 w-[50%]">
+          <label class="font-medium" for="telefone">Telefone</label>
+          <input
+            type="text"
+            placeholder="(11) 99999-9999"
+            name="telefone"
+            id="telefone"
+            formControlName="telefone"
+            class="border border-gray-300 rounded-lg p-2 focus:outline-gray-400"
+            [ngClass]="{'border-red-500': campoInvalido('telefone')}"
+            mask="(00) 00000-0000"
+          />
+          @if (campoTemErro('telefone','minlength')) {
+          <div class="text-red-500 text-sm"> 
+              Telefone inválido
+          </div>
+          }
+          @if (campoTemErro('telefone','required')) {
+          <div class="text-red-500 text-sm mt-1"> 
+              Campo obrigatório
+          </div>
+          }
+        </div>
+    </div>
+    <div class="flex flex-col gap-2">
+      <label class="font-medium" for="email">E-mail</label>
+      <input
+        type="email"
+        placeholder="seu@email.com"
+        name="email"
+        id="email"
+        formControlName="email"
+        class="border border-gray-300 rounded-lg p-2 focus:outline-gray-400"
+        [ngClass]="{'border-red-500': campoInvalido('email')}"
+      />
+      @if (campoTemErro('email','email')) {
+      <div class="text-red-500 text-sm mt-1"> 
+          Email inválido
+      </div>
+      }
+      @if (campoTemErro('email','required')) {
+      <div class="text-red-500 text-sm mt-1"> 
+          Campo obrigatório
+      </div>
+      }
+    </div>
+    
+    <app-button-submit
+      nameButton="Próximo"
+      icon="arrow_forward"
+      info="Já tem uma conta?"
+      linkText="Entrar"
+      routerLink="/login"
+      (click)="irParaPagina2()"
+      [disabled]="dadosPessoais.invalid"
+    ></app-button-submit>
+  </form>
+</div>
+} 
+
+<!-- página 2 -->
+@if (paginaAtual === 2) {
+ <app-form-title
+        class="w-[80%]"
+        tag="Etapa 2 de 2"
+        title="Endereço e Financeiro"
+        label="Informe seu endereço e renda mensal."
+    ></app-form-title>
+<div class="flex mt-6 flex-col">
+    <div class="flex flex-row w-full pt-4 pb-8">
+        <div class="flex flex-col w-[50%] bg-indigo-600 h-2 rounded-4xl"></div>
+        <div class="flex flex-col w-[50%] bg-indigo-600 h-2 rounded-4xl"></div>
+    </div>
+  <form (ngSubmit)="enviarDados()" class="space-y-4 w-full gap-2 flex flex-col" [formGroup]="endereco">
+    <div class="flex flex-row w-full gap-2">
+        <div class="flex flex-col gap-4 w-[50%]">
+          <label class="font-medium" for="cep">CEP</label>
+          <input
+            type="text"
+            placeholder="01001-000"
+            name="cep"
+            id="cep"
+            formControlName="cep"
+            (blur)="consultaCEP()"
+            (keydown.enter)="consultaCEP()"
+            class="border border-gray-300 rounded-lg p-2 focus:outline-gray-400"
+            mask="00000-000"
+          />
+        </div>
+        <div class="flex flex-col gap-4 w-[50%]">
+          <label class="font-medium" for="numero">Número</label>
+          <input
+            type="number"
+            placeholder="123"
+            name="numero"
+            id="numero"
+            formControlName="numero"
+            class="border border-gray-300 rounded-lg p-2 focus:outline-gray-400"
+          />
+        </div>
+    </div>
+    <div class="flex flex-col gap-4">
+      <label class="font-medium" for="rua">Rua / Logradouro</label>
+      <input
+        type="text"
+        placeholder="Rua das Flores"
+        name="rua"
+        id="rua"
+        formControlName="rua"
+        class="border border-gray-300 rounded-lg p-2 focus:outline-gray-400"
+      />
+    </div>
+    <div class="flex flex-col gap-4">
+      <label class="font-medium" for="complemento">Complemento (opcional)</label>
+      <input
+        type="text"
+        placeholder="Apto 42, Bloco B"
+        name="complemento"
+        id="complemento"
+        class="border border-gray-300 rounded-lg p-2 focus:outline-gray-400"
+      />
+    </div>
+    <div class="flex flex-row w-full gap-2">
+        <div class="flex flex-col gap-4 w-[50%]">
+          <label class="font-medium" for="cidade">Cidade</label>
+          <input
+            type="text"
+            placeholder="São Paulo"
+            name="cidade"
+            id="cidade"
+            formControlName="cidade"
+            class="border border-gray-300 rounded-lg p-2 focus:outline-gray-400"
+          />
+        </div>
+        <div class="flex flex-col gap-4 w-[50%]">
+          <label class="font-medium" for="uf">Estado</label>
+          <input
+            type="text"
+            placeholder="São Paulo"
+            name="uf"
+            id="uf"
+            formControlName="uf"
+            class="border border-gray-300 rounded-lg p-2 focus:outline-gray-400"
+          />
+        </div>
+    </div>
+
+    <div class="flex flex-row w-full gap-2">
+        <app-button-submit
+          icon="arrow_backward"
+          (click)="voltarPagina1()"
+          class="w-[8%]"
+        ></app-button-submit>
+        <app-button-submit
+          nameButton="Enviar Cadastro"
+          icon="arrow_forward"
+          (click)="enviarDados()"
+          class="w-[92%]"
+          [disabled]="endereco.invalid"
+          info="Já tem uma conta?"
+          linkText="Entrar"
+          routerLink="/login"
+        ></app-button-submit>
+    </div>
+  </form>
+</div>
+}

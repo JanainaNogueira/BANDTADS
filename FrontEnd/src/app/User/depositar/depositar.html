@@ -1,0 +1,41 @@
+<div class="h-screen w-screen flex overflow-hidden">
+    <app-menu></app-menu>
+    <main class="bg-[#F3F4F6] h-full overflow-y-scroll w-full flex flex-col gap-7 items-center">
+        <header class="w-[95%] h-[6%] mt-4">
+            <h1 class="font-medium text-xl mb-1.5 text-[#6366F1]">Depositar</h1>
+        </header>
+
+        <div class="bg-white rounded-2xl w-[95%] p-10 flex flex-col shadow-sm">
+            <app-tabs-operacao [saldoAtual]="saldoAtual"></app-tabs-operacao>
+
+            <!-- Formulário -->
+            <div class="flex flex-col gap-3 max-w-2xl">
+                <label class="text-gray-700 font-medium text-sm">Valor do Depósito</label>
+                <input
+                    type="text"
+                    [value]="valorFormatado"
+                    (input)="onValorInput($event)"
+                    placeholder="R$ 0,00"
+                    class="border border-gray-300 rounded-lg p-3 focus:outline-none focus:border-[#6366F1] transition-colors w-full"
+                />
+                <span *ngIf="erro" class="text-red-500 text-sm">{{ erro }}</span>
+            </div>
+
+            <!-- Botão -->
+            <div class="flex justify-center mt-12">
+                <button
+                    (click)="depositar()"
+                    [disabled]="!valorValido"
+                    class="w-full max-w-md py-3 rounded-full bg-[#6366F1] text-white shadow-lg flex justify-center items-center gap-2 cursor-pointer hover:bg-[#4F46E5] transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <span>Depositar</span>
+                    <mat-icon>arrow_forward</mat-icon>
+                </button>
+            </div>
+
+            <!-- Mensagem sucesso -->
+            <div *ngIf="sucesso" class="mt-6 text-center text-green-600 font-medium">
+                {{ sucesso }}
+            </div>
+        </div>
+    </main>
+</div>

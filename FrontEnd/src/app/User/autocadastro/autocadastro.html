@@ -1,0 +1,17 @@
+<div class="flex w-screen h-screen justify-around gap-10">
+    <div class="w-[45%]">
+        <app-auth-side-panel
+            title="Abra sua conta"
+            subtitle="em minutos"
+            about="Preencha o formulário e aguarde a aprovação. Sua senha será enviada por e-mail após a análise."
+            [steps]="[
+                { title: 'Dados Pessoais', description: 'Nome, CPF, e-mail e contato' },
+                { title: 'Endereço e Financeiro', description: 'Localização e salário mensal' }
+            ]"
+        >
+        </app-auth-side-panel>
+    </div>
+    <div class="flex flex-col w-[55%] h-full justify-center items-center p-20">
+        <app-form-register  class="w-[80%]"></app-form-register>
+    </div>
+</div>

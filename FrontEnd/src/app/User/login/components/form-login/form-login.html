@@ -1,7 +1,9 @@
-<div class="flex mt-6 ">
-  <form (ngSubmit)="enviarLogin()" class="space-y-4 w-full gap-8 flex flex-col">
-    <div class="flex flex-col gap-4">
+<div class="flex mt-6">
+  <form #form="ngForm" (ngSubmit)="enviarLogin()" class="space-y-4 w-full gap-8 flex flex-col">
+    
+    <div class="flex flex-col gap-2">
       <label class="font-medium" for="email">E-mail</label>
+
       <input
         type="email"
         placeholder="seu@email.com"
@@ -9,8 +11,22 @@
         name="email"
         id="email"
         required
-        class="border border-gray-300 rounded-lg p-2 focus:outline-gray-400"
+        email
+        #emailModel="ngModel"
+        class="border rounded-lg p-2 focus:outline-gray-400"
+        [ngClass]="{
+          'border-red-500': emailModel.invalid && emailModel.touched,
+          'border-gray-300': !(emailModel.invalid && emailModel.touched)
+        }"
       />
+
+      @if (emailModel.invalid && emailModel.touched) {
+        <span class="text-red-500 text-sm">
+          @if (emailModel.errors?.['email']) {
+            Insira um e-mail válido.
+          }
+        </span>
+      }
     </div>
 
     <div class="flex flex-col relative w-full gap-2">
@@ -22,7 +38,12 @@
           name="senha"
           id="senha"
           required
+          #senhaModel="ngModel"
           class="border border-gray-300 rounded-lg p-2 pr-10 focus:outline-gray-400 w-full"
+          [ngClass]="{
+          'border-red-500': senhaModel.invalid && senhaModel.touched,
+          'border-gray-300': !(senhaModel.invalid && senhaModel.touched)
+        }"
         />
         <button
           type="button"
@@ -53,7 +74,7 @@
       info="Não tem conta?"
       linkText="Cadastre-se"
       routerLink="/cadastro"
-      [disabled]="!formValido"
+      [disabled]="!!form.invalid"
       (action)="enviarLogin()"
     ></app-button-submit>
   </form>

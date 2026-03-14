@@ -1,0 +1,71 @@
+<div class="flex flex-col w-full h-full items-center justify-center">
+  <div class="w-full max-h-[90%] overflow-y-auto">
+    <table class="w-full text-sm text-gray-600 border-spacing-y-1 table-fixed">
+      <thead class=" text-gray-700 sticky top-0 bg-white ">
+        <tr class="">
+            <th class="px-6 py-3 font-semibold flex justify-between text-left">
+                Nome
+                <button 
+                    (click)="toggleSort()"
+                    class="flex cursor-pointer items-center"
+                >
+                    <mat-icon class="flex items-center" style="font-size:18px">
+                        {{ sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
+                    </mat-icon>
+                </button>
+            </th>
+            <th class="px-6 py-3 font-semibold text-left">CPF</th>
+            <th class="px-6 py-3 font-semibold text-left">Salário</th>
+            <th class="px-6 py-3 font-semibold text-left">Ações</th>
+        </tr>
+      </thead>
+    
+      <tbody class="divide-y divide-gray-200 scroll-auto">
+        @for (c of paginatedCustomers; track c.cpf) {
+          <tr class="transition border-b border-gray-200 hover:bg-gray-100">
+            <td class="px-6 py-4 text-left font-medium">
+              {{ c.name }}
+            </td>
+            <td class="px-6 py-4 text-left">{{ c.cpf | cpf }}</td>
+            <td class="px-6 py-4 text-left">{{ c.salary | currency:'BRL' }}</td>
+            <td class="px-6 py-4 text-left flex gap-6">
+              <div class="flex items-center gap-1 text-green-600 cursor-pointer">
+                <mat-icon>check_circle</mat-icon>
+                <button (click)="aprovarCadastro()" class="cursor-pointer">Aprovar</button>
+              </div>
+              <div class="flex items-center gap-1 text-red-700 cursor-pointer">
+                <mat-icon>cancel</mat-icon>
+                <button (click)="abrirModal()" class="cursor-pointer">Recusar</button>
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  <div class="flex justify-center items-center gap-4 mt-6 w-full p-5 bottom-4 fixed">
+    <button
+      (click)="currentPage = currentPage - 1"
+      [disabled]="currentPage === 1"
+      class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-40 cursor-pointer"
+    >
+      Anterior
+    </button>
+  
+      <span class="text-sm text-gray-600">
+        Página {{ currentPage }} de {{ totalPages }}
+      </span>
+  
+      <button
+        (click)="currentPage = currentPage + 1"
+        [disabled]="currentPage === totalPages"
+        class="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-40 cursor-pointer"
+      >
+        Próxima
+      </button>
+  </div>
+
+  @if (modalAberto) {
+      <app-modal-recusar (fechar)="fecharModal()"></app-modal-recusar>
+  }
+</div>

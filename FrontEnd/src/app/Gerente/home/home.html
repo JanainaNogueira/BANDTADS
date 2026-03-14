@@ -1,0 +1,22 @@
+<div class="h-screen w-screen flex overflow-hidden">
+    <app-menu></app-menu>
+    <main class="bg-[#F3F4F6] h-full overflow-y-scroll w-full flex flex-col gap-7 items-center">
+        <div class="flex flex-col w-[100%]">
+            <app-manager-top-panel></app-manager-top-panel>
+        </div>
+        <div class="flex flex-col items-center p-6 gap-5 bg-white rounded-3xl mt-4 w-[95%] h-[75%] mb-1">
+            <div class="flex flex-col w-full">
+                <div class="flex gap-2">
+                    <div class="flex items-center text-white justify-center bg-linear-to-br from-[#9563f1] via-[#4F46E5] to-[#101dd1] rounded-[10px]">
+                        <mat-icon class="m-1">schedule</mat-icon>
+                    </div>
+                    <h1 class="font-medium text-2xl">Solicitações Pendentes de Aprovação</h1>
+                </div>
+                <span class="mt-4 opacity-75">Clientes aguardando análise e aprovação de cadastro.</span>
+            </div>
+            <app-customers-home
+            [customers]="customers" class="h-[75%]">
+            </app-customers-home>
+        </div>
+    </main>
+</div>

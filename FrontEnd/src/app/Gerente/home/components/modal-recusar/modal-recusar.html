@@ -1,0 +1,64 @@
+<div class="fixed inset-0 bg-black/40 flex items-center justify-center z-50" (click)="fecharModal()">
+    <div class="flex flex-col justify-center items-center border-1 rounded-3xl border-gray-300 p-10 pb-0 bg-white w-[30%]" (click)="$event.stopPropagation()">
+        <div class="flex items-center justify-between w-full pb-6">
+            <div class="flex justify-around gap-2">
+                <mat-icon>person</mat-icon>
+                <div>
+                    <span class="text-[20px] font-semibold text-center flex-1">Recusar Cadastro</span>
+                    <div class="w-full h-[2px] bg-indigo-700"></div>
+                </div>
+            </div>
+            <button class="top-4 right-4 cursor-pointer" (click)="fecharModal()">
+                <mat-icon>close</mat-icon>
+            </button>
+        </div>
+        <form class="space-y-4 w-full flex flex-col">
+            <div class="flex flex-col gap-2">
+                <label class="font-medium" for="cpf">CPF</label>
+                <input
+                    id="cpf"
+                    type="text"
+                    placeholder="XXX.XXX.XXX-XX"
+                    class="border border-gray-300 bg-gray-100 rounded-lg p-2"
+                    [disabled]="true"
+                />
+            </div>
+            <div class="flex flex-col gap-2">
+                <label class="font-medium" for="nome">Nome</label>
+                <input
+                    id="nome"
+                    type="text"
+                    placeholder="João da Silva"
+                    class="border border-gray-300 bg-gray-100 rounded-lg p-2"
+                    [disabled]="true"
+                />
+            </div>
+            <div class="flex flex-col gap-2">
+                <label class="font-medium" for="salario">Salário</label>
+                <input
+                    id="salario"
+                    type="text"
+                    placeholder="R$ 3500,00"
+                    class="border border-gray-300 bg-gray-100 rounded-lg p-2"
+                    [disabled]="true"
+                />
+            </div>
+            <div class="flex flex-col gap-2">
+                <label class="font-medium" for="motivo">Motivo</label>
+                <textarea
+                    id="motivo"
+                    type="text"
+                    placeholder="Digite o motivo da recusa..."
+                    class="border border-gray-300 rounded-lg p-2 focus:outline-gray-400 h-22 resize-none"
+                    autofocus
+                ></textarea>
+            </div>
+            
+            <app-button-submit
+                nameButton="Recusar"
+                icon="arrow_forward"
+                (click)="recusar()"
+            ></app-button-submit>
+        </form>
+    </div>
+</div>

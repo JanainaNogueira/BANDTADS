@@ -18,6 +18,6 @@ export class ModalRecusar {
   }
   
   recusar() {
-
+    this.fechar.emit();
   }
 }

@@ -34,15 +34,30 @@ export class CustomersList {
 
   sortDirection: 'asc' | 'desc' = 'asc';
 
+  currentPage = 1;
+  itemsPerPage = 10; 
+
   toggleSort() {
     this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    this.currentPage = 1;
   }
 
   get sortedCustomers() {
-  return [...this.customers].sort((a, b) => {
-    const result = a.name.localeCompare(b.name);
+    return [...this.customers].sort((a, b) => {
+      const result = a.name.localeCompare(b.name);
 
-    return this.sortDirection === 'asc' ? result : -result;
-  });
-}
+      return this.sortDirection === 'asc' ? result : -result;
+    });
+  }
+  
+  get totalPages() {
+    return Math.ceil(this.sortedCustomers.length / this.itemsPerPage);
+  }
+  
+  get paginatedCustomers() {
+    const start = (this.currentPage - 1) * this.itemsPerPage;
+    const end = start + this.itemsPerPage;
+
+    return this.sortedCustomers.slice(start, end);
+  }
 }

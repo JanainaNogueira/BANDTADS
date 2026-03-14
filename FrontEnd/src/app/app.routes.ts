@@ -5,6 +5,7 @@ import { Login } from './User/login/login';
 import { EditProfileComponent } from './User/edit-profile/edit-profile.component';
 import { BankStatementComponent } from './User/bank-statement/bank-statement.component';
 import { Depositar } from './User/depositar/depositar';
+import { AdmCustomers } from './UserAdm/adm-customers/adm-customers';
 
 export const routes: Routes = [
     {
@@ -32,8 +33,12 @@ export const routes: Routes = [
         path:'bank-statement',
         component: BankStatementComponent
     },
-    }
+    {
         path: 'depositar',
         component: Depositar
-    }
+    },
+    {
+        path: 'clientes',
+        component: AdmCustomers
+    },
 ];

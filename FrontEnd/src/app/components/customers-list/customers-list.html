@@ -1,0 +1,73 @@
+<table class="w-full text-sm text-gray-500 border-spacing-y-1 table-fixed">
+  <thead class=" text-gray-600">
+    <tr class="">
+        <th class="px-6 py-3 font-semibold flex items-center justify-center gap-2">
+            Nome
+            <button 
+                (click)="toggleSort()"
+                class="flex cursor-pointer items-center"
+            >
+                <mat-icon class="flex items-center" style="font-size:18px">
+                    {{ sortDirection === 'asc' ? 'arrow_upward' : 'arrow_downward' }}
+                </mat-icon>
+            </button>
+        </th>
+        <th class="px-6 py-3 font-semibold">CPF</th>
+
+      @if (view === 'admin') {
+        <th class="px-6 py-3 font-semibold">Email</th>
+        <th class="px-6 py-3 font-semibold">Salário</th>
+        <th class="px-6 py-3 font-semibold">Nº Conta</th>
+      }
+
+      @if (view === 'manager') {
+        <th class="px-6 py-3 font-semibold">Cidade</th>
+        <th class="px-6 py-3 font-semibold">Estado</th>
+      }
+
+      <th class=" px-6 py-3 font-semibold">Saldo</th>
+      <th class=" px-6 py-3 font-semibold">Limite</th>
+
+      @if (view === 'admin') {
+        <th class="px-6 py-3 font-semibold">CPF Gerente</th>
+        <th class="px-6 py-3 font-semibold">Nome Gerente</th>
+      }
+    </tr>
+  </thead>
+
+  <tbody class="divide-y divide-gray-200">
+    @for (c of sortedCustomers; track c.cpf) {
+      <tr class="transition border-b border-gray-200 hover:bg-gray-100">
+        <td class="px-6 py-4 text-center">{{ c.name }}</td>
+        <td class="px-6 py-4 text-center">{{ c.cpf | cpf }}</td>
+
+        @if (view === 'admin') {
+          <td class="px-6 py-4 text-center">{{ c.email }}</td>
+          <td class="px-6 py-4 text-center">{{ c.salary | currency:'BRL' }}</td>
+          <td class="px-6 py-4 text-center">{{ c.numberAccount }}</td>
+        }
+
+        @if (view === 'manager') {
+          <td class="px-6 py-4 text-center">{{ c.city }}</td>
+          <td class="px-6 py-4 text-center">{{ c.state }}</td>
+        }
+
+        <td 
+          class="px-6 py-4 font-medium text-center"
+          [class.text-red-600]="c.balance < 0"
+        >
+          {{ c.balance | currency:'BRL' }}
+        </td>
+
+        <td class="px-6 py-4 text-center">
+          {{ c.limit | currency:'BRL' }}
+        </td>
+
+        @if (view === 'admin') {
+          <td class="px-6 py-4 text-center">{{ c.manager.cpf | cpf }}</td>
+          <td class="px-6 py-4 text-center">{{ c.manager.name }}</td>
+        }
+      </tr>
+    }
+  </tbody>
+</table>

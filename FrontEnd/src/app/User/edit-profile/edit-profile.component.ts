@@ -2,11 +2,12 @@ import { Component } from '@angular/core';
 import { Menu } from '../../components/menu/menu';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { provideNgxMask } from 'ngx-mask';
+import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
+import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-edit-profile',
-  imports: [Menu, ReactiveFormsModule],
+  imports: [Menu, ReactiveFormsModule, NgxMaskDirective, NgClass],
   providers: [provideNgxMask()],
   templateUrl: './edit-profile.component.html',
   styleUrl: './edit-profile.component.css'

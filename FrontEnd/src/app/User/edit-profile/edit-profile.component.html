@@ -50,8 +50,12 @@
   
         <div class="flex justify-between mb-6">
           <h2 class="font-semibold text-lg">Informações Pessoais</h2>
-          <button (click)="toggleEditMode()" class="text-indigo-500 text-sm">
-            {{ isEditMode ? 'Cancelar' : 'Editar' }}
+          <button (click)="toggleEditMode()"
+            class="text-sm px-4 py-1.5 rounded-lg font-medium transition-colors text-white"
+            [ngClass]="isEditMode
+              ? 'bg-gray-400 hover:bg-gray-500'
+              : 'bg-purple-600 hover:bg-purple-700'">
+            {{ isEditMode ? 'Salvar' : 'Editar' }}
           </button>
         </div>
   
@@ -92,7 +96,7 @@
           <div>
             <label class="text-sm text-gray-600">Salário Mensal</label>
             <input
-              type="number"
+              type="text"
               class="w-full border rounded-lg p-2 mt-1"
               placeholder="R$ 0000,00"
               [disabled]="!isEditMode"
@@ -102,7 +106,9 @@
         </div>
 
         <!-- endereço com CEP -->
-        <form [formGroup]="perfilForm" class="grid gap-4 mt-6">
+        <hr class="border-gray-200 mt-2 mb-4">
+        <p class="text-sm font-semibold text-gray-700 mb-2">Endereço</p>
+        <form [formGroup]="perfilForm" class="grid gap-4">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label class="text-sm text-gray-600" for="cep">CEP</label>
@@ -177,7 +183,7 @@
               <select
                 id="estado"
                 formControlName="estado"
-                class="w-full border rounded-lg p-2 mt-1"
+                class="w-full border rounded-lg p-2 mt-1 appearance-none"
                 [disabled]="!isEditMode"
               >
                 <option value="">Selecione</option>

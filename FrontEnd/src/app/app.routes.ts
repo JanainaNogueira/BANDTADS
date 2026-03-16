@@ -35,7 +35,7 @@ export const routes: Routes = [
         component: BankStatementComponent
     },
     {
-        path:'depositar',
+        path: 'depositar',
         component: Depositar
     },
     {

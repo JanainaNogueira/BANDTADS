@@ -4,7 +4,6 @@ import { Autocadastro } from './User/autocadastro/autocadastro';
 import { Login } from './User/login/login';
 import { EditProfileComponent } from './User/edit-profile/edit-profile.component';
 import { BankStatementComponent } from './User/bank-statement/bank-statement.component';
-import { Depositar } from './User/depositar/depositar';
 
 export const routes: Routes = [
     {
@@ -31,9 +30,5 @@ export const routes: Routes = [
     {
         path:'bank-statement',
         component: BankStatementComponent
-    },
-    }
-        path: 'depositar',
-        component: Depositar
     }
 ];

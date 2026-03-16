@@ -1,0 +1,67 @@
+<div class="modal-container">
+    <!-- Tabs -->
+    <div class="tabs">
+        <button
+            *ngFor="let tab of tabs; let i = index"
+            (click)="selecionarTab(i)"
+            [class.tab-ativa]="tabAtiva === i"
+            class="tab-btn">
+            <mat-icon class="tab-icon">{{ tab.icon }}</mat-icon>
+            <span>{{ tab.label }}</span>
+        </button>
+    </div>
+
+    <!-- Saldo -->
+    <div class="saldo">
+        Saldo Atual: <strong>R$ {{ saldoAtual | number:'1.2-2' }}</strong>
+    </div>
+
+    <!-- Formulário -->
+    <div class="form-content">
+        <!-- Conta destino (só para Transferência) -->
+        @if (tabAtiva === 0) {
+            <div class="form-group">
+                <label class="form-label">Conta de Destino</label>
+                <input
+                    type="text"
+                    [(ngModel)]="contaDestino"
+                    placeholder="Número da conta"
+                    class="form-input"
+                />
+            </div>
+        }
+
+        <!-- Valor -->
+        <div class="form-group">
+            <label class="form-label">{{ labelValor }}</label>
+            <input
+                type="text"
+                [value]="valorFormatado"
+                (input)="onValorInput($event)"
+                placeholder="R$ 0,00"
+                class="form-input"
+            />
+            @if (erro) {
+                <span class="msg-erro">{{ erro }}</span>
+            }
+        </div>
+
+        <!-- Botão -->
+        <div class="form-action">
+            <button
+                (click)="executar()"
+                [disabled]="!valorValido"
+                class="btn-executar">
+                <span>{{ labelBotao }}</span>
+                <mat-icon>arrow_forward</mat-icon>
+            </button>
+        </div>
+
+        <!-- Sucesso -->
+        @if (sucesso) {
+            <div class="msg-sucesso">
+                {{ sucesso }}
+            </div>
+        }
+    </div>
+</div>

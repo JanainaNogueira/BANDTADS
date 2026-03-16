@@ -1,0 +1,152 @@
+.modal-container {
+  width: 100%;
+  max-width: 760px;
+  min-height: 440px;
+  max-height: 92vh;
+  overflow-y: auto;
+  padding: 2rem 2rem 1.75rem;
+  background: #fff;
+  border-radius: 1rem;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #E5E7EB;
+  margin-bottom: 1.25rem;
+}
+
+.tab-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-width: 140px;
+  padding: 0.7rem 0;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: #4B5563;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.tab-btn:hover {
+  color: #6366F1;
+}
+
+.tab-btn.tab-ativa {
+  color: #6366F1;
+  border-bottom-color: #4B5563;
+}
+
+.tab-icon {
+  font-size: 19px;
+  width: 19px;
+  height: 19px;
+}
+
+/* Saldo */
+.saldo {
+  text-align: right;
+  color: #4B5563;
+  font-size: 1.15rem;
+  margin-bottom: 1.25rem;
+}
+
+.saldo strong {
+  font-weight: 600;
+}
+
+/* Form */
+.form-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-label {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.form-input {
+  border: 1px solid #D1D5DB;
+  border-radius: 0.625rem;
+  height: 46px;
+  padding: 0 1rem;
+  font-size: 1rem;
+  color: #6B7280;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-input:focus {
+  border-color: #6366F1;
+}
+
+/* Button */
+.form-action {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.btn-executar {
+  width: 70%;
+  max-width: 420px;
+  height: 46px;
+  border-radius: 0.875rem;
+  background: #4F46E5;
+  color: #fff;
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 10px 20px rgba(79, 70, 229, 0.22);
+  transition: background 0.2s;
+}
+
+.btn-executar:hover {
+  background: #4338CA;
+}
+
+.btn-executar:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-executar mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+/* Messages */
+.msg-erro {
+  color: #EF4444;
+  font-size: 0.875rem;
+}
+
+.msg-sucesso {
+  text-align: center;
+  color: #10B981;
+  font-weight: 500;
+  margin-top: 0.75rem;
+  font-size: 1rem;
+}

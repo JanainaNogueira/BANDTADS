@@ -33,6 +33,7 @@ export const routes: Routes = [
     {
         path:'bank-statement',
         component: BankStatementComponent
+    }
     },
     {
         path: 'depositar',

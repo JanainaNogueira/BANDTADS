@@ -27,13 +27,13 @@
         <div class="h-[15%] w-[95%]">
             <p class="text-[#6B7480] mb-4 font-semibold">O que deseja fazer</p>
             <div class="w-full h-full flex justify-between">
-                <div class="cursor-pointer rounded-2xl flex flex-col items-center justify-center w-[20%] h-[80%] bg-[#FFFFFF]">
+                <div (click)="abrirOperacoes(0)" class="cursor-pointer rounded-2xl flex flex-col items-center justify-center w-[20%] h-[80%] bg-[#FFFFFF]">
                     <div class="w-12 h-12 flex items-center justify-center mb-3 rounded-full bg-[#6366F1]">
                         <mat-icon class="text-white">swap_horiz</mat-icon>
                     </div>
                     <p class="text-[#111827]">Trânsferir</p>
                 </div>
-                <div class="cursor-pointer rounded-2xl flex flex-col items-center justify-center w-[20%] h-[80%] bg-[#FFFFFF]">
+                <div (click)="abrirOperacoes(1)" class="cursor-pointer rounded-2xl flex flex-col items-center justify-center w-[20%] h-[80%] bg-[#FFFFFF]">
                     <div class="w-12 h-12 flex items-center justify-center mb-3 rounded-full bg-[#10B981]">
                         <mat-icon class="text-white">download</mat-icon>
                     </div>
@@ -45,7 +45,7 @@
                     </div>
                     <p class="text-[#111827]">Extrato</p>
                 </div>
-                <div class="cursor-pointer rounded-2xl flex flex-col items-center justify-center w-[20%] h-[80%] bg-[#FFFFFF]">
+                <div (click)="abrirOperacoes(2)" class="cursor-pointer rounded-2xl flex flex-col items-center justify-center w-[20%] h-[80%] bg-[#FFFFFF]">
                     <div class="w-12 h-12 flex items-center justify-center mb-3 rounded-full bg-[#F43F5E]">
                         <mat-icon class="text-white">add_2</mat-icon>
                     </div>

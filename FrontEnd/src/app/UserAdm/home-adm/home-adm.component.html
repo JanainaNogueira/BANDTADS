@@ -1,0 +1,93 @@
+<div class="h-screen w-full flex overflow-hidden">
+  <app-menu></app-menu>
+
+  <main class="bg-[#F3F4F6] h-full overflow-y-scroll w-full flex flex-col gap-7 items-center">
+
+    <header class="w-[95%] mt-4">
+      <h1 class="font-medium text-xl mb-1.5">Dashboard do Administrador</h1>
+      <p class="text-[#4B5563] text-xs">Visão geral dos gerentes e seus clientes</p>
+    </header>
+
+    <div class="flex items-center rounded-2xl h-[10%] w-[95%] bg-linear-to-br from-[#6366F1] via-[#4F46E5] to-[#4F46E5] px-6">
+      <div class="w-full flex justify-between items-center">
+
+        <div>
+          <span class="text-[#C7D2FE] text-sm">Total de Gerentes</span>
+          <p class="text-white text-2xl font-semibold">
+            {{ processedAdmins.length }}
+          </p>
+        </div>
+
+        <div>
+          <span class="text-[#C7D2FE] text-sm">Total de Clientes</span>
+          <p class="text-white text-2xl font-semibold">
+            {{ totalClients }}
+          </p>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 flex items-center justify-center rounded-full bg-white/20">
+            <mat-icon class="text-white text-sm">admin_panel_settings</mat-icon>
+          </div>
+          <span class="text-[#C7D2FE] text-sm">Administrador</span>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="w-[95%]">
+
+      <p class="text-[#111827] font-semibold text-sm mb-4">Gerentes</p>
+
+      <div class="bg-white rounded-2xl shadow overflow-hidden">
+
+        <div class="grid grid-cols-4 px-6 py-3 bg-[#F9FAFB] border-b border-[#E5E7EB]">
+          <span class="text-xs font-semibold text-[#6B7280] uppercase">Gerente</span>
+          <span class="text-xs font-semibold text-[#6B7280] uppercase text-center">Clientes</span>
+          <span class="text-xs font-semibold text-[#6B7280] uppercase text-center">Saldo Positivo</span>
+          <span class="text-xs font-semibold text-[#6B7280] uppercase text-center">Saldo Negativo</span>
+        </div>
+
+        <div
+          *ngFor="let admin of processedAdmins; let i = index"
+          class="grid grid-cols-4 px-6 py-4 border-b last:border-none items-center hover:bg-[#F9FAFB] transition-colors"
+        >
+
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 flex items-center justify-center rounded-full bg-[#EEF2FF] text-[#6366F1] font-semibold text-sm">
+              {{ admin.name.charAt(0) }}
+            </div>
+
+            <div>
+              <p class="font-medium text-[#111827] text-sm">
+                {{ admin.name }}
+              </p>
+              <span class="text-xs text-[#9CA3AF]">
+                #{{ i + 1 }}
+              </span>
+            </div>
+          </div>
+
+          <div class="flex justify-center">
+            <span class="bg-[#EEF2FF] text-[#6366F1] text-xs font-semibold px-3 py-1 rounded-full">
+              {{ admin.totalClients }} clientes
+            </span>
+          </div>
+
+          <div class="flex justify-center">
+            <span class="text-[#10B981] font-semibold text-sm">
+              + R$ {{ admin.totalPositive | number:'1.2-2':'pt-BR' }}
+            </span>
+          </div>
+
+          <div class="flex justify-center">
+            <span class="text-[#F43F5E] font-semibold text-sm">
+              - R$ {{ admin.totalNegative * -1 | number:'1.2-2':'pt-BR' }}
+            </span>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

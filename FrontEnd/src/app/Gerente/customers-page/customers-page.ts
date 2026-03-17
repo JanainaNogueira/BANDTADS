@@ -5,16 +5,18 @@ import { Menu } from '../../components/menu/menu';
 import { CustomerService } from '../../services/customer.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { TopClientes } from './top-clientes/top-clientes';
 
 @Component({
   selector: 'app-customers-page',
-  imports: [Menu, ManagerTopPanel, CustomersList, FormsModule, CommonModule],
+  imports: [Menu, ManagerTopPanel, CustomersList, FormsModule, CommonModule, TopClientes],
   templateUrl: './customers-page.html',
   styleUrl: './customers-page.css',
 })
 export class CustomersPage implements OnInit {
   customers: Customer[] = [];
   searchTerm: string = '';
+  page:number=1;
 
   constructor(private readonly customerService: CustomerService) {}
 
@@ -37,6 +39,10 @@ export class CustomersPage implements OnInit {
       
       return nameMatch || cpfMatch;
     });
+  }
+
+  switchPage(page:number){
+    this.page = page
   }
 
 }

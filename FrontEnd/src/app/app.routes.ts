@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { Home } from './User/home/home';
 import { HomeGerente } from './Gerente/home/home';
+import { HomeAdm } from './UserAdm/home-adm/home-adm.component';
 import { Autocadastro } from './User/autocadastro/autocadastro';
 import { Login } from './User/login/login';
 import { EditProfileComponent } from './User/edit-profile/edit-profile.component';
@@ -46,4 +47,8 @@ export const routes: Routes = [
         path: 'gerente-consultar-cliente',
         component: ManagerConsultarCliente
     },
+    {
+        path: 'home-adm',
+        component: HomeAdm
+    }
 ];

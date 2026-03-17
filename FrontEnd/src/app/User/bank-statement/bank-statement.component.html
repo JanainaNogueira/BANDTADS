@@ -1,7 +1,7 @@
 <div class="h-screen w-screen flex overflow-hidden">
   <app-menu></app-menu>
 
-  <main class="bg-[#F3F4F6] h-full overflow-y-scroll w-full flex flex-col gap-7 items-center">
+  <main class="bg-[#F3F4F6] h-full w-full flex flex-col gap-7 items-center">
 
     <header class="w-[95%] h-[6%] mt-4">
       <h1 class="font-medium text-xl mb-1.5">Extrato Detalhado</h1>
@@ -45,7 +45,7 @@
     </div>
 
     <!-- Tabela de movimentações -->
-    <div *ngIf="pesquisaRealizada" class="w-[95%] bg-white rounded-2xl shadow-sm overflow-hidden mb-6">
+    <div *ngIf="pesquisaRealizada" class="w-[95%] bg-white rounded-2xl shadow-sm mb-6">
 
       <div class="grid grid-cols-[1.5fr_1fr_1.5fr_1fr] px-5 py-3 border-b border-gray-100">
         <span class="text-xs font-semibold uppercase tracking-wide text-[#6366F1]">Data / Hora</span>
@@ -53,88 +53,90 @@
         <span class="text-xs font-semibold uppercase tracking-wide text-[#6366F1]">Origem / Destino</span>
         <span class="text-xs font-semibold uppercase tracking-wide text-[#6366F1] text-right">Valor</span>
       </div>
+      <div class="overflow-y-auto flex flex-col">
 
-      <ng-container *ngFor="let grupo of gruposDia">
-
-        <!-- Linha do dia - toggle -->
-        <div
-          class="grid grid-cols-[1.5fr_1fr_1.5fr_1fr] px-5 py-3 bg-gray-50 border-b border-gray-100 transition-colors"
-          [class.cursor-pointer]="grupo.transacoes.length > 0"
-          [class.cursor-default]="grupo.transacoes.length === 0"
-          [class.hover:bg-gray-100]="grupo.transacoes.length > 0"
-          (click)="toggleDia(grupo)">
-
-          <div class="flex items-center gap-1">
-            <mat-icon
-              *ngIf="grupo.transacoes.length > 0"
-              class="!text-[18px] !w-5 !h-5 text-gray-400 transition-transform duration-200"
-              [style.transform]="grupo.aberto ? 'rotate(180deg)' : 'rotate(0deg)'">
-              keyboard_arrow_down
-            </mat-icon>
-            <span *ngIf="grupo.transacoes.length === 0" class="w-5"></span>
-            <span class="font-semibold text-gray-700 text-sm">{{ grupo.dataFormatada }}</span>
-          </div>
-
-          <span></span>
-
-          <span class="text-xs font-medium text-gray-400 uppercase tracking-wide self-center">
-            Saldo Consolidado
-          </span>
-
-          <span
-            class="text-right font-semibold text-sm self-center"
-            [class.text-blue-500]="grupo.saldoDia >= 0"
-            [class.text-red-500]="grupo.saldoDia < 0">
-            {{ formatarValor(grupo.saldoDia) }}
-          </span>
-        </div>
-
-        <!-- Linhas de transação -->
-        <ng-container *ngIf="grupo.aberto">
+        <ng-container *ngFor="let grupo of gruposDia">
+  
+          <!-- Linha do dia - toggle -->
           <div
-            *ngFor="let t of grupo.transacoes"
-            class="grid grid-cols-[1.5fr_1fr_1.5fr_1fr] px-5 py-3 border-b last:border-none"
-            [ngClass]="{
-              'bg-blue-50': t.isEntrada,
-              'bg-red-50': !t.isEntrada
-            }">
-
+            class="grid grid-cols-[1.5fr_1fr_1.5fr_1fr] px-5 py-3 bg-gray-50 border-b border-gray-100 transition-colors"
+            [class.cursor-pointer]="grupo.transacoes.length > 0"
+            [class.cursor-default]="grupo.transacoes.length === 0"
+            [class.hover:bg-gray-100]="grupo.transacoes.length > 0"
+            (click)="toggleDia(grupo)">
+  
+            <div class="flex items-center gap-1">
+              <mat-icon
+                *ngIf="grupo.transacoes.length > 0"
+                class="!text-[18px] !w-5 !h-5 text-gray-400 transition-transform duration-200"
+                [style.transform]="grupo.aberto ? 'rotate(180deg)' : 'rotate(0deg)'">
+                keyboard_arrow_down
+              </mat-icon>
+              <span *ngIf="grupo.transacoes.length === 0" class="w-5"></span>
+              <span class="font-semibold text-gray-700 text-sm">{{ grupo.dataFormatada }}</span>
+            </div>
+  
+            <span></span>
+  
+            <span class="text-xs font-medium text-gray-400 uppercase tracking-wide self-center">
+              Saldo Consolidado
+            </span>
+  
             <span
-              class="text-sm self-center"
-              [class.text-blue-700]="t.isEntrada"
-              [class.text-red-700]="!t.isEntrada">
-              {{ t.dataHora | date:'dd/MM/yyyy HH:mm' }}
+              class="text-right font-semibold text-sm self-center"
+              [class.text-blue-500]="grupo.saldoDia >= 0"
+              [class.text-red-500]="grupo.saldoDia < 0">
+              {{ formatarValor(grupo.saldoDia) }}
             </span>
-
-            <span
-              class="text-sm self-center"
-              [class.text-blue-700]="t.isEntrada"
-              [class.text-red-700]="!t.isEntrada">
-              {{ t.operacao }}
-            </span>
-
-            <span class="self-center">
-              <span
-                class="inline-block px-3 py-1 rounded-md text-xs font-medium"
-                [ngClass]="{
-                  'bg-blue-100 text-blue-700': t.isEntrada,
-                  'bg-red-100 text-red-700': !t.isEntrada
-                }">
-                {{ t.clienteOrigemDestino }}
-              </span>
-            </span>
-
-            <span
-              class="text-sm font-semibold text-right self-center"
-              [class.text-blue-500]="t.isEntrada"
-              [class.text-red-500]="!t.isEntrada">
-              {{ formatarValor(t.valor) }}
-            </span>
-
           </div>
+  
+          <!-- Linhas de transação -->
+          <ng-container *ngIf="grupo.aberto">
+            <div
+              *ngFor="let t of grupo.transacoes"
+              class="grid grid-cols-[1.5fr_1fr_1.5fr_1fr] px-5 py-3 border-b last:border-none"
+              [ngClass]="{
+                'bg-blue-50': t.isEntrada,
+                'bg-red-50': !t.isEntrada
+              }">
+  
+              <span
+                class="text-sm self-center"
+                [class.text-blue-700]="t.isEntrada"
+                [class.text-red-700]="!t.isEntrada">
+                {{ t.dataHora | date:'dd/MM/yyyy HH:mm' }}
+              </span>
+  
+              <span
+                class="text-sm self-center"
+                [class.text-blue-700]="t.isEntrada"
+                [class.text-red-700]="!t.isEntrada">
+                {{ t.operacao }}
+              </span>
+  
+              <span class="self-center">
+                <span
+                  class="inline-block px-3 py-1 rounded-md text-xs font-medium"
+                  [ngClass]="{
+                    'bg-blue-100 text-blue-700': t.isEntrada,
+                    'bg-red-100 text-red-700': !t.isEntrada
+                  }">
+                  {{ t.clienteOrigemDestino }}
+                </span>
+              </span>
+  
+              <span
+                class="text-sm font-semibold text-right self-center"
+                [class.text-blue-500]="t.isEntrada"
+                [class.text-red-500]="!t.isEntrada">
+                {{ formatarValor(t.valor) }}
+              </span>
+  
+            </div>
+          </ng-container>
+  
         </ng-container>
-
-      </ng-container>
+      </div>
     </div>
 
   </main>

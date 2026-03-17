@@ -1,0 +1,83 @@
+<div class="h-screen w-screen flex overflow-hidden">
+	<app-menu></app-menu>
+
+	<main class="bg-[#F3F4F6] h-full overflow-y-auto w-full flex flex-col">
+		<div class="flex flex-col w-[100%]">
+			<app-manager-top-panel></app-manager-top-panel>
+		</div>
+
+		<section class="bg-white rounded-3xl p-8 m-8 w-[95%] max-w-5xl flex flex-col gap-6">
+			<div class="flex flex-col gap-1">
+				<h1 class="font-medium text-2xl">Consultar Cliente</h1>
+				<span class="opacity-75">Informe o CPF para visualizar os dados do cliente e da conta</span>
+			</div>
+
+			<div class="flex gap-3 w-full">
+				<input
+					type="text"
+					[value]="cpfDigitado"
+					(input)="atualizarCpf($event)"
+					(keyup.enter)="consultarCliente()"
+					placeholder="Digite o CPF"
+					class="h-11 w-full rounded-lg border border-gray-300 px-3 outline-none focus:border-indigo-500"
+				/>
+				<button
+					type="button"
+					(click)="consultarCliente()"
+					class="h-11 px-5 rounded-lg bg-[#6366F1] text-white font-semibold cursor-pointer"
+				>
+					Consultar
+				</button>
+			</div>
+
+			<p *ngIf="mensagem" class="text-red-600 text-sm">{{ mensagem }}</p>
+
+			<div *ngIf="cliente" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+				<div class="flex flex-col gap-1">
+					<label class="text-sm font-semibold text-gray-600">Nome</label>
+					<input [value]="cliente.name" readonly class="h-10 rounded-lg border border-gray-200 px-3 bg-gray-50" />
+				</div>
+
+				<div class="flex flex-col gap-1">
+					<label class="text-sm font-semibold text-gray-600">CPF</label>
+					<input [value]="cliente.cpf | cpf" readonly class="h-10 rounded-lg border border-gray-200 px-3 bg-gray-50" />
+				</div>
+
+				<div class="flex flex-col gap-1">
+					<label class="text-sm font-semibold text-gray-600">E-mail</label>
+					<input [value]="cliente.email" readonly class="h-10 rounded-lg border border-gray-200 px-3 bg-gray-50" />
+				</div>
+
+				<div class="flex flex-col gap-1">
+					<label class="text-sm font-semibold text-gray-600">Salário</label>
+					<input [value]="cliente.salary | currency:'BRL':'symbol':'1.2-2'" readonly class="h-10 rounded-lg border border-gray-200 px-3 bg-gray-50" />
+				</div>
+
+				<div class="flex flex-col gap-1">
+					<label class="text-sm font-semibold text-gray-600">Número da Conta</label>
+					<input [value]="cliente.numberAccount" readonly class="h-10 rounded-lg border border-gray-200 px-3 bg-gray-50" />
+				</div>
+
+				<div class="flex flex-col gap-1">
+					<label class="text-sm font-semibold text-gray-600">Saldo</label>
+					<input [value]="cliente.balance | currency:'BRL':'symbol':'1.2-2'" readonly class="h-10 rounded-lg border border-gray-200 px-3 bg-gray-50" />
+				</div>
+
+				<div class="flex flex-col gap-1">
+					<label class="text-sm font-semibold text-gray-600">Limite</label>
+					<input [value]="cliente.limit | currency:'BRL':'symbol':'1.2-2'" readonly class="h-10 rounded-lg border border-gray-200 px-3 bg-gray-50" />
+				</div>
+
+				<div class="flex flex-col gap-1">
+					<label class="text-sm font-semibold text-gray-600">Cidade / Estado</label>
+					<input [value]="(cliente.city || '-') + ' / ' + (cliente.state || '-')" readonly class="h-10 rounded-lg border border-gray-200 px-3 bg-gray-50" />
+				</div>
+
+				<div class="flex flex-col gap-1 md:col-span-2">
+					<label class="text-sm font-semibold text-gray-600">Gerente Responsável</label>
+					<input [value]="cliente.manager.name + ' - ' + (cliente.manager.cpf | cpf)" readonly class="h-10 rounded-lg border border-gray-200 px-3 bg-gray-50" />
+				</div>
+			</div>
+		</section>
+	</main>
+</div>

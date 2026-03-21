@@ -1,4 +1,4 @@
-import { Customer } from "../../app/components/customers-list/customers-list";
+import { Customer } from "../../app/models/costumer.model";
 
 const MANAGERS = [
   {

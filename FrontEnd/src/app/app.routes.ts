@@ -62,8 +62,4 @@ export const routes: Routes = [
         path: 'adm-gerentes',
         component: AdmManager
     },
-    {
-        path: "form-gerente",
-        component: FormManager
-    }
 ];

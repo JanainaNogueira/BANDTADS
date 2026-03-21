@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { Customer, CustomersList } from '../../components/customers-list/customers-list';
+import { CustomersList } from '../../components/customers-list/customers-list';
 import { ManagerTopPanel } from '../../components/manager-top-panel/manager-top-panel';
 import { Menu } from '../../components/menu/menu';
 import { CustomerService } from '../../services/customer.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { TopClientes } from './top-clientes/top-clientes';
+import { Customer } from '../../models/costumer.model';
 
 @Component({
   selector: 'app-customers-page',

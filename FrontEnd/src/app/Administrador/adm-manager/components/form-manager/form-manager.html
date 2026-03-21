@@ -1,153 +1,145 @@
-<form class="space-y-4 w-full gap-2 flex flex-col" [formGroup]="dadosPessoais">
-    <div class="flex flex-col gap-2">
-      <label class="font-medium" for="nome">Nome</label>
+<form class="space-y-4 w-full gap-2 flex flex-col p-10" [formGroup]="dadosPessoais">
+  
+  <div class="flex justify-between items-center">
+    <h1 class="font-medium text-xl ">
+      {{ data.modo === 'editar' ? 'Editar Gerente' : 'Cadastrar Gerente' }}
+    </h1>
+
+    <button (click)="fechar()" class="cursor-pointer" type="button">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="flex flex-col gap-2">
+    <label class="font-medium" for="nome">Nome</label>
+    <input
+      type="text"
+      placeholder="João da Silva"
+      id="nome"
+      formControlName="nome"
+      autofocus
+      class="border border-gray-300 rounded-lg p-2 focus:outline-gray-400"
+      (keypress)="bloquearNumeros($event)"
+      [ngClass]="{'border-red-500': campoInvalido('nome')}"
+    />
+
+    @if (campoTemErro('nome','pattern')) {
+      <div class="text-red-500 text-sm">Nome inválido</div>
+    }
+    @if (campoTemErro('nome','minlength')) {
+      <div class="text-red-500 text-sm">O nome deve ter no mínimo 3 letras</div>
+    }
+    @if (campoTemErro('nome','required')) {
+      <div class="text-red-500 text-sm">Campo obrigatório</div>
+    }
+  </div>
+
+  <div class="flex flex-row w-full gap-2">
+    
+    <div class="flex flex-col gap-2 w-[50%]">
+      <label class="font-medium" for="cpf">CPF</label>
       <input
         type="text"
-        placeholder="João da Silva"
-        name="nome"
-        id="nome"
-        formControlName="nome"
-        autofocus
-        class="border border-gray-300 rounded-lg p-2 focus:outline-gray-400"
-        (keypress)="bloquearNumeros($event)"
-        [ngClass]="{'border-red-500': campoInvalido('nome')}"
+        placeholder="123.456.789-12"
+        id="cpf"
+        formControlName="cpf"
+        class="border border-gray-300 rounded-lg p-2"
+        [ngClass]="{'border-red-500': campoInvalido('cpf')}"
+        mask="000.000.000-00"
       />
-      @if (campoTemErro('nome','pattern')) {
-      <div class="text-red-500 text-sm mt-1"> 
-          Nome inválido
-      </div>
+
+      @if (campoTemErro('cpf','minlength')) {
+        <div class="text-red-500 text-sm">CPF inválido</div>
       }
-       @if (campoTemErro('nome','minlength')) {
-        <div class="text-red-500 text-sm mt-1"> 
-            O nome deve ter no mínimo 3 letras
-        </div>
-      }
-      @if (campoTemErro('nome','required')) {
-      <div class="text-red-500 text-sm mt-1"> 
-          Campo obrigatório
-      </div>
+      @if (campoTemErro('cpf','required')) {
+        <div class="text-red-500 text-sm">Campo obrigatório</div>
       }
     </div>
-    <div class="flex flex-row w-full gap-2">
-        <div class="flex flex-col gap-2 w-[50%]">
-          <label class="font-medium" for="cpf">CPF</label>
-          <input
-            type="text"
-            placeholder="123.456.789-12"
-            name="cpf"
-            id="cpf"
-            formControlName="cpf"
-            class="border border-gray-300 rounded-lg p-2 focus:outline-gray-400"
-            [ngClass]="{'border-red-500': campoInvalido('cpf')}"
-            mask="000.000.000-00"
-          />
-          @if (campoTemErro('cpf','minlength')) {
-          <div class="text-red-500 text-sm mt-1"> 
-              CPF inválido
-          </div>
-          }
-          @if (campoTemErro('cpf','required')) {
-          <div class="text-red-500 text-sm mt-1"> 
-              Campo obrigatório
-          </div>
-          }
-        </div>
-        <div class="flex flex-col gap-2 w-[50%]">
-          <label class="font-medium" for="telefone">Telefone</label>
-          <input
-            type="text"
-            placeholder="(11) 99999-9999"
-            name="telefone"
-            id="telefone"
-            formControlName="telefone"
-            class="border border-gray-300 rounded-lg p-2 focus:outline-gray-400"
-            [ngClass]="{'border-red-500': campoInvalido('telefone')}"
-            mask="(00) 00000-0000"
-          />
-          @if (campoTemErro('telefone','minlength')) {
-          <div class="text-red-500 text-sm"> 
-              Telefone inválido
-          </div>
-          }
-          @if (campoTemErro('telefone','required')) {
-          <div class="text-red-500 text-sm mt-1"> 
-              Campo obrigatório
-          </div>
-          }
-        </div>
-    </div>
-    <div class="flex flex-col gap-2">
-      <label class="font-medium" for="email">E-mail</label>
+
+    <div class="flex flex-col gap-2 w-[50%]">
+      <label class="font-medium" for="telefone">Telefone</label>
       <input
-        type="email"
-        placeholder="seu@email.com"
-        name="email"
-        id="email"
-        formControlName="email"
-        class="border border-gray-300 rounded-lg p-2 focus:outline-gray-400"
-        [ngClass]="{'border-red-500': campoInvalido('email')}"
+        type="text"
+        placeholder="(11) 99999-9999"
+        id="telefone"
+        formControlName="telefone"
+        class="border border-gray-300 rounded-lg p-2"
+        [ngClass]="{'border-red-500': campoInvalido('telefone')}"
+        mask="(00) 00000-0000"
       />
-      @if (campoTemErro('email','email')) {
-      <div class="text-red-500 text-sm mt-1"> 
-          Email inválido
-      </div>
+
+      @if (campoTemErro('telefone','minlength')) {
+        <div class="text-red-500 text-sm">Telefone inválido</div>
       }
-      @if (campoTemErro('email','required')) {
-      <div class="text-red-500 text-sm mt-1"> 
-          Campo obrigatório
-      </div>
+      @if (campoTemErro('telefone','required')) {
+        <div class="text-red-500 text-sm">Campo obrigatório</div>
       }
     </div>
-    <div class="flex flex-row w-full gap-2">
-        <div class="flex flex-col gap-2 w-[50%] relative">
-            <label class="font-medium" for="senha">Senha</label>
-            <input
-                [type]="mostrarSenha ? 'text' : 'password'"
-                placeholder="********"
-                formControlName="senha"
-                class="border border-gray-300 rounded-lg p-2 pr-10"
-                [ngClass]="{'border-red-500': campoInvalido('senha')}"
-            />
-            <button
-                type="button"
-                (click)="toggleSenha('senha')"
-                class="absolute right-3 top-[38px] text-gray-500"
-                >
-                <mat-icon class="text-sm cursor-pointer">
-                    {{ mostrarSenha ? 'visibility_off' : 'visibility' }}
-                </mat-icon>
-            </button>
 
-            @if (campoTemErro('senha','minlength')) {
-            <div class="text-red-500 text-sm">Mínimo 6 caracteres</div>
-            }
-            @if (campoTemErro('senha','required')) {
-            <div class="text-red-500 text-sm mt-1"> 
-                Campo obrigatório
-            </div>
-            }
-        </div>
-        <div class="flex flex-col gap-2 w-[50%] relative">
-            <label class="font-medium" for="confirmarSenha">Confirmar senha</label>
-            <input
-                [type]="mostrarConfirmarSenha ? 'text' : 'password'"
-                placeholder="********"
-                formControlName="confirmarSenha"
-                class="border border-gray-300 rounded-lg p-2 pr-10"
-            />
-           <button
-                type="button"
-                (click)="toggleSenha('confirmarSenha')"
-                class="absolute right-3 top-[38px] text-gray-500"
-                >
-                <mat-icon class="text-sm cursor-pointer">
-                    {{ mostrarConfirmarSenha ? 'visibility_off' : 'visibility' }}
-                </mat-icon>
-            </button>
+  </div>
 
-            @if (dadosPessoais.hasError('senhasDiferentes') && dadosPessoais.get('confirmarSenha')?.touched) {
-                <div class="text-red-500 text-sm">As senhas não coincidem</div>
-            }
+  <div class="flex flex-col gap-2">
+    <label class="font-medium" for="email">E-mail</label>
+    <input
+      type="email"
+      placeholder="seu@email.com"
+      id="email"
+      formControlName="email"
+      class="border border-gray-300 rounded-lg p-2"
+      [ngClass]="{'border-red-500': campoInvalido('email')}"
+    />
+
+    @if (campoTemErro('email','email')) {
+      <div class="text-red-500 text-sm">Email inválido</div>
+    }
+    @if (campoTemErro('email','required')) {
+      <div class="text-red-500 text-sm">Campo obrigatório</div>
+    }
+  </div>
+
+  <div class="flex flex-row w-full gap-2">
+        <div class="flex flex-col gap-2 w-[50%] relative">
+      <label class="font-medium">Senha</label>
+      <input
+        [type]="mostrarSenha ? 'text' : 'password'"
+        placeholder="********"
+        formControlName="senha"
+        class="border border-gray-300 rounded-lg p-2 pr-10"
+        [ngClass]="{'border-red-500': campoInvalido('senha')}"
+      />
+
+      <button type="button" (click)="toggleSenha('senha')" class="absolute right-3 top-[38px]">
+        <mat-icon>
+          {{ mostrarSenha ? 'visibility_off' : 'visibility' }}
+        </mat-icon>
+      </button>
+
+      @if (campoTemErro('senha','minlength')) {
+        <div class="text-red-500 text-sm">Mínimo 6 caracteres</div>
+      }
+      @if (campoTemErro('senha','required')) {
+        <div class="text-red-500 text-sm">Campo obrigatório</div>
+      }
+    </div>
+
+    <div class="flex flex-col gap-2 w-[50%] relative">
+      <label class="font-medium">Confirmar senha</label>
+      <input
+        [type]="mostrarConfirmarSenha ? 'text' : 'password'"
+        placeholder="********"
+        formControlName="confirmarSenha"
+        class="border border-gray-300 rounded-lg p-2 pr-10"
+      />
+
+      <button type="button" (click)="toggleSenha('confirmarSenha')" class="absolute right-3 top-[38px]">
+        <mat-icon>
+          {{ mostrarConfirmarSenha ? 'visibility_off' : 'visibility' }}
+        </mat-icon>
+      </button>
+
+      @if (dadosPessoais.hasError('senhasDiferentes') && dadosPessoais.get('confirmarSenha')?.touched) {
+        <div class="text-red-500 text-sm">As senhas não coincidem</div>
+      }
             
             @if (campoTemErro('senha','required')) {
             <div class="text-red-500 text-sm mt-1"> 
@@ -156,14 +148,15 @@
             }
         </div>
     </div>
-    <div class="flex flex-row w-full gap-2">
-        <app-button-submit
-          nameButton="Cadastrar gerente"
-          icon="arrow_forward"
-          (click)="enviarDados()"
-          class="w-[92%]"
-          [disabled]="dadosPessoais.invalid"
-        ></app-button-submit>
-    </div>
+  </div>
+  
+  <div class="flex w-full items-center justify-center">
+    <app-button-submit
+      [nameButton]="data.modo === 'editar' ? 'Salvar alterações' : 'Cadastrar gerente'"
+      icon="arrow_forward"
+      (click)="enviarDados()"
+      class="w-[90%]"
+      [disabled]="dadosPessoais.invalid"
+    ></app-button-submit>
+  </div>
 </form>
-

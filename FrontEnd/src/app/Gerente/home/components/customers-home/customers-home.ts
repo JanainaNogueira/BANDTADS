@@ -74,7 +74,7 @@ export class CustomersHome {
     this.snackBar.open('Cliente aprovado com sucesso!', 'Fechar', {
       duration: 3000,
       horizontalPosition: 'right',
-      verticalPosition: 'top',
+      verticalPosition: 'bottom',
       panelClass: ['text-white', 'rounded-3xl']
     });
 

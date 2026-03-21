@@ -1,14 +1,16 @@
 import { Routes } from '@angular/router';
 import { Home } from './User/home/home';
 import { HomeGerente } from './Gerente/home/home';
-import { HomeAdm } from './UserAdm/home-adm/home-adm.component';
+import { HomeAdm } from './Administrador/home/home-adm.component';
 import { Autocadastro } from './User/autocadastro/autocadastro';
 import { Login } from './User/login/login';
 import { EditProfileComponent } from './User/edit-profile/edit-profile.component';
 import { BankStatementComponent } from './User/bank-statement/bank-statement.component';
-import { AdmCustomers } from './UserAdm/adm-customers/adm-customers';
+import { AdmCustomers } from './Administrador/adm-customers/adm-customers';
 import { ManagerConsultarCliente } from './Gerente/manager-consultar-cliente/manager-consultar-cliente';
 import { CustomersPage } from './Gerente/customers-page/customers-page';
+import { AdmManager } from './Administrador/adm-manager/adm-manager';
+import { FormManager } from './Administrador/adm-manager/components/form-manager/form-manager';
 
 export const routes: Routes = [
     {
@@ -55,5 +57,13 @@ export const routes: Routes = [
     {
         path: 'home-adm',
         component: HomeAdm
+    },
+    {
+        path: 'adm-gerentes',
+        component: AdmManager
+    },
+    {
+        path: "form-gerente",
+        component: FormManager
     }
 ];

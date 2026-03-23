@@ -7,6 +7,7 @@ import { Login } from './User/login/login';
 import { EditProfileComponent } from './User/edit-profile/edit-profile.component';
 import { BankStatementComponent } from './User/bank-statement/bank-statement.component';
 import { AdmCustomers } from './UserAdm/adm-customers/adm-customers';
+import { ManagersList } from './UserAdm/managers-list/managers-list';
 import { ManagerConsultarCliente } from './Gerente/manager-consultar-cliente/manager-consultar-cliente';
 import { CustomersPage } from './Gerente/customers-page/customers-page';
 
@@ -43,6 +44,10 @@ export const routes: Routes = [
     {
         path: 'clientes',
         component: AdmCustomers
+    },
+    {
+        path: 'lista-gerentes',
+        component: ManagersList
     },
     {
         path: 'gerente-consultar-cliente',

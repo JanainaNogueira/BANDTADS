@@ -1,12 +1,12 @@
 <div class="h-screen w-screen flex overflow-hidden">
 	<app-menu></app-menu>
 
-	<main class="bg-[#F3F4F6] h-full overflow-y-auto w-full flex flex-col">
+	<main class="bg-[#F3F4F6] h-full overflow-hidden w-full flex flex-col">
 		<div class="flex flex-col w-full">
 			<app-manager-top-panel></app-manager-top-panel>
 		</div>
 
-		<section class="bg-white rounded-3xl mt-5 mx-7 p-6 w-[calc(100%-56px)] min-h-[78%] shadow-[0_16px_40px_rgba(15,23,42,0.08)] flex flex-col gap-5 max-[900px]:m-4 max-[900px]:w-[calc(100%-32px)] max-[900px]:p-4">
+		<section class="bg-white rounded-3xl mt-5 mx-7 p-6 w-[calc(100%-56px)] min-h-0 flex-1 shadow-[0_16px_40px_rgba(15,23,42,0.08)] flex flex-col gap-5 overflow-hidden max-[900px]:m-4 max-[900px]:w-[calc(100%-32px)] max-[900px]:p-4">
 			<div class="flex items-center gap-3 pb-4 border-b border-gray-200">
 				<div class="w-[38px] h-[38px] rounded-[10px] flex items-center justify-center bg-linear-to-br from-[#6366f1] to-[#4338ca]">
 					<span class="text-2xl" style="color: white; filter: brightness(1.2);">✨</span>
@@ -42,8 +42,8 @@
 					Top 3 Clientes
 				</button>
 			</div>
-			<div [ngSwitch]="page" class="flex item-center justify-center">
-				<div *ngSwitchCase="1">
+			<div [ngSwitch]="page" class="flex item-center justify-center flex-1 min-h-0 overflow-y-auto pr-1">
+				<div *ngSwitchCase="1" class="w-full">
 					<div class="mb-4">
 						<input 
 							type="text" 
@@ -53,9 +53,12 @@
 						/>
 					</div>
 
-					<div class="min-h-[70vh] rounded-2xl border border-[#e5e7eb] p-3.5 bg-white">
+					<div class="rounded-2xl border border-[#e5e7eb] p-3.5 bg-white">
 						<app-customers-list [customers]="filteredCustomers" view="manager"></app-customers-list>
 					</div>
+				</div>
+				<div *ngSwitchCase="2" class="w-full">
+					<app-manager-consultar-cliente></app-manager-consultar-cliente>
 				</div>
 				<div *ngSwitchCase="3">
 					<app-top-clientes></app-top-clientes>

@@ -7,7 +7,6 @@ import { Login } from './User/login/login';
 import { EditProfileComponent } from './User/edit-profile/edit-profile.component';
 import { BankStatementComponent } from './User/bank-statement/bank-statement.component';
 import { AdmCustomers } from './UserAdm/adm-customers/adm-customers';
-import { ManagerConsultarCliente } from './Gerente/manager-consultar-cliente/manager-consultar-cliente';
 import { CustomersPage } from './Gerente/customers-page/customers-page';
 
 export const routes: Routes = [
@@ -46,7 +45,7 @@ export const routes: Routes = [
     },
     {
         path: 'gerente-consultar-cliente',
-        component: ManagerConsultarCliente
+        component: CustomersPage
     },
     {
         path: 'gerente-clientes',

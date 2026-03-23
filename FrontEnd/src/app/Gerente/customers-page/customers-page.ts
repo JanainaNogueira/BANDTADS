@@ -6,10 +6,12 @@ import { CustomerService } from '../../services/customer.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { TopClientes } from './top-clientes/top-clientes';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ManagerConsultarCliente } from '../manager-consultar-cliente/manager-consultar-cliente';
 
 @Component({
   selector: 'app-customers-page',
-  imports: [Menu, ManagerTopPanel, CustomersList, FormsModule, CommonModule, TopClientes],
+  imports: [Menu, ManagerTopPanel, CustomersList, FormsModule, CommonModule, TopClientes, ManagerConsultarCliente],
   templateUrl: './customers-page.html',
   styleUrl: './customers-page.css',
 })
@@ -18,10 +20,18 @@ export class CustomersPage implements OnInit {
   searchTerm: string = '';
   page:number=1;
 
-  constructor(private readonly customerService: CustomerService) {}
+  constructor(
+    private readonly customerService: CustomerService,
+    private readonly route: ActivatedRoute,
+    private readonly router: Router,
+  ) {}
 
   ngOnInit(): void {
     this.customers = this.customerService.obterTodosClientes();
+    this.route.url.subscribe((segments) => {
+      const path = segments[0]?.path;
+      this.page = path === 'gerente-consultar-cliente' ? 2 : 1;
+    });
   }
 
   get filteredCustomers(): Customer[] {
@@ -42,7 +52,16 @@ export class CustomersPage implements OnInit {
   }
 
   switchPage(page:number){
-    this.page = page
+    this.page = page;
+
+    if (page === 1) {
+      this.router.navigate(['gerente-clientes']);
+      return;
+    }
+
+    if (page === 2) {
+      this.router.navigate(['gerente-consultar-cliente']);
+    }
   }
 
 }

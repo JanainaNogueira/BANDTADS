@@ -1,14 +1,12 @@
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { Component } from '@angular/core';
 import { CpfPipe } from '../../pipes/cpf.pipe';
-import { Menu } from '../../components/menu/menu';
-import { ManagerTopPanel } from '../../components/manager-top-panel/manager-top-panel';
 import { Customer } from '../../components/customers-list/customers-list';
 import { MOCK_CUSTOMERS } from '../../../assets/mock/customers.mock';
 
 @Component({
 	selector: 'app-manager-consultar-cliente',
-	imports: [CommonModule, CurrencyPipe, CpfPipe, Menu, ManagerTopPanel],
+	imports: [CommonModule, CurrencyPipe, CpfPipe],
 	templateUrl: './manager-consultar-cliente.html',
 	styleUrl: './manager-consultar-cliente.css',
 })

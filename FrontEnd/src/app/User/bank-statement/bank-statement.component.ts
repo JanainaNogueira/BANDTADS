@@ -48,8 +48,10 @@ export interface GrupoDia {
   styleUrl: './bank-statement.component.css',
 })
 export class BankStatementComponent {
+
   dataInicio = new FormControl<Date | null>(null, Validators.required);
   dataFim = new FormControl<Date | null>(null, Validators.required);
+
   gruposDia: GrupoDia[] = [];
   pesquisaRealizada = false;
   erroValidacao = '';
@@ -70,14 +72,14 @@ export class BankStatementComponent {
   pesquisar(): void {
     const inicio = this.dataInicio.value;
     const fim = this.dataFim.value;
-    
+
     this.erroValidacao = '';
-    
+
     if (!inicio || !fim) {
       this.erroValidacao = 'Selecione ambas as datas';
       return;
     }
-    
+
     if (fim < inicio) {
       this.erroValidacao = 'Data de fim não pode ser anterior à data de início';
       return;
@@ -85,10 +87,12 @@ export class BankStatementComponent {
 
     const startDate = new Date(inicio);
     startDate.setHours(0, 0, 0, 0);
+
     const endDate = new Date(fim);
     endDate.setHours(23, 59, 59, 999);
 
     const mapaGrupos = new Map<string, Transacao[]>();
+
     const cursor = new Date(startDate);
     while (cursor <= endDate) {
       mapaGrupos.set(this.toDateKey(cursor), []);
@@ -98,32 +102,49 @@ export class BankStatementComponent {
     for (const t of this.todasTransacoes) {
       const tDia = new Date(t.dataHora);
       tDia.setHours(0, 0, 0, 0);
+
       if (tDia >= startDate && tDia <= endDate) {
         mapaGrupos.get(this.toDateKey(tDia))?.push(t);
       }
     }
 
-    this.gruposDia = Array.from(mapaGrupos.entries()).map(([key, transacoes]) => {
-      const [y, m, d] = key.split('-').map(Number);
-      const data = new Date(y, m - 1, d);
-      return {
-        data,
-        dataFormatada: data.toLocaleDateString('pt-BR'),
-        transacoes,
-        saldoDia: transacoes.reduce((soma, t) => soma + t.valor, 0),
-        aberto: transacoes.length > 0,
-      };
-    });
+    this.gruposDia = Array.from(mapaGrupos.entries())
+      .map(([key, transacoes]) => {
+        const [y, m, d] = key.split('-').map(Number);
+        const data = new Date(y, m - 1, d);
+
+        // Ordena por transação mais recente baseado no horário
+        transacoes.sort((a, b) => b.dataHora.getTime() - a.dataHora.getTime());
+
+        return {
+          data,
+          dataFormatada: data.toLocaleDateString('pt-BR'),
+          transacoes,
+          saldoDia: transacoes.reduce((soma, t) => soma + t.valor, 0),
+          aberto: false
+        };
+      })
+      // Mais recente baseaado no dia
+      .sort((a, b) => b.data.getTime() - a.data.getTime());
 
     this.pesquisaRealizada = true;
   }
 
   toggleDia(grupo: GrupoDia): void {
-    if (grupo.transacoes.length > 0) grupo.aberto = !grupo.aberto;
+    if (grupo.transacoes.length > 0) {
+      grupo.aberto = !grupo.aberto;
+    }
   }
 
   formatarValor(valor: number): string {
-    return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    return valor.toLocaleString('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    });
+  }
+
+  trackByData(index: number, grupo: GrupoDia): number {
+    return grupo.data.getTime();
   }
 
   private toDateKey(date: Date): string {

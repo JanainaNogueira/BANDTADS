@@ -51,6 +51,13 @@ export class CustomerService {
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(clientes));
   }
 
+  salvarClientes(clientes: Customer[]): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(clientes));
+  }
+
   atualizarCliente(cpf: string, clienteAtualizado: Customer): void {
     if (!isPlatformBrowser(this.platformId)) {
       return;

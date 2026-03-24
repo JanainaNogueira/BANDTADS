@@ -3,7 +3,6 @@ import { Component, Input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { CpfPipe } from '../../../../pipes/cpf.pipe';
 import { ModalRecusar } from '../modal-recusar/modal-recusar';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 export interface Manager {
   name: string;
@@ -19,21 +18,18 @@ export interface Customer {
 
 @Component({
   selector: 'app-customers-home',
-  imports: [CurrencyPipe, MatIconModule, CpfPipe, ModalRecusar, MatSnackBarModule],
+  imports: [CurrencyPipe, MatIconModule, CpfPipe, ModalRecusar],
   templateUrl: './customers-home.html',
   styleUrl: './customers-home.css',
 })
 
 export class CustomersHome {
-
-  constructor(private snackBar: MatSnackBar) {}
-
   @Input() customers: Customer[] = [];
 
   sortDirection: 'asc' | 'desc' = 'asc';
+
   currentPage = 1;
   itemsPerPage = 6; 
-  cliente = null;
 
   toggleSort() {
     this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
@@ -68,16 +64,8 @@ export class CustomersHome {
   fecharModal() {
     this.modalAberto = false;
   }
-  
-  aprovarCadastro(cliente: any) {
 
-    this.snackBar.open('Cliente aprovado com sucesso!', 'Fechar', {
-      duration: 3000,
-      horizontalPosition: 'right',
-      verticalPosition: 'bottom',
-      panelClass: ['text-white', 'rounded-3xl']
-    });
+  aprovarCadastro() {
 
-    console.log('Conta criada');
   }
 }

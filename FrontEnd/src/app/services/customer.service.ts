@@ -1,7 +1,7 @@
 import { Injectable, PLATFORM_ID, Inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { Customer } from '../components/customers-list/customers-list';
 import { MOCK_CUSTOMERS } from '../../assets/mock/customers.mock';
+import { Customer } from '../models/costumer.model';
 
 @Injectable({
   providedIn: 'root',

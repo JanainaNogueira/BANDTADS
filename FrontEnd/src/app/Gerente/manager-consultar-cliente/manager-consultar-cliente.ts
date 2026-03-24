@@ -3,8 +3,8 @@ import { Component } from '@angular/core';
 import { CpfPipe } from '../../pipes/cpf.pipe';
 import { Menu } from '../../components/menu/menu';
 import { ManagerTopPanel } from '../../components/manager-top-panel/manager-top-panel';
-import { Customer } from '../../components/customers-list/customers-list';
 import { MOCK_CUSTOMERS } from '../../../assets/mock/customers.mock';
+import { Customer } from '../../models/costumer.model';
 
 @Component({
 	selector: 'app-manager-consultar-cliente',

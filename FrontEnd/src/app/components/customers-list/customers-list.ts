@@ -2,24 +2,8 @@ import { CurrencyPipe} from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { CpfPipe } from '../../pipes/cpf.pipe';
 import { MatIconModule } from '@angular/material/icon';
+import { Customer } from '../../models/costumer.model';
 
-export interface Manager {
-  name: string;
-  cpf: string;
-}
-
-export interface Customer {
-  cpf: string;
-  name: string;
-  email: string;
-  salary: number;
-  numberAccount: number;
-  balance: number;
-  limit: number;
-  city?: string;
-  state?: string;
-  manager: Manager;
-}
 
 @Component({
   selector: 'app-customers-list',
@@ -61,3 +45,4 @@ export class CustomersList {
     return this.sortedCustomers.slice(start, end);
   }
 }
+

@@ -8,7 +8,7 @@ import { Customer } from '../../models/costumer.model';
 
 @Component({
 	selector: 'app-manager-consultar-cliente',
-	imports: [CommonModule, CurrencyPipe, CpfPipe, Menu, ManagerTopPanel],
+	imports: [CommonModule, CurrencyPipe, CpfPipe],
 	templateUrl: './manager-consultar-cliente.html',
 	styleUrl: './manager-consultar-cliente.css',
 })

@@ -52,7 +52,7 @@ export const routes: Routes = [
     },
     {
         path: 'gerente-consultar-cliente',
-        component: ManagerConsultarCliente
+        component: CustomersPage
     },
     {
         path: 'gerente-clientes',

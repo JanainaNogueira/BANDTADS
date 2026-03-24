@@ -1,3 +1,5 @@
+import { ManagerCreateEdit } from "../../app/models/manager.model";
+
 export type ManagerStatus = 'active' | 'pending' | 'inactive';
 
 export interface ManagerSummary {
@@ -9,7 +11,7 @@ export interface ManagerSummary {
   status: ManagerStatus;
 }
 
-export const MOCK_MANAGERS: ManagerSummary[] = [
+export const MOCK_MANAGERS_LIST: ManagerSummary[] = [
   { id: 1, name: 'Ana Silva', email: 'ana.silva@bantads.com', phone: '(11) 98765-4321', clients: 12, status: 'active' },
   { id: 2, name: 'Carlos Mendes', email: 'carlos.mendes@bantads.com', phone: '(21) 99876-5432', clients: 8, status: 'active' },
   { id: 3, name: 'Beatriz Santos', email: 'beatriz.santos@bantads.com', phone: '(31) 91234-5678', clients: 15, status: 'active' },
@@ -21,3 +23,13 @@ export const MOCK_MANAGERS: ManagerSummary[] = [
   { id: 9, name: 'Juliana Ferreira', email: 'juliana.ferreira@bantads.com', phone: '(91) 97890-1234', clients: 11, status: 'active' },
   { id: 10, name: 'Lucas Alves', email: 'lucas.alves@bantads.com', phone: '(11) 98091-2345', clients: 0, status: 'pending' }
 ];
+
+export const MOCK_MANAGERS_CREATE: ManagerCreateEdit = 
+    {
+      nome: 'Maria Silva',
+      cpf: '123.456.789-00',
+      telefone: '(41) 99999-9999',
+      email: 'maria@email.com',
+      senha: 'oioioi'
+    }
+

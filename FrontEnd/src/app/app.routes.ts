@@ -47,6 +47,10 @@ export const routes: Routes = [
         component: AdmCustomers
     },
     {
+        path: 'lista-gerentes',
+        component: AdmManager
+    },
+    {
         path: 'gerente-consultar-cliente',
         component: ManagerConsultarCliente
     },

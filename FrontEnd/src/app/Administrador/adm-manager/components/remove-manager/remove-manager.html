@@ -1,0 +1,38 @@
+<div class="modal-shell">
+	<h2>Remover Gerente</h2>
+
+	@if (errorMessage) {
+		<div class="error-box">{{ errorMessage }}</div>
+	}
+
+	@if (!errorMessage && selectedManager) {
+		<p>
+			Deseja remover o gerente <strong>{{ selectedManager.nome }}</strong>?
+		</p>
+
+		<p>
+			CPF: {{ selectedManager.cpf }}<br />
+			E-mail: {{ selectedManager.email || '-' }}<br />
+			Telefone: {{ selectedManager.telefone || '-' }}
+		</p>
+
+		<p>
+			Contas vinculadas atualmente: <strong>{{ selectedManager.accountCount }}</strong>
+		</p>
+
+		@if (targetManager) {
+			<p>
+				As contas serão atribuídas para
+				<strong>{{ targetManager.nome }}</strong>
+				({{ targetManager.accountCount }} conta(s) no momento).
+			</p>
+		}
+	}
+
+	<div class="actions">
+		<button type="button" class="btn secondary" (click)="cancelar()">Cancelar</button>
+		<button type="button" class="btn danger" [disabled]="!!errorMessage || !selectedManager" (click)="confirmar()">
+			{{ data.previewOnly ? 'Visualizar' : 'Confirmar remoção' }}
+		</button>
+	</div>
+</div>

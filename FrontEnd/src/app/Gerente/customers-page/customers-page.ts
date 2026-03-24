@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Customer, CustomersList } from '../../components/customers-list/customers-list';
+import { CustomersList } from '../../components/customers-list/customers-list';
 import { ManagerTopPanel } from '../../components/manager-top-panel/manager-top-panel';
 import { Menu } from '../../components/menu/menu';
 import { CustomerService } from '../../services/customer.service';
@@ -8,6 +8,7 @@ import { CommonModule } from '@angular/common';
 import { TopClientes } from './top-clientes/top-clientes';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ManagerConsultarCliente } from '../manager-consultar-cliente/manager-consultar-cliente';
+import { Customer } from '../../models/costumer.model';
 
 @Component({
   selector: 'app-customers-page',

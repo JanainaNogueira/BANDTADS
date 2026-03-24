@@ -2,7 +2,6 @@ import { Component, EventEmitter, Output } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ButtonSubmit } from '../../../../components/button-submit/button-submit';
-import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-modal-recusar',
@@ -14,20 +13,11 @@ export class ModalRecusar {
 
   @Output() fechar = new EventEmitter<void>();
 
-  constructor(private snackBar: MatSnackBar) {}
-
   fecharModal() {
     this.fechar.emit();
   }
   
   recusar() {
     this.fechar.emit();
-
-    this.snackBar.open('Cliente recusado com sucesso!', 'Fechar', {
-      duration: 3000,
-      horizontalPosition: 'right',
-      verticalPosition: 'bottom',
-      panelClass: ['text-white', 'rounded-3xl']
-    });
   }
 }

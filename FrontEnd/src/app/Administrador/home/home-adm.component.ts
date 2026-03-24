@@ -31,34 +31,32 @@ export class HomeAdm {
 
   private admins: Admin[] = [
     {
-      name: 'João Silva',
+      name: 'Ana Silva',
       clients: [
-        { name: 'Client A', balance: 500 },
-        { name: 'Client B', balance: -200 },
-        { name: 'Client C', balance: 0 }
-      ]
-    },
-    {
-      name: 'Maria Oliveira',
-      clients: [
-        { name: 'Client D', balance: 1200 },
-        { name: 'Client E', balance: -100 }
+        { name: 'Cliente A', balance: 500 },
+        { name: 'Cliente B', balance: -200 },
+        { name: 'Cliente C', balance: 0 }
       ]
     },
     {
       name: 'Carlos Souza',
       clients: [
-        { name: 'Client F', balance: 3000 },
-        { name: 'Client G', balance: -500 },
-        { name: 'Client H', balance: 150 },
-        { name: 'Client I', balance: -80 }
+        { name: 'Cliente D', balance: 1200 },
+        { name: 'Cliente E', balance: -100 }
       ]
     },
     {
-      name: 'Ana Lima',
+      name: 'Maria Oliveira',
       clients: [
-        { name: 'Client J', balance: 0 },
-        { name: 'Client K', balance: -300 }
+        { name: 'Cliente F', balance: 3000 },
+        { name: 'Cliente G', balance: -500 }
+      ]
+    },
+    {
+      name: 'João Silva',
+      clients: [
+        { name: 'Cliente H', balance: 150 },
+        { name: 'Cliente I', balance: -80 }
       ]
     }
   ];
@@ -67,23 +65,30 @@ export class HomeAdm {
 
   private processAdmins(): ProcessedAdmin[] {
     return this.admins
-      .map((admin) => ({
-        name: admin.name,
-        totalClients: admin.clients.length,
-        totalPositive: admin.clients
+      .map((admin) => {
+        const totalPositive = admin.clients
           .filter((c) => c.balance >= 0)
-          .reduce((acc, c) => acc + c.balance, 0),
-        totalNegative: admin.clients
+          .reduce((acc, c) => acc + c.balance, 0);
+
+        const totalNegativeRaw = admin.clients
           .filter((c) => c.balance < 0)
-          .reduce((acc, c) => acc + c.balance, 0)
-      }))
+          .reduce((acc, c) => acc + c.balance, 0);
+
+        return {
+          name: admin.name,
+          totalClients: admin.clients.length,
+          totalPositive,
+          totalNegative: Math.abs(totalNegativeRaw)
+        };
+      })
       .sort((a, b) => b.totalPositive - a.totalPositive);
   }
 
-  get totalClients(): number {
-    return this.processedAdmins.reduce(
-      (acc, admin) => acc + admin.totalClients,
-      0
-    );
+  getInitials(name: string): string {
+    return name
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase();
   }
 }

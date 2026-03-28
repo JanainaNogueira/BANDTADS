@@ -31,26 +31,33 @@ export class AdmManager {
 
     dialogRef.afterClosed().subscribe((dados) => {
       if (dados) {
-        console.log('Criar gerente:', dados);
+        MOCK_MANAGERS_CREATE.push(dados);
+
+        this.managers.push({
+            id: this.managers.length + 1,
+            name: dados.nome,
+            email: dados.email,
+            status: 'pending'
+        });
       }
     });
   }
 
-  abrirModalEditar(gerente: ManagerCreateEdit): void {
+ abrirModalEditar(gerente: ManagerCreateEdit): void {
     const dialogRef = this.dialog.open(FormManager, {
       width: '760px',
       maxWidth: '96vw',
       data: {
         modo: 'editar',
-        gerente: this.mockGerente
+        gerente: gerente 
       }
     });
 
     dialogRef.afterClosed().subscribe((dados) => {
-      if (dados) {
-        console.log('Editar gerente:', dados);
-      }
-    });
+        if (dados) {
+          console.log('Editar gerente:', dados);
+        }
+      });
   }
 
   get statusTabs(): Array<{ key: ManagerStatus | 'all'; label: string; count: number }> {

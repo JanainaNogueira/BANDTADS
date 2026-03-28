@@ -1,15 +1,6 @@
-import { ManagerCreateEdit } from "../../app/models/manager.model";
+import { ManagerCreateEdit, ManagerSummary } from "../../app/models/manager.model";
 
 export type ManagerStatus = 'active' | 'pending' | 'inactive';
-
-export interface ManagerSummary {
-  id: number;
-  name: string;
-  email: string;
-  phone: string;
-  clients: number;
-  status: ManagerStatus;
-}
 
 export const MOCK_MANAGERS_LIST: ManagerSummary[] = [
   { id: 1, name: 'Ana Silva', email: 'ana.silva@bantads.com', phone: '(11) 98765-4321', clients: 12, status: 'active' },
@@ -24,12 +15,26 @@ export const MOCK_MANAGERS_LIST: ManagerSummary[] = [
   { id: 10, name: 'Lucas Alves', email: 'lucas.alves@bantads.com', phone: '(11) 98091-2345', clients: 0, status: 'pending' }
 ];
 
-export const MOCK_MANAGERS_CREATE: ManagerCreateEdit = 
-    {
-      nome: 'Maria Silva',
-      cpf: '123.456.789-00',
-      telefone: '(41) 99999-9999',
-      email: 'maria@email.com',
-      senha: 'oioioi'
-    }
+export const MOCK_MANAGERS_CREATE: ManagerCreateEdit= 
+  {
+    name: 'Maria Silva',
+    cpf: '123.456.789-00',
+    telefone: '(41) 99999-9999',
+    email: 'maria@email.com',
+    senha: 'oioioi'
+  }
 
+export const MOCK_MANAGERS: ManagerCreateEdit[]=[
+  {
+    name: 'Gerente',
+    email: 'gerente@email.com',
+    senha: '123'
+  },
+  {
+    name: 'Maria Silva',
+    cpf: '123.456.789-00',
+    telefone: '(41) 99999-9999',
+    email: 'maria@email.com',
+    senha: '123'
+  }
+] 

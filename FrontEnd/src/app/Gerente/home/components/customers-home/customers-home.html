@@ -31,11 +31,11 @@
             <td class="px-6 py-4 text-left flex gap-6">
               <div class="flex items-center gap-1 text-green-600 cursor-pointer">
                 <mat-icon>check_circle</mat-icon>
-                <button (click)="aprovarCadastro()" class="cursor-pointer">Aprovar</button>
+                <button (click)="aprovarCadastro(cliente)" class="cursor-pointer">Aprovar</button>
               </div>
               <div class="flex items-center gap-1 text-red-700 cursor-pointer">
                 <mat-icon>cancel</mat-icon>
-                <button (click)="abrirModal()" class="cursor-pointer">Recusar</button>
+                <button (click)="abrirModal(c)" class="cursor-pointer">Recusar</button>
               </div>
             </td>
           </tr>
@@ -66,6 +66,10 @@
   </div>
 
   @if (modalAberto) {
-      <app-modal-recusar (fechar)="fecharModal()"></app-modal-recusar>
+      <app-modal-recusar 
+        [customerSelected]="selectedCustomer"
+        (fechar)="fecharModal()" 
+        (recusarCliente)="recusarCliente($event)"
+      ></app-modal-recusar>
   }
 </div>

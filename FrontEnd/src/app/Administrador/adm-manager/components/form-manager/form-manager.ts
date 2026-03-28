@@ -1,12 +1,12 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonSubmit } from '../../../../components/button-submit/button-submit';
 import { CommonModule } from '@angular/common';
-import { FormTitle } from '../../../../components/form-title/form-title';
 import { NgxMaskDirective } from 'ngx-mask';
 import { MatIcon } from '@angular/material/icon';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { ManagerCreateEditList } from '../../../../models/manager.model';
 
 @Component({
   selector: 'app-form-manager',
@@ -14,7 +14,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
   templateUrl: './form-manager.html',
   styleUrl: './form-manager.css',
 })
-export class FormManager {
+export class FormManager implements OnInit {
   dadosPessoais: FormGroup;
   mostrarSenha = false;
   mostrarConfirmarSenha  = false;
@@ -23,9 +23,9 @@ export class FormManager {
     public form: FormBuilder,
     private dialogRef: MatDialogRef<FormManager>,
     @Inject(MAT_DIALOG_DATA) public data: {
-        modo: 'criar' | 'editar';
-        gerente?: any;
-      }
+      modo: 'criar' | 'editar';
+      gerente?: ManagerCreateEditList;
+    }
   ) {
     this.dadosPessoais = this.form.group({
       nome: ['', [Validators.required, Validators.pattern(/^[A-Za-zÀ-ÿ\s]+$/), Validators.minLength(3)]],
@@ -34,26 +34,32 @@ export class FormManager {
       email: ['', [Validators.required, Validators.email]],
       senha: ['', [Validators.required, Validators.minLength(6)]],
       confirmarSenha: ['', [Validators.required]]
-    },  { validators: this.senhasIguais });
+    }, { validators: this.senhasIguais });
+  }
 
+  ngOnInit(): void {
     if (this.data?.modo === 'editar' && this.data.gerente) {
+
       this.dadosPessoais.patchValue({
-        nome: this.data.gerente.nome,
-        cpf: this.data.gerente.cpf,
-        telefone: this.data.gerente.telefone,
-        email: this.data.gerente.email,
-        senha: this.data.gerente.senha,
-      });
+      nome: this.data.gerente.nome,
+      email: this.data.gerente.email,
+      telefone: this.data.gerente.telefone,
+      cpf: this.data.gerente.cpf,
+      senha: this.data.gerente.senha || '',
+      confirmarSenha: this.data.gerente.senha || '' 
+    });
+
+      this.dadosPessoais.markAllAsTouched();
     }
   }
 
+
   enviarDados() {
-    if (this.dadosPessoais.invalid) return;
-
-    const dados = this.dadosPessoais.getRawValue();
+    if (this.dadosPessoais.invalid) {
+      this.dadosPessoais.markAllAsTouched();
+      return;
+    }
     const { confirmarSenha, ...dadosLimpos } = this.dadosPessoais.getRawValue();
-    delete dados.confirmarSenha;
-
 
     this.dialogRef.close({
       modo: this.data.modo,
@@ -102,5 +108,5 @@ export class FormManager {
       this.mostrarConfirmarSenha  = !this.mostrarConfirmarSenha ;
     }
   }
-  
+
 }

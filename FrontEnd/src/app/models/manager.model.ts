@@ -5,22 +5,15 @@ export interface Manager {
   cpf: string;
 }
 
-export interface ManagerSummary {
-  id: number;
-  name: string;
-  email: string;
-  phone: string;
-  clients: number;
-  status: ManagerStatus;
-}
-
-export interface ManagerCreateEdit{
-  id: number,
-  name: string;
-  cpf?: string;
-  telefone?: string;
-  email: string;
-  senha: string;
+export interface ManagerCreateEditList {
+  id: number;         
+  nome: string;       
+  email: string;      
+  telefone: string;   
+  cpf: string;        
+  senha: string;      
+  status?: ManagerStatus; 
+  clientes?: number;  
 }
 
 

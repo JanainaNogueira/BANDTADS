@@ -73,9 +73,14 @@
       icon="arrow_forward"
       info="Não tem conta?"
       linkText="Cadastre-se"
-      routerLink="/cadastro"
+      routerLink="/autocadastro"
       [disabled]="!!form.invalid"
-      (action)="enviarLogin()"
+      (ngSubmit)="enviarLogin()"
     ></app-button-submit>
+    @if (erroLogin) {
+      <span class="text-red-500 text-sm">
+        Email ou senha incorretos.
+      </span>
+    }
   </form>
 </div>

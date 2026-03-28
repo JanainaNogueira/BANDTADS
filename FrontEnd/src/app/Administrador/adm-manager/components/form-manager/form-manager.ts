@@ -57,7 +57,8 @@ export class FormManager {
 
     this.dialogRef.close({
       modo: this.data.modo,
-      gerente: dadosLimpos
+      gerente: dadosLimpos,
+      id: this.data.gerente?.id 
     });
   }
 

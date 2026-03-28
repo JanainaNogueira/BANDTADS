@@ -1,4 +1,5 @@
 import { Manager } from "./manager.model";
+import { Status } from "./status-enum.model";
 
 export interface Customer {
   cpf: string;
@@ -11,4 +12,5 @@ export interface Customer {
   city?: string;
   state?: string;
   manager: Manager;
+  status: Status;
 }

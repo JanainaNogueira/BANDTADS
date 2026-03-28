@@ -1,4 +1,5 @@
 import { Customer } from "../../app/models/costumer.model";
+import { Status } from "../../app/models/status-enum.model";
 
 export const MOCK_CUSTOMERS: Customer[] = [
   {
@@ -11,7 +12,8 @@ export const MOCK_CUSTOMERS: Customer[] = [
     limit: 3000,
     city: 'Curitiba',
     state: 'PR',
-    manager: { cpf: '11122233344', name: 'Carlos Mendes' }
+    manager: { cpf: '11122233344', name: 'Carlos Mendes' },
+    status: Status.APROVADO
   },
   {
     cpf: '12345678902',
@@ -23,7 +25,8 @@ export const MOCK_CUSTOMERS: Customer[] = [
     limit: 2000,
     city: 'São Paulo',
     state: 'SP',
-    manager: { cpf: '55566677788', name: 'Fernanda Alves' }
+    manager: { cpf: '55566677788', name: 'Fernanda Alves' },
+    status: Status.APROVADO
   },
   {
     cpf: '12345678903',
@@ -35,7 +38,8 @@ export const MOCK_CUSTOMERS: Customer[] = [
     limit: 5000,
     city: 'Belo Horizonte',
     state: 'MG',
-    manager: { cpf: '11122233344', name: 'Carlos Mendes' }
+    manager: { cpf: '11122233344', name: 'Carlos Mendes' },
+    status: Status.APROVADO
   },
   {
     cpf: '12345678904',
@@ -47,7 +51,8 @@ export const MOCK_CUSTOMERS: Customer[] = [
     limit: 1500,
     city: 'Porto Alegre',
     state: 'RS',
-    manager: { cpf: '99988877766', name: 'Juliana Costa' }
+    manager: { cpf: '99988877766', name: 'Juliana Costa' },
+    status: Status.PENDENTE
   },
   {
     cpf: '12345678905',
@@ -59,7 +64,8 @@ export const MOCK_CUSTOMERS: Customer[] = [
     limit: 7000,
     city: 'Florianópolis',
     state: 'SC',
-    manager: { cpf: '55566677788', name: 'Fernanda Alves' }
+    manager: { cpf: '55566677788', name: 'Fernanda Alves' },
+    status: Status.APROVADO
   },
   {
     cpf: '12345678906',
@@ -71,7 +77,8 @@ export const MOCK_CUSTOMERS: Customer[] = [
     limit: 1000,
     city: 'Curitiba',
     state: 'PR',
-    manager: { cpf: '99988877766', name: 'Juliana Costa' }
+    manager: { cpf: '99988877766', name: 'Juliana Costa' },
+    status: Status.APROVADO
   },
   {
     cpf: '12345678907',
@@ -83,7 +90,8 @@ export const MOCK_CUSTOMERS: Customer[] = [
     limit: 2500,
     city: 'São Paulo',
     state: 'SP',
-    manager: { cpf: '11122233344', name: 'Carlos Mendes' }
+    manager: { cpf: '11122233344', name: 'Carlos Mendes' },
+    status: Status.PENDENTE
   },
   {
     cpf: '12345678908',
@@ -95,7 +103,8 @@ export const MOCK_CUSTOMERS: Customer[] = [
     limit: 1800,
     city: 'Rio de Janeiro',
     state: 'RJ',
-    manager: { cpf: '55566677788', name: 'Fernanda Alves' }
+    manager: { cpf: '55566677788', name: 'Fernanda Alves' },
+    status: Status.APROVADO
   },
   {
     cpf: '12345678909',
@@ -107,7 +116,8 @@ export const MOCK_CUSTOMERS: Customer[] = [
     limit: 3200,
     city: 'Salvador',
     state: 'BA',
-    manager: { cpf: '99988877766', name: 'Juliana Costa' }
+    manager: { cpf: '99988877766', name: 'Juliana Costa' },
+    status: Status.PENDENTE
   },
   {
     cpf: '12345678910',
@@ -119,6 +129,72 @@ export const MOCK_CUSTOMERS: Customer[] = [
     limit: 2000,
     city: 'Fortaleza',
     state: 'CE',
-    manager: { cpf: '11122233344', name: 'Carlos Mendes' }
+    manager: { cpf: '11122233344', name: 'Carlos Mendes' },
+    status: Status.APROVADO
+  },
+  {
+    cpf: '12345678911',
+    name: 'Lucas Ribeiro',
+    email: 'lucas@email.com',
+    salary: 3800,
+    numberAccount: 1011,
+    balance: 900,
+    limit: 1500,
+    city: 'Curitiba',
+    state: 'PR',
+    manager: { cpf: '55566677788', name: 'Fernanda Alves' },
+    status: Status.PENDENTE
+  },
+  {
+    cpf: '12345678912',
+    name: 'Mariana Costa',
+    email: 'mariana@email.com',
+    salary: 8000,
+    numberAccount: 1012,
+    balance: 20000,
+    limit: 10000,
+    city: 'São Paulo',
+    state: 'SP',
+    manager: { cpf: '11122233344', name: 'Carlos Mendes' },
+    status: Status.APROVADO
+  },
+  {
+    cpf: '12345678913',
+    name: 'Pedro Henrique',
+    email: 'pedro@email.com',
+    salary: 2600,
+    numberAccount: 1013,
+    balance: -800,
+    limit: 1200,
+    city: 'Recife',
+    state: 'PE',
+    manager: { cpf: '99988877766', name: 'Juliana Costa' },
+    status: Status.APROVADO
+  },
+  {
+    cpf: '12345678914',
+    name: 'Juliana Martins',
+    email: 'juliana@email.com',
+    salary: 6000,
+    numberAccount: 1014,
+    balance: 5000,
+    limit: 3500,
+    city: 'Curitiba',
+    state: 'PR',
+    manager: { cpf: '55566677788', name: 'Fernanda Alves' },
+    status: Status.APROVADO
+  },
+  {
+    cpf: '12345678915',
+    name: 'Rafael Teixeira',
+    email: 'rafael@email.com',
+    salary: 3300,
+    numberAccount: 1015,
+    balance: 700,
+    limit: 1400,
+    city: 'Porto Alegre',
+    state: 'RS',
+    manager: { cpf: '11122233344', name: 'Carlos Mendes' },
+    status: Status.PENDENTE
   }
 ];

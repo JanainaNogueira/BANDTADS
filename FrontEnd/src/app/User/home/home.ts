@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { Operacoes } from '../../components/operacoes/operacoes';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -12,7 +13,7 @@ import { Operacoes } from '../../components/operacoes/operacoes';
   styleUrl: './home.css',
 })
 export class Home {
-  constructor(private dialog: MatDialog) {}
+  constructor(private dialog: MatDialog, private router: Router) {}
 
   transactions = [
   {
@@ -53,5 +54,9 @@ export class Home {
       width: '760px',
       maxWidth: '96vw'
     });
+  };
+
+  irParaExtrato(): void {
+    this.router.navigate(['/bank-statement']);
   }
 }

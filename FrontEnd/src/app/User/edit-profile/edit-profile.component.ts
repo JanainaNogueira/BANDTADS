@@ -1,9 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Menu } from '../../components/menu/menu';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 import { NgClass } from '@angular/common';
+import { CustomerService } from '../../services/customer.service';
+import { Customer } from '../../models/costumer.model';
 
 @Component({
   selector: 'app-edit-profile',
@@ -12,24 +14,50 @@ import { NgClass } from '@angular/common';
   templateUrl: './edit-profile.component.html',
   styleUrl: './edit-profile.component.css'
 })
-export class EditProfileComponent {
+export class EditProfileComponent implements OnInit {
   perfilForm: FormGroup;
   isEditMode = false;
+  customer!: Customer;
 
-  constructor(private fb: FormBuilder, private http: HttpClient) {
+  constructor(
+    private fb: FormBuilder,
+    private http: HttpClient,
+    private customerService: CustomerService
+  ) {
     this.perfilForm = this.fb.group({
+      nome: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      telefone: [''],
+      salario: ['', [Validators.required, Validators.pattern(/^\d+$/)]],
       cep: ['', Validators.required],
       rua: [{ value: '', disabled: true }],
       bairro: [{ value: '', disabled: true }],
-      numero: ['', Validators.required],
+      numero: ['', [Validators.required, Validators.pattern(/^\d+$/)]],
       complemento: [''],
       cidade: [{ value: '', disabled: true }],
       estado: [{ value: '', disabled: true }]
     });
   }
 
+  ngOnInit() {
+    const cliente = this.customerService.getClienteLogado();
+
+    if (cliente) {
+      this.customer = cliente;
+
+      this.perfilForm.patchValue({
+        nome: cliente.name,
+        email: cliente.email,
+        telefone: '',
+        salario: cliente.salary,
+        cidade: cliente.city,
+        estado: cliente.state
+      });
+    }
+  }
+
   consultaCEP() {
-    const cep = this.perfilForm.get('cep')?.value.replace(/\D/g, '');
+    const cep = this.perfilForm.get('cep')?.value?.replace(/\D/g, '');
     if (!cep || cep.length < 8) {
       return;
     }
@@ -51,6 +79,33 @@ export class EditProfileComponent {
   }
 
   toggleEditMode() {
+    if (this.isEditMode) {
+      this.salvar();
+    }
     this.isEditMode = !this.isEditMode;
+  }
+
+  salvar() {
+    if (this.perfilForm.invalid) return;
+
+    const form = this.perfilForm.getRawValue();
+
+    const clienteAtualizado: Customer = {
+      ...this.customer,
+      name: form.nome,
+      email: form.email,
+      salary: form.salario,
+      city: form.cidade,
+      state: form.estado
+    };
+
+    this.customerService.atualizarCliente(
+      this.customer.cpf,
+      clienteAtualizado
+    );
+
+    this.customer = clienteAtualizado;
+
+    alert('Dados atualizados!');
   }
 }

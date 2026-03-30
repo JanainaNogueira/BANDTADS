@@ -1,5 +1,5 @@
-<div class="flex flex-col w-full h-full items-center">
-  <div class="w-full max-h-[90%] overflow-y-auto">
+<div class="w-full">
+  <div class="w-full overflow-x-auto">
     <table class="w-full text-sm text-gray-600 border-spacing-y-1 table-fixed">
       <thead class=" text-gray-700 sticky top-0 bg-white ">
         <tr class="">
@@ -38,9 +38,14 @@
     
       <tbody class="divide-y divide-gray-200 scroll-auto">
         @for (c of paginatedCustomers; track c.cpf) {
-          <tr class="transition border-b border-gray-200 hover:bg-gray-100">
+          <tr
+            class="transition border-b border-gray-200 hover:bg-gray-100 cursor-pointer"
+            (click)="selectCustomer(c)"
+          >
             <td class="px-6 py-4 text-left font-medium">
-              {{ c.name }}
+              <span class="text-[#1d4ed8] hover:underline">
+                {{ c.name }}
+              </span>
               @if(view === 'admin'){
                 <span class="text-gray-400 font-extralight">
                   {{ c.email }}
@@ -79,7 +84,7 @@
       </tbody>
     </table>
   </div>
-  <div class="flex justify-center items-center gap-4 mt-6 w-full p-5 bottom-0 fixed">
+  <div class="flex justify-center items-center gap-4 mt-4 w-full pt-4 border-t border-gray-200 bg-white">
     <button
       (click)="currentPage = currentPage - 1"
       [disabled]="currentPage === 1"

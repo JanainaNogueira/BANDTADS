@@ -43,7 +43,7 @@
 				</button>
 			</div>
 			<div [ngSwitch]="page" class="flex item-center justify-center flex-1 min-h-0 overflow-y-auto pr-1">
-				<div *ngSwitchCase="1" class="w-full">
+				<div *ngSwitchCase="1" class="w-full h-full flex flex-col min-h-0">
 					<div class="mb-4">
 						<input 
 							type="text" 
@@ -53,8 +53,73 @@
 						/>
 					</div>
 
-					<div class="rounded-2xl border border-[#e5e7eb] p-3.5 bg-white">
-						<app-customers-list [customers]="filteredCustomers" view="manager"></app-customers-list>
+					<div class="rounded-2xl border border-[#e5e7eb] p-3.5 bg-white flex-1 min-h-0">
+						<app-customers-list [customers]="filteredCustomers" view="manager" (customerSelected)="openCustomerDetails($event)"></app-customers-list>
+					</div>
+
+					<div *ngIf="selectedCustomer" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" (click)="closeCustomerDetails()">
+						<div class="w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl" (click)="$event.stopPropagation()">
+							<div class="flex items-start justify-between gap-4 border-b border-gray-200 pb-4 mb-5">
+								<div>
+									<h2 class="text-2xl font-semibold text-[#111827]">Informações do Cliente</h2>
+									<p class="text-sm text-[#6b7280]">Dados pessoais e da conta</p>
+								</div>
+								<button
+									type="button"
+									(click)="closeCustomerDetails()"
+									class="h-9 px-3 rounded-lg bg-gray-100 hover:bg-gray-200 text-sm font-semibold cursor-pointer"
+								>
+									Fechar
+								</button>
+							</div>
+
+							<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+								<div class="flex flex-col gap-1">
+									<label class="text-sm font-semibold text-gray-600">Nome</label>
+									<input [value]="selectedCustomer.name" readonly class="h-10 rounded-lg border border-gray-200 px-3 bg-gray-50" />
+								</div>
+
+								<div class="flex flex-col gap-1">
+									<label class="text-sm font-semibold text-gray-600">CPF</label>
+									<input [value]="formatCpf(selectedCustomer.cpf)" readonly class="h-10 rounded-lg border border-gray-200 px-3 bg-gray-50" />
+								</div>
+
+								<div class="flex flex-col gap-1">
+									<label class="text-sm font-semibold text-gray-600">E-mail</label>
+									<input [value]="selectedCustomer.email" readonly class="h-10 rounded-lg border border-gray-200 px-3 bg-gray-50" />
+								</div>
+
+								<div class="flex flex-col gap-1">
+									<label class="text-sm font-semibold text-gray-600">Salário</label>
+									<input [value]="formatCurrency(selectedCustomer.salary)" readonly class="h-10 rounded-lg border border-gray-200 px-3 bg-gray-50" />
+								</div>
+
+								<div class="flex flex-col gap-1">
+									<label class="text-sm font-semibold text-gray-600">Número da Conta</label>
+									<input [value]="selectedCustomer.numberAccount" readonly class="h-10 rounded-lg border border-gray-200 px-3 bg-gray-50" />
+								</div>
+
+								<div class="flex flex-col gap-1">
+									<label class="text-sm font-semibold text-gray-600">Saldo</label>
+									<input [value]="formatCurrency(selectedCustomer.balance)" readonly class="h-10 rounded-lg border border-gray-200 px-3 bg-gray-50" />
+								</div>
+
+								<div class="flex flex-col gap-1">
+									<label class="text-sm font-semibold text-gray-600">Limite</label>
+									<input [value]="formatCurrency(selectedCustomer.limit)" readonly class="h-10 rounded-lg border border-gray-200 px-3 bg-gray-50" />
+								</div>
+
+								<div class="flex flex-col gap-1">
+									<label class="text-sm font-semibold text-gray-600">Cidade / Estado</label>
+									<input [value]="(selectedCustomer.city || '-') + ' / ' + (selectedCustomer.state || '-')" readonly class="h-10 rounded-lg border border-gray-200 px-3 bg-gray-50" />
+								</div>
+
+								<div class="flex flex-col gap-1 md:col-span-2">
+									<label class="text-sm font-semibold text-gray-600">Gerente Responsável</label>
+									<input [value]="selectedCustomer.manager.name + ' - ' + formatCpf(selectedCustomer.manager.cpf)" readonly class="h-10 rounded-lg border border-gray-200 px-3 bg-gray-50" />
+								</div>
+							</div>
+						</div>
 					</div>
 				</div>
 				<div *ngSwitchCase="2" class="w-full">

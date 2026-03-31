@@ -13,7 +13,8 @@ export const MOCK_CUSTOMERS: Customer[] = [
     city: 'Curitiba',
     state: 'PR',
     manager: { cpf: '11122233344', name: 'Carlos Mendes' },
-    status: Status.APROVADO
+    status: Status.APROVADO,
+    password: 'tads'
   },
   {
     cpf: '12345678902',
@@ -26,7 +27,8 @@ export const MOCK_CUSTOMERS: Customer[] = [
     city: 'São Paulo',
     state: 'SP',
     manager: { cpf: '55566677788', name: 'Fernanda Alves' },
-    status: Status.APROVADO
+    status: Status.APROVADO,
+    password: 'tads'
   },
   {
     cpf: '12345678903',
@@ -39,7 +41,8 @@ export const MOCK_CUSTOMERS: Customer[] = [
     city: 'Belo Horizonte',
     state: 'MG',
     manager: { cpf: '11122233344', name: 'Carlos Mendes' },
-    status: Status.APROVADO
+    status: Status.APROVADO,
+    password: 'tads'
   },
   {
     cpf: '12345678904',
@@ -52,7 +55,8 @@ export const MOCK_CUSTOMERS: Customer[] = [
     city: 'Porto Alegre',
     state: 'RS',
     manager: { cpf: '99988877766', name: 'Juliana Costa' },
-    status: Status.PENDENTE
+    status: Status.PENDENTE,
+    password: ''
   },
   {
     cpf: '12345678905',
@@ -65,7 +69,8 @@ export const MOCK_CUSTOMERS: Customer[] = [
     city: 'Florianópolis',
     state: 'SC',
     manager: { cpf: '55566677788', name: 'Fernanda Alves' },
-    status: Status.APROVADO
+    status: Status.APROVADO,
+    password: 'tads'
   },
   {
     cpf: '12345678906',
@@ -78,7 +83,8 @@ export const MOCK_CUSTOMERS: Customer[] = [
     city: 'Curitiba',
     state: 'PR',
     manager: { cpf: '99988877766', name: 'Juliana Costa' },
-    status: Status.APROVADO
+    status: Status.APROVADO,
+    password: 'tads'
   },
   {
     cpf: '12345678907',
@@ -91,7 +97,8 @@ export const MOCK_CUSTOMERS: Customer[] = [
     city: 'São Paulo',
     state: 'SP',
     manager: { cpf: '11122233344', name: 'Carlos Mendes' },
-    status: Status.PENDENTE
+    status: Status.PENDENTE,
+    password: ''
   },
   {
     cpf: '12345678908',
@@ -104,7 +111,8 @@ export const MOCK_CUSTOMERS: Customer[] = [
     city: 'Rio de Janeiro',
     state: 'RJ',
     manager: { cpf: '55566677788', name: 'Fernanda Alves' },
-    status: Status.APROVADO
+    status: Status.APROVADO,
+    password: 'tads'
   },
   {
     cpf: '12345678909',
@@ -117,7 +125,8 @@ export const MOCK_CUSTOMERS: Customer[] = [
     city: 'Salvador',
     state: 'BA',
     manager: { cpf: '99988877766', name: 'Juliana Costa' },
-    status: Status.PENDENTE
+    status: Status.PENDENTE,
+    password: ''
   },
   {
     cpf: '12345678910',
@@ -130,7 +139,8 @@ export const MOCK_CUSTOMERS: Customer[] = [
     city: 'Fortaleza',
     state: 'CE',
     manager: { cpf: '11122233344', name: 'Carlos Mendes' },
-    status: Status.APROVADO
+    status: Status.APROVADO,
+    password: 'tads'
   },
   {
     cpf: '12345678911',
@@ -143,7 +153,8 @@ export const MOCK_CUSTOMERS: Customer[] = [
     city: 'Curitiba',
     state: 'PR',
     manager: { cpf: '55566677788', name: 'Fernanda Alves' },
-    status: Status.PENDENTE
+    status: Status.PENDENTE,
+    password: ''
   },
   {
     cpf: '12345678912',
@@ -156,7 +167,8 @@ export const MOCK_CUSTOMERS: Customer[] = [
     city: 'São Paulo',
     state: 'SP',
     manager: { cpf: '11122233344', name: 'Carlos Mendes' },
-    status: Status.APROVADO
+    status: Status.APROVADO,
+    password: 'tads'
   },
   {
     cpf: '12345678913',
@@ -169,7 +181,8 @@ export const MOCK_CUSTOMERS: Customer[] = [
     city: 'Recife',
     state: 'PE',
     manager: { cpf: '99988877766', name: 'Juliana Costa' },
-    status: Status.APROVADO
+    status: Status.APROVADO,
+    password: 'tads'
   },
   {
     cpf: '12345678914',
@@ -182,7 +195,8 @@ export const MOCK_CUSTOMERS: Customer[] = [
     city: 'Curitiba',
     state: 'PR',
     manager: { cpf: '55566677788', name: 'Fernanda Alves' },
-    status: Status.APROVADO
+    status: Status.APROVADO,
+    password: 'tads'
   },
   {
     cpf: '12345678915',
@@ -195,6 +209,7 @@ export const MOCK_CUSTOMERS: Customer[] = [
     city: 'Porto Alegre',
     state: 'RS',
     manager: { cpf: '11122233344', name: 'Carlos Mendes' },
-    status: Status.PENDENTE
+    status: Status.PENDENTE,
+    password: ''
   }
 ];

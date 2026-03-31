@@ -17,6 +17,7 @@ export interface Customer {
   email: string;
   salary: number;
   status: Status;
+  password?: string;
 }
 
 @Component({
@@ -43,7 +44,8 @@ export class CustomersHome {
     name: '',
     email: '',
     salary: 0,
-    status: Status.PENDENTE
+    status: Status.PENDENTE,
+    password: ''
   };
 
   toggleSort() {
@@ -92,13 +94,50 @@ export class CustomersHome {
 
   aprovarCadastro(cliente: any) {
 
-    this.snackBar.open('Cliente aprovado com sucesso!', 'Fechar', {
+    const customer = this.customers.find(c => c.cpf === cliente.cpf);
+
+    if (customer) {
+      const senhaGerada = this.gerarSenha();
+
+      customer.status = Status.APROVADO;
+      customer.password = senhaGerada;
+
+      this.enviarEmail(customer.email, senhaGerada);
+    }
+
+    this.snackBar.open('Enviando e-mail com as credenciais...', 'Fechar', {
       duration: 3000,
       horizontalPosition: 'right',
       verticalPosition: 'bottom',
       panelClass: ['text-white', 'rounded-3xl']
     });
 
-    console.log('Conta criada');
+    setTimeout(() => {
+      this.snackBar.open('Cliente aprovado com sucesso!', 'Fechar', {
+        duration: 3000,
+        horizontalPosition: 'right',
+        verticalPosition: 'bottom',
+        panelClass: ['text-white', 'rounded-3xl']
+      });
+    }, 3500);
+  }
+
+  gerarSenha(tamanho: number = 4): string {
+    const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%';
+    let senha = '';
+
+    for (let i = 0; i < tamanho; i++) {
+      senha += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
+    }
+
+    return senha;
+  }
+
+  enviarEmail(email: string, senha: string) {
+    console.log('--- EMAIL ENVIADO ---');
+    console.log(`Para: ${email}`);
+    console.log(`Sua conta foi criada!`);
+    console.log(`Login: ${email}`);
+    console.log(`Senha: ${senha}`);
   }
 }

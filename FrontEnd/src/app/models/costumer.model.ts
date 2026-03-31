@@ -13,4 +13,5 @@ export interface Customer {
   state?: string;
   manager: Manager;
   status: Status;
+  password?: string;
 }

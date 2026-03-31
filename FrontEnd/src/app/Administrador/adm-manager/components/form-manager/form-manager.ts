@@ -42,7 +42,7 @@ export class FormManager {
         cpf: this.data.gerente.cpf,
         telefone: this.data.gerente.telefone,
         email: this.data.gerente.email,
-        senha: this.data.gerente.senha
+        senha: this.data.gerente.senha,
       });
     }
   }
@@ -51,15 +51,15 @@ export class FormManager {
     if (this.dadosPessoais.invalid) return;
 
     const dados = this.dadosPessoais.getRawValue();
+    const { confirmarSenha, ...dadosLimpos } = this.dadosPessoais.getRawValue();
     delete dados.confirmarSenha;
 
-    if (this.data.modo === 'editar') {
-      console.log('Editando gerente', dados);
-    } else {
-      console.log('Criando gerente', dados);
-    }
 
-    this.dialogRef.close(dados);
+    this.dialogRef.close({
+      modo: this.data.modo,
+      gerente: dadosLimpos,
+      id: this.data.gerente?.id 
+    });
   }
 
   fechar() {

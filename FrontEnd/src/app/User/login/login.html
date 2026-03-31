@@ -29,6 +29,10 @@
             </button>
         }
         </div>
-        <app-form-login (loginSubmit)="fazerLogin($event)" class="w-[80%]"></app-form-login>
+        <app-form-login
+            (loginSubmit)="fazerLogin($event)"
+            [erroLogin]="erroLogin"
+            class="w-[80%]">
+        </app-form-login>
     </div>
 </div>

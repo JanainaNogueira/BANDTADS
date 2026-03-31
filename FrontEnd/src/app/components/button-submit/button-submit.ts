@@ -1,10 +1,10 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
-import { RouterLink } from '@angular/router';
+import {RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-button-submit',
-  imports: [MatIconModule, RouterLink],
+  imports: [MatIconModule, RouterModule],
   templateUrl: './button-submit.html',
   styleUrl: './button-submit.css',
 })

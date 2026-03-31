@@ -20,6 +20,20 @@ export class CustomersPage implements OnInit {
   customers: Customer[] = [];
   searchTerm: string = '';
   page:number=1;
+  selectedCustomer: Customer | null = null;
+  private readonly brlFormatter = new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+    minimumFractionDigits: 2,
+  });
+
+  private normalizeText(value: string): string {
+    return value
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim();
+  }
 
   constructor(
     private readonly customerService: CustomerService,
@@ -40,13 +54,16 @@ export class CustomersPage implements OnInit {
       return this.customers;
     }
 
-    const searchLower = this.searchTerm.toLowerCase();
+    const searchLower = this.normalizeText(this.searchTerm);
     const searchNumbers = this.searchTerm.replace(/\D/g, '');
 
     return this.customers.filter(customer => {
-      const cpfNumbers = customer.cpf.replace(/\D/g, '');
-      const nameMatch = customer.name.toLowerCase().includes(searchLower);
-      const cpfMatch = cpfNumbers.includes(searchNumbers);
+      const customerName = customer?.name ?? '';
+      const customerCpf = customer?.cpf ?? '';
+
+      const cpfNumbers = customerCpf.replace(/\D/g, '');
+      const nameMatch = this.normalizeText(customerName).includes(searchLower);
+      const cpfMatch = searchNumbers ? cpfNumbers.includes(searchNumbers) : false;
       
       return nameMatch || cpfMatch;
     });
@@ -54,6 +71,7 @@ export class CustomersPage implements OnInit {
 
   switchPage(page:number){
     this.page = page;
+    this.selectedCustomer = null;
 
     if (page === 1) {
       this.router.navigate(['gerente-clientes']);
@@ -63,6 +81,28 @@ export class CustomersPage implements OnInit {
     if (page === 2) {
       this.router.navigate(['gerente-consultar-cliente']);
     }
+  }
+
+  openCustomerDetails(customer: Customer): void {
+    this.selectedCustomer = customer;
+  }
+
+  closeCustomerDetails(): void {
+    this.selectedCustomer = null;
+  }
+
+  formatCpf(cpf: string): string {
+    const digits = (cpf || '').replace(/\D/g, '').slice(0, 11);
+
+    if (digits.length !== 11) {
+      return cpf || '-';
+    }
+
+    return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9, 11)}`;
+  }
+
+  formatCurrency(value: number): string {
+    return this.brlFormatter.format(Number.isFinite(value) ? value : 0);
   }
 
 }

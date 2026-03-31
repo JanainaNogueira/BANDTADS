@@ -1,124 +1,225 @@
 import { Customer } from "../../app/models/costumer.model";
+import { Status } from "../../app/models/status-enum.model";
 
 export const MOCK_CUSTOMERS: Customer[] = [
   {
     cpf: '12345678901',
     name: 'Ana Souza',
     email: 'ana@email.com',
+    senha: '123',
     salary: 5500,
     numberAccount: 1001,
     balance: 8200,
     limit: 3000,
     city: 'Curitiba',
     state: 'PR',
-    manager: { cpf: '11122233344', name: 'Carlos Mendes' }
+    manager: { cpf: '11122233344', name: 'Carlos Mendes' },
+    status: Status.APROVADO,
+    password: 'tads'
   },
   {
     cpf: '12345678902',
     name: 'Bruno Lima',
     email: 'bruno@email.com',
+    senha: '123',
     salary: 4200,
     numberAccount: 1002,
     balance: -1500,
     limit: 2000,
     city: 'São Paulo',
     state: 'SP',
-    manager: { cpf: '55566677788', name: 'Fernanda Alves' }
+    manager: { cpf: '55566677788', name: 'Fernanda Alves' },
+    status: Status.APROVADO,
+    password: 'tads'
   },
   {
     cpf: '12345678903',
     name: 'Carla Rocha',
     email: 'carla@email.com',
+    senha: '123',
     salary: 6100,
     numberAccount: 1003,
     balance: 12000,
     limit: 5000,
     city: 'Belo Horizonte',
     state: 'MG',
-    manager: { cpf: '11122233344', name: 'Carlos Mendes' }
+    manager: { cpf: '11122233344', name: 'Carlos Mendes' },
+    status: Status.APROVADO,
+    password: 'tads'
   },
   {
     cpf: '12345678904',
     name: 'Daniel Alves',
     email: 'daniel@email.com',
+    senha: '123',
     salary: 3000,
     numberAccount: 1004,
     balance: 800,
     limit: 1500,
     city: 'Porto Alegre',
     state: 'RS',
-    manager: { cpf: '99988877766', name: 'Juliana Costa' }
+    manager: { cpf: '99988877766', name: 'Juliana Costa' },
+    status: Status.PENDENTE,
+    password: ''
   },
   {
     cpf: '12345678905',
     name: 'Eduarda Martins',
     email: 'eduarda@email.com',
+    senha: '123',
     salary: 7200,
     numberAccount: 1005,
     balance: 15000,
     limit: 7000,
     city: 'Florianópolis',
     state: 'SC',
-    manager: { cpf: '55566677788', name: 'Fernanda Alves' }
+    manager: { cpf: '55566677788', name: 'Fernanda Alves' },
+    status: Status.APROVADO,
+    password: 'tads'
   },
   {
     cpf: '12345678906',
     name: 'Felipe Gomes',
     email: 'felipe@email.com',
+    senha: '123',
     salary: 2800,
     numberAccount: 1006,
     balance: -500,
     limit: 1000,
     city: 'Curitiba',
     state: 'PR',
-    manager: { cpf: '99988877766', name: 'Juliana Costa' }
+    manager: { cpf: '99988877766', name: 'Juliana Costa' },
+    status: Status.APROVADO,
+    password: 'tads'
   },
   {
     cpf: '12345678907',
     name: 'Gabriela Silva',
     email: 'gabriela@email.com',
+    senha: '123',
     salary: 4500,
     numberAccount: 1007,
     balance: 3000,
     limit: 2500,
     city: 'São Paulo',
     state: 'SP',
-    manager: { cpf: '11122233344', name: 'Carlos Mendes' }
+    manager: { cpf: '11122233344', name: 'Carlos Mendes' },
+    status: Status.PENDENTE,
+    password: ''
   },
   {
     cpf: '12345678908',
     name: 'Henrique Dias',
     email: 'henrique@email.com',
+    senha: '123',
     salary: 3900,
     numberAccount: 1008,
     balance: 1200,
     limit: 1800,
     city: 'Rio de Janeiro',
     state: 'RJ',
-    manager: { cpf: '55566677788', name: 'Fernanda Alves' }
+    manager: { cpf: '55566677788', name: 'Fernanda Alves' },
+    status: Status.APROVADO,
+    password: 'tads'
   },
   {
     cpf: '12345678909',
     name: 'Isabela Freitas',
     email: 'isabela@email.com',
+    senha: '123',
     salary: 5100,
     numberAccount: 1009,
     balance: 6400,
     limit: 3200,
     city: 'Salvador',
     state: 'BA',
-    manager: { cpf: '99988877766', name: 'Juliana Costa' }
+    manager: { cpf: '99988877766', name: 'Juliana Costa' },
+    status: Status.PENDENTE,
+    password: ''
   },
   {
     cpf: '12345678910',
     name: 'João Pedro',
     email: 'joao@email.com',
+    senha: '123',
     salary: 4700,
     numberAccount: 1010,
     balance: 2100,
     limit: 2000,
     city: 'Fortaleza',
     state: 'CE',
-    manager: { cpf: '11122233344', name: 'Carlos Mendes' }
+    manager: { cpf: '11122233344', name: 'Carlos Mendes' },
+    status: Status.APROVADO,
+    password: 'tads'
+  },
+  {
+    cpf: '12345678911',
+    name: 'Lucas Ribeiro',
+    email: 'lucas@email.com',
+    salary: 3800,
+    numberAccount: 1011,
+    balance: 900,
+    limit: 1500,
+    city: 'Curitiba',
+    state: 'PR',
+    manager: { cpf: '55566677788', name: 'Fernanda Alves' },
+    status: Status.PENDENTE,
+    password: ''
+  },
+  {
+    cpf: '12345678912',
+    name: 'Mariana Costa',
+    email: 'mariana@email.com',
+    salary: 8000,
+    numberAccount: 1012,
+    balance: 20000,
+    limit: 10000,
+    city: 'São Paulo',
+    state: 'SP',
+    manager: { cpf: '11122233344', name: 'Carlos Mendes' },
+    status: Status.APROVADO,
+    password: 'tads'
+  },
+  {
+    cpf: '12345678913',
+    name: 'Pedro Henrique',
+    email: 'pedro@email.com',
+    salary: 2600,
+    numberAccount: 1013,
+    balance: -800,
+    limit: 1200,
+    city: 'Recife',
+    state: 'PE',
+    manager: { cpf: '99988877766', name: 'Juliana Costa' },
+    status: Status.APROVADO,
+    password: 'tads'
+  },
+  {
+    cpf: '12345678914',
+    name: 'Juliana Martins',
+    email: 'juliana@email.com',
+    salary: 6000,
+    numberAccount: 1014,
+    balance: 5000,
+    limit: 3500,
+    city: 'Curitiba',
+    state: 'PR',
+    manager: { cpf: '55566677788', name: 'Fernanda Alves' },
+    status: Status.APROVADO,
+    password: 'tads'
+  },
+  {
+    cpf: '12345678915',
+    name: 'Rafael Teixeira',
+    email: 'rafael@email.com',
+    salary: 3300,
+    numberAccount: 1015,
+    balance: 700,
+    limit: 1400,
+    city: 'Porto Alegre',
+    state: 'RS',
+    manager: { cpf: '11122233344', name: 'Carlos Mendes' },
+    status: Status.PENDENTE,
+    password: ''
   }
 ];

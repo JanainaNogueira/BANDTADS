@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { ManagerTopPanel } from '../../components/manager-top-panel/manager-top-panel';
 import { CustomersHome } from './components/customers-home/customers-home';
-import { MOCK_NEW_CUSTOMERS } from '../../../assets/mock/new-customers.mock';
+import { MOCK_CUSTOMERS } from '../../../assets/mock/customers.mock';
 
 @Component({
   selector: 'app-home-gerente',
@@ -14,6 +14,6 @@ import { MOCK_NEW_CUSTOMERS } from '../../../assets/mock/new-customers.mock';
 })
 export class HomeGerente {
 
-  customers = MOCK_NEW_CUSTOMERS
+  customers = MOCK_CUSTOMERS;
 
 }

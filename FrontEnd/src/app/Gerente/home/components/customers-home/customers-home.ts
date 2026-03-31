@@ -3,6 +3,7 @@ import { Component, Input } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { CpfPipe } from '../../../../pipes/cpf.pipe';
 import { ModalRecusar } from '../modal-recusar/modal-recusar';
+import { Status } from '../../../../models/status-enum.model';
 
 export interface Manager {
   name: string;
@@ -14,6 +15,7 @@ export interface Customer {
   name: string;
   email: string;
   salary: number;
+  status: Status;
 }
 
 @Component({
@@ -29,15 +31,19 @@ export class CustomersHome {
   sortDirection: 'asc' | 'desc' = 'asc';
 
   currentPage = 1;
-  itemsPerPage = 6; 
+  itemsPerPage = 5; 
 
   toggleSort() {
     this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
     this.currentPage = 1;
   }
 
+  get filteredCustomers() {
+    return this.customers.filter(c => c.status === Status.PENDENTE);
+  }
+
   get sortedCustomers() {
-    return [...this.customers].sort((a, b) => {
+    return [...this.filteredCustomers].sort((a, b) => {
       const result = a.name.localeCompare(b.name);
 
       return this.sortDirection === 'asc' ? result : -result;

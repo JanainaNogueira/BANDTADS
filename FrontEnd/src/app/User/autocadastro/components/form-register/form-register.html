@@ -114,6 +114,7 @@
       routerLink="/login"
       (click)="irParaPagina2()"
       [disabled]="dadosPessoais.invalid"
+      class="mb-8"
     ></app-button-submit>
   </form>
 </div>
@@ -151,7 +152,7 @@
         <div class="flex flex-col gap-4 w-[50%]">
           <label class="font-medium" for="numero">Número</label>
           <input
-            type="number"
+            type="text"
             placeholder="123"
             name="numero"
             id="numero"
@@ -206,17 +207,17 @@
         </div>
     </div>
 
-    <div class="flex flex-row w-full gap-2">
+    <div class="flex flex-row w-full gap-2 mb-8">
         <app-button-submit
           icon="arrow_backward"
           (click)="voltarPagina1()"
-          class="w-[8%]"
+          class="w-[10%]"
         ></app-button-submit>
         <app-button-submit
           nameButton="Enviar Cadastro"
           icon="arrow_forward"
           (click)="enviarDados()"
-          class="w-[92%]"
+          class="w-[80%]"
           [disabled]="endereco.invalid"
           info="Já tem uma conta?"
           linkText="Entrar"

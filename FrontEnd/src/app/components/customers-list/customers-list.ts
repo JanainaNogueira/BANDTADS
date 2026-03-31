@@ -1,5 +1,5 @@
 import { CurrencyPipe} from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { CpfPipe } from '../../pipes/cpf.pipe';
 import { MatIconModule } from '@angular/material/icon';
 import { Customer } from '../../models/costumer.model';
@@ -12,18 +12,29 @@ import { Customer } from '../../models/costumer.model';
   styleUrl: './customers-list.css',
 })
 
-export class CustomersList {
+export class CustomersList implements OnChanges {
   @Input() customers: Customer[] = [];
   @Input() view: 'admin' | 'manager' = 'manager';
+  @Output() customerSelected = new EventEmitter<Customer>();
 
   sortDirection: 'asc' | 'desc' = 'asc';
 
   currentPage = 1;
   itemsPerPage = 10; 
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['customers']) {
+      this.currentPage = 1;
+    }
+  }
+
   toggleSort() {
     this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
     this.currentPage = 1;
+  }
+
+  selectCustomer(customer: Customer): void {
+    this.customerSelected.emit(customer);
   }
 
   get sortedCustomers() {

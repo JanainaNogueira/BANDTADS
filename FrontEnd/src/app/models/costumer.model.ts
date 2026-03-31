@@ -5,6 +5,7 @@ export interface Customer {
   cpf: string;
   name: string;
   email: string;
+  senha?: string;
   salary: number;
   numberAccount: number;
   balance: number;

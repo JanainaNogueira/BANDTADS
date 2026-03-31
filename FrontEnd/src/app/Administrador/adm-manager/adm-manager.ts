@@ -3,9 +3,9 @@ import { Component } from '@angular/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { FormManager } from './components/form-manager/form-manager';
 import { Menu } from '../../components/menu/menu';
-import { ManagerCreateEdit } from '../../models/manager.model';
+import { ManagerCreateEdit, ManagerSummary } from '../../models/manager.model';
 import {  MatIconModule } from '@angular/material/icon';
-import { ManagerStatus, ManagerSummary, MOCK_MANAGERS_LIST, MOCK_MANAGERS_CREATE } from '../../../assets/mock/managers.mock';
+import { ManagerStatus, MOCK_MANAGERS_LIST, MOCK_MANAGERS_CREATE } from '../../../assets/mock/managers.mock';
 
 @Component({
   selector: 'app-adm-manager',

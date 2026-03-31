@@ -59,7 +59,7 @@ export const routes: Routes = [
         component: CustomersPage
     },
     {
-        path: 'home-adm',
+        path: 'home-admin',
         component: HomeAdm
     },
     {

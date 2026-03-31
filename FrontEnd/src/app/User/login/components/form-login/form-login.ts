@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
@@ -13,6 +13,8 @@ import { ButtonSubmit } from '../../../../components/button-submit/button-submit
 })
 export class FormLogin {
   @Output() loginSubmit = new EventEmitter<any>();
+  @Input() erroLogin = false;
+
 
   mostrarSenha = false;
   lembrarLogin = false;

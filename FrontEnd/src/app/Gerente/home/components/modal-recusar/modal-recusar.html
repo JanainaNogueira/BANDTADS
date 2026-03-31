@@ -18,8 +18,8 @@
                 <input
                     id="cpf"
                     type="text"
-                    placeholder="XXX.XXX.XXX-XX"
                     class="border border-gray-300 bg-gray-100 rounded-lg p-2"
+                    [value]="customerSelected.cpf"
                     [disabled]="true"
                 />
             </div>
@@ -28,8 +28,8 @@
                 <input
                     id="nome"
                     type="text"
-                    placeholder="João da Silva"
                     class="border border-gray-300 bg-gray-100 rounded-lg p-2"
+                    [value]="customerSelected.name"
                     [disabled]="true"
                 />
             </div>
@@ -40,6 +40,7 @@
                     type="text"
                     placeholder="R$ 3500,00"
                     class="border border-gray-300 bg-gray-100 rounded-lg p-2"
+                    [value]="customerSelected.salary | currency:'BRL'"
                     [disabled]="true"
                 />
             </div>

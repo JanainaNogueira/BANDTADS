@@ -4,8 +4,8 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { FormManager } from './components/form-manager/form-manager';
 import { Menu } from '../../components/menu/menu';
 import { ManagerCreateEdit, ManagerSummary } from '../../models/manager.model';
-import {  MatIconModule } from '@angular/material/icon';
-import { ManagerStatus, MOCK_MANAGERS_LIST, MOCK_MANAGERS_CREATE } from '../../../assets/mock/managers.mock';
+import { MatIconModule } from '@angular/material/icon';
+import { ManagerStatus, MOCK_MANAGERS_LIST, MOCK_MANAGERS_CREATE, MOCK_MANAGERS } from '../../../assets/mock/managers.mock';
 
 @Component({
   selector: 'app-adm-manager',
@@ -14,13 +14,22 @@ import { ManagerStatus, MOCK_MANAGERS_LIST, MOCK_MANAGERS_CREATE } from '../../.
   styleUrl: './adm-manager.css',
 })
 export class AdmManager {
-  constructor(private dialog: MatDialog) {}
+  constructor(private dialog: MatDialog) { }
+
+  ngOnInit() {
+    const dadosSalvos = localStorage.getItem('managers');
+
+    if (dadosSalvos) {
+      this.managers = JSON.parse(dadosSalvos);
+    } else {
+      this.managers = [...MOCK_MANAGERS_LIST];
+    }
+  }
 
   mockGerente: ManagerCreateEdit = MOCK_MANAGERS_CREATE;
   managers: ManagerSummary[] = MOCK_MANAGERS_LIST;
   searchTerm = '';
   selectedStatus: ManagerStatus | 'all' = 'all';
-
 
   abrirModalCriar(): void {
     const dialogRef = this.dialog.open(FormManager, {
@@ -29,26 +38,59 @@ export class AdmManager {
       data: { modo: 'criar' }
     });
 
-    dialogRef.afterClosed().subscribe((dados) => {
-      if (dados) {
-        console.log('Criar gerente:', dados);
+    dialogRef.afterClosed().subscribe((res) => {
+      if (res && res.modo === 'criar') {
+
+        const dados = res.gerente; 
+
+        const novoGerente: ManagerSummary = {
+          id: this.managers.length + 1,
+          name: dados.nome,
+          email: dados.email,
+          phone: dados.telefone,
+          status: 'pending',
+          clients: 0
+        };
+
+        this.managers = [...this.managers, novoGerente];
+
+        localStorage.setItem('managers', JSON.stringify(this.managers));
+
+        console.log('Gerente criado:', novoGerente);
       }
     });
   }
 
-  abrirModalEditar(gerente: ManagerCreateEdit): void {
+  abrirModalEditar(gerente: ManagerSummary): void {
     const dialogRef = this.dialog.open(FormManager, {
       width: '760px',
       maxWidth: '96vw',
       data: {
         modo: 'editar',
-        gerente: this.mockGerente
+        gerente: gerente
       }
     });
 
-    dialogRef.afterClosed().subscribe((dados) => {
-      if (dados) {
-        console.log('Editar gerente:', dados);
+    dialogRef.afterClosed().subscribe((res) => {
+      if (res && res.modo === 'editar') {
+
+        const dados = res.gerente;
+
+        this.managers = this.managers.map((m) => {
+          if (m.id === dados.id) {
+            return {
+              ...m,
+              name: dados.nome,
+              email: dados.email,
+              phone: dados.telefone
+            };
+          }
+          return m;
+        });
+
+        localStorage.setItem('managers', JSON.stringify(this.managers));
+
+        console.log('Gerente editado:', dados);
       }
     });
   }
@@ -81,6 +123,8 @@ export class AdmManager {
   }
 
   getInitials(name: string): string {
+    if (!name) return '?';
+
     return name
       .split(' ')
       .map((part) => part[0])

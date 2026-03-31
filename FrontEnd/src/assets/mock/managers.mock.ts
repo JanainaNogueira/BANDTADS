@@ -17,6 +17,7 @@ export const MOCK_MANAGERS_LIST: ManagerSummary[] = [
 
 export const MOCK_MANAGERS_CREATE: ManagerCreateEdit= 
   {
+    id:1,
     name: 'Maria Silva',
     cpf: '123.456.789-00',
     telefone: '(41) 99999-9999',
@@ -26,11 +27,13 @@ export const MOCK_MANAGERS_CREATE: ManagerCreateEdit=
 
 export const MOCK_MANAGERS: ManagerCreateEdit[]=[
   {
+    id:2,
     name: 'Gerente',
     email: 'gerente@email.com',
     senha: '123'
   },
   {
+    id:3,
     name: 'Maria Silva',
     cpf: '123.456.789-00',
     telefone: '(41) 99999-9999',

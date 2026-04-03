@@ -16,23 +16,23 @@ public class Cliente {
     @Column(name = "id")
     private Integer id;
 
-    @Column(name = "nome")
+    @Column(name = "nome", nullable = false)
     private String nome;
 
-    @Column(name = "email")
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @Column(name = "cpf")
+    @Column(name = "cpf", nullable = false, unique = true)
     private String cpf;
 
-    @Column(name = "telefone")
+    @Column(name = "telefone", nullable = false)
     private String telefone;
 
     @Column(name = "salario")
     private Double salario;
 
     @ManyToOne
-    @JoinColumn(name = "endereco_id")
+    @JoinColumn(name = "endereco_id", nullable = false)
     private Endereco endereco;
 
     public Cliente() {

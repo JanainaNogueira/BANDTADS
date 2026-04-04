@@ -3,6 +3,7 @@ import { Status } from "../../app/models/status-enum.model";
 
 export const MOCK_CUSTOMERS: Customer[] = [
   {
+    idCliente: "c1",
     cpf: '12345678901',
     name: 'Ana Souza',
     email: 'ana@email.com',
@@ -18,6 +19,7 @@ export const MOCK_CUSTOMERS: Customer[] = [
     password: 'tads'
   },
   {
+    idCliente: "c2",
     cpf: '12345678902',
     name: 'Bruno Lima',
     email: 'bruno@email.com',
@@ -33,6 +35,7 @@ export const MOCK_CUSTOMERS: Customer[] = [
     password: 'tads'
   },
   {
+    idCliente: "c3",
     cpf: '12345678903',
     name: 'Carla Rocha',
     email: 'carla@email.com',
@@ -48,6 +51,7 @@ export const MOCK_CUSTOMERS: Customer[] = [
     password: 'tads'
   },
   {
+    idCliente: "c4",
     cpf: '12345678904',
     name: 'Daniel Alves',
     email: 'daniel@email.com',
@@ -63,6 +67,7 @@ export const MOCK_CUSTOMERS: Customer[] = [
     password: ''
   },
   {
+    idCliente: "c5",
     cpf: '12345678905',
     name: 'Eduarda Martins',
     email: 'eduarda@email.com',
@@ -78,6 +83,7 @@ export const MOCK_CUSTOMERS: Customer[] = [
     password: 'tads'
   },
   {
+    idCliente: "c6",
     cpf: '12345678906',
     name: 'Felipe Gomes',
     email: 'felipe@email.com',
@@ -93,6 +99,7 @@ export const MOCK_CUSTOMERS: Customer[] = [
     password: 'tads'
   },
   {
+    idCliente: "c7",
     cpf: '12345678907',
     name: 'Gabriela Silva',
     email: 'gabriela@email.com',
@@ -108,6 +115,7 @@ export const MOCK_CUSTOMERS: Customer[] = [
     password: ''
   },
   {
+    idCliente: "c8",
     cpf: '12345678908',
     name: 'Henrique Dias',
     email: 'henrique@email.com',
@@ -123,6 +131,7 @@ export const MOCK_CUSTOMERS: Customer[] = [
     password: 'tads'
   },
   {
+    idCliente: "c9",
     cpf: '12345678909',
     name: 'Isabela Freitas',
     email: 'isabela@email.com',
@@ -138,6 +147,7 @@ export const MOCK_CUSTOMERS: Customer[] = [
     password: ''
   },
   {
+    idCliente: "c10",
     cpf: '12345678910',
     name: 'João Pedro',
     email: 'joao@email.com',
@@ -153,6 +163,7 @@ export const MOCK_CUSTOMERS: Customer[] = [
     password: 'tads'
   },
   {
+    idCliente: "c11",
     cpf: '12345678911',
     name: 'Lucas Ribeiro',
     email: 'lucas@email.com',
@@ -167,6 +178,7 @@ export const MOCK_CUSTOMERS: Customer[] = [
     password: ''
   },
   {
+    idCliente: "c12",
     cpf: '12345678912',
     name: 'Mariana Costa',
     email: 'mariana@email.com',
@@ -181,6 +193,7 @@ export const MOCK_CUSTOMERS: Customer[] = [
     password: 'tads'
   },
   {
+    idCliente: "c13",
     cpf: '12345678913',
     name: 'Pedro Henrique',
     email: 'pedro@email.com',
@@ -195,6 +208,7 @@ export const MOCK_CUSTOMERS: Customer[] = [
     password: 'tads'
   },
   {
+    idCliente: "c14",
     cpf: '12345678914',
     name: 'Juliana Martins',
     email: 'juliana@email.com',
@@ -209,6 +223,7 @@ export const MOCK_CUSTOMERS: Customer[] = [
     password: 'tads'
   },
   {
+    idCliente: "c15",
     cpf: '12345678915',
     name: 'Rafael Teixeira',
     email: 'rafael@email.com',
@@ -223,3 +238,37 @@ export const MOCK_CUSTOMERS: Customer[] = [
     password: ''
   }
 ];
+export const MOCK_LOGIN_USER = {
+  idCliente: "c1",
+  cpf: '12345678901',
+  name: 'Ana Souza',
+  email: 'ana@email.com',
+  senha: '123',
+  salary: 5500.00,
+  numberAccount: 1001,
+  balance: 8200.00,
+  limit: 3000.00,
+  city: 'Curitiba',
+  state: 'PR',
+  manager: { cpf: '11122233344', name: 'Carlos Mendes' },
+  status: Status.APROVADO,
+  password: 'tads',
+}
+export const MOCK_TRANSACTION_USER = [
+    { id: 9, dataHora: new Date(2026, 3, 6, 14, 0),  operacao: 'Saque', nomeCliente: 'Ana Souza',   valor: -3500.00, isEntrada: false },
+    { id: 6, dataHora: new Date(2026, 4, 5, 15, 0),  operacao: 'Transferência', nomeCliente: 'Carlos Mendes',   valor: -1200.00, isEntrada: false },
+    { id: 7, dataHora: new Date(2026, 4, 1, 16, 30), operacao: 'Transferência', nomeCliente: 'Helena Rocha',    valor: 2340.20,  isEntrada: true  },
+]
+
+export const MOCK_TRANSACTION_LIST = [
+    { id: 1, dataHora: new Date(2026, 2, 5, 9, 15),  operacao: 'Depósito',      nomeCliente: 'Ana Silva',       valor: 12500.75, isEntrada: true  },
+    { id: 2, dataHora: new Date(2026, 2, 5, 10, 30), operacao: 'Transferência', nomeCliente: 'Helena Rocha',    valor: 4500.00,  isEntrada: true  },
+    { id: 3, dataHora: new Date(2026, 2, 5, 11, 0),  operacao: 'Transferência', nomeCliente: 'Juliana Ferreira',valor: 24000.00, isEntrada: true  },
+    { id: 4, dataHora: new Date(2026, 2, 5, 13, 45), operacao: 'Saque',         nomeCliente: 'Fernanda Lima',   valor: -5000.00, isEntrada: false },
+    { id: 5, dataHora: new Date(2026, 2, 5, 14, 20), operacao: 'Depósito',      nomeCliente: 'Carlos Mendes',   valor: 1200.00,  isEntrada: true  },
+    { id: 6, dataHora: new Date(2026, 2, 5, 15, 0),  operacao: 'Transferência', nomeCliente: 'Carlos Mendes',   valor: -1200.00, isEntrada: false },
+    { id: 7, dataHora: new Date(2026, 2, 5, 16, 30), operacao: 'Transferência', nomeCliente: 'Helena Rocha',    valor: 2340.20,  isEntrada: true  },
+    { id: 8, dataHora: new Date(2026, 4, 4, 8, 0),   operacao: 'Depósito',      nomeCliente: 'Roberto Alves',   valor: 8000.00,  isEntrada: true  },
+    { id: 9, dataHora: new Date(2026, 2, 6, 14, 0),  operacao: 'Saque',         nomeCliente: 'Roberto Alves',   valor: -3500.00, isEntrada: false },
+    { id: 10, dataHora: new Date(2026, 2, 8, 10, 0), operacao: 'Transferência', nomeCliente: 'Maria Oliveira',  valor: 6750.00,  isEntrada: true  },
+  ];

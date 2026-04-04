@@ -5,6 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { Operacoes } from '../../components/operacoes/operacoes';
 import { Router } from '@angular/router';
+import { MOCK_LOGIN_USER, MOCK_TRANSACTION_USER } from '../../../assets/mock/customers.mock';
 
 @Component({
   selector: 'app-home',
@@ -15,38 +16,9 @@ import { Router } from '@angular/router';
 export class Home {
   constructor(private dialog: MatDialog, private router: Router) {}
 
-  transactions = [
-  {
-    name: 'José Almeida',
-    date: '12 Mar 2026',
-    amount: 530,
-    type: 'income'
-  },
-  {
-    name: 'Mercado Central',
-    date: '10 Mar 2026',
-    amount: 120,
-    type: 'expense'
-  },
-  {
-    name: 'Maria Souza',
-    date: '08 Mar 2026',
-    amount: 250,
-    type: 'income'
-  },
-  {
-    name: 'Netflix',
-    date: '05 Mar 2026',
-    amount: 39.9,
-    type: 'expense'
-  },
-  {
-    name: 'Padaria',
-    date: '03 Mar 2026',
-    amount: 18,
-    type: 'expense'
-  }
-];
+  login = MOCK_LOGIN_USER;
+
+  transactions = MOCK_TRANSACTION_USER;
 
   abrirOperacoes(tabInicial: number): void {
     this.dialog.open(Operacoes, {

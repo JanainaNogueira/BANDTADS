@@ -1,31 +1,80 @@
 <aside class="h-screen w-56 min-w-[45%] border-r-2 border-gray-200 p-2.5 flex flex-col justify-between">
     <div class="flex flex-col">
         <h2 class="text-[#6366F1] mt-5 mb-5 ml-2 font-bold text-3xl ">BanTads</h2>
-        <div class="flex flex-col h-auto">
-            <app-menu-actions 
-                icon="home"
-                label="Home"
-                routerLink="/home"
-            ></app-menu-actions>
-            <app-menu-actions 
-                icon="receipt_long"
-                label="Extrato Detalhado"
-                routerLink="/bank-statement"
-            ></app-menu-actions>
-            <app-menu-actions 
-                icon="settings"
-                label="Configurações"
-                routerLink="/editProfile"
-            ></app-menu-actions>
+        <div *ngIf="tipo == 'cliente'" class="flex flex-col h-auto">
+                <app-menu-actions  
+                    icon="home"
+                    label="Home"
+                    routerLink="/home"
+                ></app-menu-actions>
+                <app-menu-actions 
+                    icon="receipt_long"
+                    label="Extrato Detalhado"
+                    routerLink="/bank-statement"
+                ></app-menu-actions>
+                <app-menu-actions 
+                    icon="settings"
+                    label="Configurações"
+                    routerLink="/editProfile"
+                ></app-menu-actions>
+        </div>
+        <div *ngIf="tipo == 'gerente'" class="flex flex-col h-auto">
+                <app-menu-actions  
+                    icon="home"
+                    label="Home"
+                    routerLink="/home-gerente"
+                ></app-menu-actions>
+                <app-menu-actions 
+                    icon="receipt_long"
+                    label="Clientes"
+                    routerLink="/gerente-clientes"
+                ></app-menu-actions>
+        </div>
+        <div *ngIf="tipo == 'admin'" class="flex flex-col h-auto">
+                <app-menu-actions  
+                    icon="home"
+                    label="Home"
+                    routerLink="/home-admin"
+                ></app-menu-actions>
+                <app-menu-actions 
+                    icon="receipt_long"
+                    label="Gerentes"
+                    routerLink="/lista-gerentes"
+                ></app-menu-actions>
+                <app-menu-actions 
+                    icon="settings"
+                    label="Clientes"
+                    routerLink="/clientes"
+                ></app-menu-actions>
         </div>
     </div>
-    <div class="flex border-t-1 border-gray-200 cursor-pointer">
+    <div 
+        class="flex border-t-1 border-gray-200 cursor-pointer relative"
+        (click)="toggleMenu()"
+    >
         <div class="m-2 w-12 h-12 rounded-full bg-indigo-500 flex items-center justify-center text-white font-bold">
             {{ getInitials("John Doe") }}
         </div>
-        <div class="flex flex-col align-middle justify-center">
-            <p class="font-semibold">John Doe</p>
-            <label class="text-[#6B7280]">john@example.com</label>
+
+        <div class="flex flex-col justify-center">
+            <p class="font-semibold">
+            {{ loginAdmin?.name || loginCliente?.name || loginGestor?.name || '' }}
+            </p>
+            <label class="text-[#6B7280]">
+            {{ loginAdmin?.email || loginCliente?.email || loginGestor?.email || '' }}
+            </label>
+        </div>
+
+        <div 
+            *ngIf="menuAberto"
+            class="absolute bottom-full left-0 w-full mb-2 bg-gray-100 border rounded-md shadow z-50"
+            >
+            <button 
+                class="w-full text-center py-2 text-gray-700 hover:bg-gray-200"
+                (click)="logout($event)"
+            >
+                Sair
+            </button>
         </div>
     </div>
 </aside>

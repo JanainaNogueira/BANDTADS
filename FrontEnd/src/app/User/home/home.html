@@ -2,24 +2,24 @@
     <app-menu></app-menu>
     <main class="bg-[#F3F4F6] h-full overflow-y-scroll w-full flex flex-col gap-7 items-center">
         <header class="w-[95%] h-[6%] mt-4">
-            <h1 class="font-medium text-xl mb-1.5">Bem vindo, {{login.name}}</h1>
+            <h1 class="font-medium text-xl mb-1.5">Bem vindo, {{login?.name}}</h1>
             <p class="text-[#4B5563] text-xs">Como está seu dinheiro hoje</p>
         </header>
         <div class="flex flex-col justify-center items-center rounded-2xl h-[35%] w-[95%] bg-linear-to-br from-[#6366F1] via-[#4F46E5] to-[#4F46E5]">
             <div class="h-[40%] w-[95%]">
                 <span class="text-[#C7D2FE]">Saldo Atual</span>
-                <p class="text-[#FFFFFF] text-3xl font-semibold">{{ login.balance | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</p>
+                <p class="text-[#FFFFFF] text-3xl font-semibold">{{ login?.balance| currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</p>
             </div>
             <div class="h-[35%] w-[95%] border-t-1 border-[#818CF8] flex justify-between items-center">
                 <div>
                     <label class="text-[#C7D2FE]">Limite da Conta</label>
                     <div class="flex items-end gap-1">
-                        <span class="text-[#C7D2FE] text-sm">{{login.limit | currency:'BRL': 'symbol':'1.2-2' : 'pt-BR'}}</span>
+                        <span class="text-[#C7D2FE] text-sm">{{login?.limit| currency:'BRL': 'symbol':'1.2-2' : 'pt-BR'}}</span>
                     </div>
                 </div>
                 <div>
                     <label class="text-[#C7D2FE]">Número da conta</label>
-                    <p class="text-[#FFFFFF]">{{login.numberAccount}}</p>
+                    <p class="text-[#FFFFFF]">{{login?.numberAccount}}</p>
                 </div>
             </div>
         </div>

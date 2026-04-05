@@ -2,6 +2,7 @@ import { Manager } from "./manager.model";
 import { Status } from "./status-enum.model";
 
 export interface Customer {
+  idCliente: string;
   cpf: string;
   name: string;
   email: string;

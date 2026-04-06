@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { CustomerService } from '../../services/customer.service';
+import { TipoOperacao, TransactionService } from '../../services/transaction.service';
 
 @Component({
   selector: 'app-operacoes',
@@ -21,6 +23,8 @@ export class Operacoes {
   erro = '';
   sucesso = '';
   dataHoraUltimaTransferencia: Date | null = null;
+  nomeCliente = 'Cliente';
+  emailCliente = '';
 
   tabs = [
     { label: 'Transferência', icon: 'person_outline' },
@@ -30,17 +34,23 @@ export class Operacoes {
 
   constructor(
     public dialogRef: MatDialogRef<Operacoes>,
+    private customerService: CustomerService,
+    private transactionService: TransactionService,
     @Inject(MAT_DIALOG_DATA) public data: {
       tabInicial: number;
       saldoAtual?: number;
       limiteTotal?: number;
       contaLogada?: string;
+      nomeCliente?: string;
+      emailCliente?: string;
     }
   ) {
     this.tabAtiva = data?.tabInicial ?? 0;
     this.saldoAtual = data?.saldoAtual ?? this.saldoAtual;
     this.limiteTotal = data?.limiteTotal ?? this.limiteTotal;
     this.contaLogada = data?.contaLogada ?? this.contaLogada;
+    this.nomeCliente = data?.nomeCliente ?? this.nomeCliente;
+    this.emailCliente = data?.emailCliente ?? this.emailCliente;
   }
 
   get valorValido(): boolean {
@@ -84,6 +94,8 @@ export class Operacoes {
       return;
     }
 
+    const valorOperacao = this.valor;
+
     switch (this.tabAtiva) {
       case 0:
         if (!this.contaDestino.trim()) {
@@ -116,9 +128,52 @@ export class Operacoes {
         break;
     }
 
+    this.persistirOperacao(valorOperacao);
+    this.persistirSaldoCliente();
+
     this.valor = 0;
     this.valorFormatado = '';
     this.contaDestino = '';
+  }
+
+  private persistirOperacao(valor: number): void {
+    const mapaOperacao: Record<number, TipoOperacao> = {
+      0: 'Transferência',
+      1: 'Saque',
+      2: 'Depósito',
+    };
+
+    const operacao = mapaOperacao[this.tabAtiva] ?? 'Transferência';
+    const valorFinal = this.tabAtiva === 2 ? valor : -valor;
+
+    this.transactionService.addTransaction({
+      operacao,
+      nomeCliente: this.nomeCliente,
+      valor: valorFinal,
+      isEntrada: valorFinal > 0,
+    });
+  }
+
+  private persistirSaldoCliente(): void {
+    if (!this.emailCliente) {
+      return;
+    }
+
+    const clientes = this.customerService.obterTodosClientes();
+    const index = clientes.findIndex(
+      (cliente) => cliente.email.toLowerCase() === this.emailCliente.toLowerCase()
+    );
+
+    if (index === -1) {
+      return;
+    }
+
+    clientes[index] = {
+      ...clientes[index],
+      balance: this.saldoAtual,
+    };
+
+    this.customerService.salvarClientes(clientes);
   }
 
   resetForm() {

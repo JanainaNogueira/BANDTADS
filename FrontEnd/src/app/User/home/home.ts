@@ -5,10 +5,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { Operacoes } from '../../components/operacoes/operacoes';
 import { Router } from '@angular/router';
-import { MOCK_CUSTOMERS, MOCK_LOGIN_USER, MOCK_TRANSACTION_USER } from '../../../assets/mock/customers.mock';
-import { MOCK_MANAGERS_LIST } from '../../../assets/mock/managers.mock';
-import { MOCK_ADMINS } from '../../../assets/mock/admin.mock';
 import { Customer } from '../../models/costumer.model';
+import { CustomerService } from '../../services/customer.service';
+import { Transacao, TransactionService } from '../../services/transaction.service';
 
 @Component({
   selector: 'app-home',
@@ -17,32 +16,59 @@ import { Customer } from '../../models/costumer.model';
   styleUrl: './home.css',
 })
 export class Home {
-  constructor(private dialog: MatDialog, private router: Router) {}
+  constructor(
+    private dialog: MatDialog,
+    private router: Router,
+    private customerService: CustomerService,
+    private transactionService: TransactionService
+  ) {}
 
-  cliente = MOCK_CUSTOMERS;
-  gestores = MOCK_MANAGERS_LIST;
-  admin = MOCK_ADMINS;
-
-  transactions = MOCK_TRANSACTION_USER;
+  transactions: Transacao[] = [];
 
   email: string = '';
   tipo: string = "";
   login:Customer | null = null;
 
   ngOnInit() {
-    this.email = localStorage.getItem('email') || '';
-    this.tipo = localStorage.getItem('tipoUsuario') || "";
-    if(this.tipo == "cliente"){
-      this.login = this.cliente.find(l =>l.email == this.email) || null;
+    this.carregarUsuarioLogado();
+    this.carregarTransacoesRecentes();
+  }
+
+  private carregarUsuarioLogado(): void {
+    if (typeof localStorage === 'undefined') {
+      return;
     }
 
+    this.email = localStorage.getItem('email') || '';
+    this.tipo = localStorage.getItem('tipoUsuario') || "";
+    if (this.tipo == "cliente") {
+      this.login = this.customerService
+        .obterTodosClientes()
+        .find((cliente) => cliente.email == this.email) || null;
+    }
+  }
+
+  private carregarTransacoesRecentes(): void {
+    this.transactions = this.transactionService.getRecentTransactions(3);
   }
 
   abrirOperacoes(tabInicial: number): void {
-    this.dialog.open(Operacoes, {
-      data: { tabInicial },
+    const ref = this.dialog.open(Operacoes, {
+      data: {
+        tabInicial,
+        saldoAtual: this.login?.balance,
+        limiteTotal: this.login?.limit,
+        contaLogada: String(this.login?.numberAccount || ''),
+        nomeCliente: this.login?.name,
+        emailCliente: this.login?.email,
+      },
       width: '760px',
       maxWidth: '96vw'
+    });
+
+    ref.afterClosed().subscribe(() => {
+      this.carregarUsuarioLogado();
+      this.carregarTransacoesRecentes();
     });
   };
 

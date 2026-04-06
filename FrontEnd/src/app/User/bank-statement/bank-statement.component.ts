@@ -7,17 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
 import { MatNativeDateModule, MAT_DATE_LOCALE } from '@angular/material/core';
 import { Menu } from '../../components/menu/menu';
-
-export type TipoOperacao = 'Depósito' | 'Saque' | 'Transferência';
-
-export interface Transacao {
-  id: number;
-  dataHora: Date;
-  operacao: TipoOperacao;
-  clienteOrigemDestino: string;
-  valor: number;
-  isEntrada: boolean;
-}
+import { Transacao, TransactionService } from '../../services/transaction.service';
 
 export interface GrupoDia {
   data: Date;
@@ -48,6 +38,7 @@ export interface GrupoDia {
   styleUrl: './bank-statement.component.css',
 })
 export class BankStatementComponent {
+  constructor(private transactionService: TransactionService) {}
 
   dataInicio = new FormControl<Date | null>(null, Validators.required);
   dataFim = new FormControl<Date | null>(null, Validators.required);
@@ -55,19 +46,6 @@ export class BankStatementComponent {
   gruposDia: GrupoDia[] = [];
   pesquisaRealizada = false;
   erroValidacao = '';
-
-  private readonly todasTransacoes: Transacao[] = [
-    { id: 1, dataHora: new Date(2026, 2, 5, 9, 15),  operacao: 'Depósito',      clienteOrigemDestino: 'Ana Silva',       valor: 12500.75, isEntrada: true  },
-    { id: 2, dataHora: new Date(2026, 2, 5, 10, 30), operacao: 'Transferência', clienteOrigemDestino: 'Helena Rocha',    valor: 4500.00,  isEntrada: true  },
-    { id: 3, dataHora: new Date(2026, 2, 5, 11, 0),  operacao: 'Transferência', clienteOrigemDestino: 'Juliana Ferreira',valor: 24000.00, isEntrada: true  },
-    { id: 4, dataHora: new Date(2026, 2, 5, 13, 45), operacao: 'Saque',         clienteOrigemDestino: 'Fernanda Lima',   valor: -5000.00, isEntrada: false },
-    { id: 5, dataHora: new Date(2026, 2, 5, 14, 20), operacao: 'Depósito',      clienteOrigemDestino: 'Carlos Mendes',   valor: 1200.00,  isEntrada: true  },
-    { id: 6, dataHora: new Date(2026, 2, 5, 15, 0),  operacao: 'Transferência', clienteOrigemDestino: 'Carlos Mendes',   valor: -1200.00, isEntrada: false },
-    { id: 7, dataHora: new Date(2026, 2, 5, 16, 30), operacao: 'Transferência', clienteOrigemDestino: 'Helena Rocha',    valor: 2340.20,  isEntrada: true  },
-    { id: 8, dataHora: new Date(2026, 2, 6, 8, 0),   operacao: 'Depósito',      clienteOrigemDestino: 'Roberto Alves',   valor: 8000.00,  isEntrada: true  },
-    { id: 9, dataHora: new Date(2026, 2, 6, 14, 0),  operacao: 'Saque',         clienteOrigemDestino: 'Roberto Alves',   valor: -3500.00, isEntrada: false },
-    { id: 10, dataHora: new Date(2026, 2, 8, 10, 0), operacao: 'Transferência', clienteOrigemDestino: 'Maria Oliveira',  valor: 6750.00,  isEntrada: true  },
-  ];
 
   pesquisar(): void {
     const inicio = this.dataInicio.value;
@@ -99,7 +77,7 @@ export class BankStatementComponent {
       cursor.setDate(cursor.getDate() + 1);
     }
 
-    for (const t of this.todasTransacoes) {
+    for (const t of this.transactionService.getAllTransactions()) {
       const tDia = new Date(t.dataHora);
       tDia.setHours(0, 0, 0, 0);
 

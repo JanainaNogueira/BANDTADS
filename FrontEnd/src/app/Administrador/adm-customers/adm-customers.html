@@ -1,15 +1,17 @@
-<div class="h-screen w-screen flex overflow-hidden">
+<div class="h-screen w-screen flex overflow-hidden bg-[#F3F4F6] text-[#111827]">
   <app-menu></app-menu>
 
-  <div class="flex flex-col items-center p-10 gap-5">
-    <div class="flex justify-between w-full">
-      <h1 class="font-medium text-2xl p-3">Clientes</h1>
-    </div>
-    <app-customers-list
-      [customers]="customers"
-      view="admin"
-      class="h-[75%]">
-    </app-customers-list>
-  </div>
+  <main class="h-full flex-1 min-h-0 overflow-y-auto p-4 md:p-6">
+    <section class="mb-5 flex items-center justify-between">
+      <h1 class="text-2xl font-bold text-[#1F2937] md:text-3xl">Clientes</h1>
+    </section>
 
+    <section class="rounded-3xl bg-white p-6 shadow-sm">
+      <app-customers-list
+        [customers]="customers"
+        view="admin"
+        class="w-full">
+      </app-customers-list>
+    </section>
+  </main>
 </div>

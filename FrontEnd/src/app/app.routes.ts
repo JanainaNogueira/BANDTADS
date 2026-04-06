@@ -15,7 +15,7 @@ import { FormManager } from './Administrador/adm-manager/components/form-manager
 export const routes: Routes = [
     {
         path: '',
-        redirectTo: 'home',
+        redirectTo: 'login',
         pathMatch: 'full'
     },
     {

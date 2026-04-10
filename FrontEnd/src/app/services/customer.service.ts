@@ -94,16 +94,15 @@ export class CustomerService {
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(clientes));
   }
 
-  atualizarCliente(cpf: string, clienteAtualizado: Customer): void {
+  atualizarCliente(clienteAtualizado: Customer): void {
     if (!isPlatformBrowser(this.platformId)) {
       return;
     }
 
     const clientes = this.obterTodosClientes();
-    const cpfNormalizado = this.normalizarCpf(cpf);
 
     const index = clientes.findIndex(
-      (c) => this.normalizarCpf(c.cpf) === cpfNormalizado
+      (c) => this.normalizarCpf(c.cpf) === this.normalizarCpf(clienteAtualizado.cpf)
     );
 
     if (index !== -1) {

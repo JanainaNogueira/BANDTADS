@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component } from '@angular/core'; 
 import { CommonModule, DatePipe } from '@angular/common';
 import { ReactiveFormsModule, FormControl, Validators } from '@angular/forms';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -8,11 +8,18 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatNativeDateModule, MAT_DATE_LOCALE } from '@angular/material/core';
 import { Menu } from '../../components/menu/menu';
 import { Transacao, TransactionService } from '../../services/transaction.service';
+import { CustomerService} from '../../services/customer.service';
+import { Customer } from '../../models/costumer.model';
+
+export interface TransacaoExtrato extends Transacao {
+  isEntrada: boolean;
+  nomeOutro: string;
+}
 
 export interface GrupoDia {
   data: Date;
   dataFormatada: string;
-  transacoes: Transacao[];
+  transacoes: TransacaoExtrato[];
   saldoDia: number;
   aberto: boolean;
 }
@@ -38,7 +45,11 @@ export interface GrupoDia {
   styleUrl: './bank-statement.component.css',
 })
 export class BankStatementComponent {
-  constructor(private transactionService: TransactionService) {}
+  
+  constructor(
+    private transactionService: TransactionService,
+    private customerService: CustomerService
+  ) {}
 
   dataInicio = new FormControl<Date | null>(null, Validators.required);
   dataFim = new FormControl<Date | null>(null, Validators.required);
@@ -47,66 +58,105 @@ export class BankStatementComponent {
   pesquisaRealizada = false;
   erroValidacao = '';
 
-  pesquisar(): void {
-    const inicio = this.dataInicio.value;
-    const fim = this.dataFim.value;
+  login: Customer | null = null;
 
-    this.erroValidacao = '';
-
-    if (!inicio || !fim) {
-      this.erroValidacao = 'Selecione ambas as datas';
-      return;
-    }
-
-    if (fim < inicio) {
-      this.erroValidacao = 'Data de fim não pode ser anterior à data de início';
-      return;
-    }
-
-    const startDate = new Date(inicio);
-    startDate.setHours(0, 0, 0, 0);
-
-    const endDate = new Date(fim);
-    endDate.setHours(23, 59, 59, 999);
-
-    const mapaGrupos = new Map<string, Transacao[]>();
-
-    const cursor = new Date(startDate);
-    while (cursor <= endDate) {
-      mapaGrupos.set(this.toDateKey(cursor), []);
-      cursor.setDate(cursor.getDate() + 1);
-    }
-
-    for (const t of this.transactionService.getAllTransactions()) {
-      const tDia = new Date(t.dataHora);
-      tDia.setHours(0, 0, 0, 0);
-
-      if (tDia >= startDate && tDia <= endDate) {
-        mapaGrupos.get(this.toDateKey(tDia))?.push(t);
-      }
-    }
-
-    this.gruposDia = Array.from(mapaGrupos.entries())
-      .map(([key, transacoes]) => {
-        const [y, m, d] = key.split('-').map(Number);
-        const data = new Date(y, m - 1, d);
-
-        // Ordena por transação mais recente baseado no horário
-        transacoes.sort((a, b) => b.dataHora.getTime() - a.dataHora.getTime());
-
-        return {
-          data,
-          dataFormatada: data.toLocaleDateString('pt-BR'),
-          transacoes,
-          saldoDia: transacoes.reduce((soma, t) => soma + t.valor, 0),
-          aberto: false
-        };
-      })
-      // Mais recente baseaado no dia
-      .sort((a, b) => b.data.getTime() - a.data.getTime());
-
-    this.pesquisaRealizada = true;
+  ngOnInit() {
+    this.carregarUsuarioLogado();
   }
+
+  private carregarUsuarioLogado() {
+    const email = localStorage.getItem('email') || '';
+    this.login = this.customerService
+      .obterTodosClientes()
+      .find(c => c.email === email) || null;
+  }
+
+  pesquisar(): void {
+  if (!this.login) {
+    this.erroValidacao = 'Cliente não carregado';
+    return;
+  }
+
+  const inicio = this.dataInicio.value;
+  const fim = this.dataFim.value;
+  this.erroValidacao = '';
+
+  if (!inicio || !fim) {
+    this.erroValidacao = 'Selecione ambas as datas';
+    return;
+  }
+  if (fim < inicio) {
+    this.erroValidacao = 'Data de fim não pode ser anterior à data de início';
+    return;
+  }
+
+  const startDate = new Date(inicio);
+  startDate.setHours(0, 0, 0, 0);
+  const endDate = new Date(fim);
+  endDate.setHours(23, 59, 59, 999);
+
+  const mapaGrupos = new Map<string, TransacaoExtrato[]>();
+
+  const cursor = new Date(startDate);
+  while (cursor <= endDate) {
+    mapaGrupos.set(this.toDateKey(cursor), []);
+    cursor.setDate(cursor.getDate() + 1);
+  }
+
+  // Transações
+  const todas = this.transactionService.getTransactionsByAccount(this.login.numberAccount);
+  const clientes = this.customerService.obterTodosClientes();
+
+  for (const t of todas) {
+    if (t.contaOrigem !== this.login.numberAccount && t.contaDestino !== this.login.numberAccount) {
+      continue;
+    }
+
+    const tDia = new Date(t.dataHora);
+    tDia.setHours(0, 0, 0, 0);
+
+    const grupo = mapaGrupos.get(this.toDateKey(tDia));
+    if (!grupo) continue;
+
+    const isEntrada = this.transactionService.isEntrada(t, this.login.numberAccount);
+
+    let nomeOutro = '';
+    if (t.tipo === 'TRANSFERENCIA') {
+      if (isEntrada) {
+        const origem = clientes.find(c => c.numberAccount === t.contaOrigem);
+        nomeOutro = origem?.name || '';
+      } else {
+        const destino = clientes.find(c => c.numberAccount === t.contaDestino);
+        nomeOutro = destino?.name || '';
+      }
+    } else {
+      nomeOutro = isEntrada ? 'Depósito' : 'Você';
+    }
+
+    grupo.push({ ...t, isEntrada, nomeOutro });
+  }
+
+  this.gruposDia = Array.from(mapaGrupos.entries())
+    .map(([key, transacoes]) => {
+      const [y, m, d] = key.split('-').map(Number);
+      const data = new Date(y, m - 1, d);
+
+      transacoes.sort((a, b) => b.dataHora.getTime() - a.dataHora.getTime());
+
+      const saldoDia = transacoes.reduce((soma, t) => soma + t.valor, 0);
+
+      return {
+        data,
+        dataFormatada: data.toLocaleDateString('pt-BR'),
+        transacoes,
+        saldoDia,
+        aberto: false
+      };
+    })
+    .sort((a, b) => b.data.getTime() - a.data.getTime());
+
+  this.pesquisaRealizada = true;
+}
 
   toggleDia(grupo: GrupoDia): void {
     if (grupo.transacoes.length > 0) {
@@ -115,10 +165,7 @@ export class BankStatementComponent {
   }
 
   formatarValor(valor: number): string {
-    return valor.toLocaleString('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    });
+    return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   }
 
   trackByData(index: number, grupo: GrupoDia): number {

@@ -1,5 +1,6 @@
 import { Customer } from "../../app/models/costumer.model";
 import { Status } from "../../app/models/status-enum.model";
+import { Transacao } from "../../app/services/transaction.service";
 
 export const MOCK_CUSTOMERS: Customer[] = [
   {
@@ -254,21 +255,36 @@ export const MOCK_LOGIN_USER = {
   status: Status.APROVADO,
   password: 'tads',
 }
-export const MOCK_TRANSACTION_USER = [
-    { id: 9, dataHora: new Date(2026, 3, 6, 14, 0),  operacao: 'Saque', nomeCliente: 'Ana Souza',   valor: -3500.00, isEntrada: false },
-    { id: 6, dataHora: new Date(2026, 4, 5, 15, 0),  operacao: 'Transferência', nomeCliente: 'Carlos Mendes',   valor: -1200.00, isEntrada: false },
-    { id: 7, dataHora: new Date(2026, 4, 1, 16, 30), operacao: 'Transferência', nomeCliente: 'Helena Rocha',    valor: 2340.20,  isEntrada: true  },
-]
 
-export const MOCK_TRANSACTION_LIST = [
-    { id: 1, dataHora: new Date(2026, 2, 5, 9, 15),  operacao: 'Depósito',      nomeCliente: 'Ana Silva',       valor: 12500.75, isEntrada: true  },
-    { id: 2, dataHora: new Date(2026, 2, 5, 10, 30), operacao: 'Transferência', nomeCliente: 'Helena Rocha',    valor: 4500.00,  isEntrada: true  },
-    { id: 3, dataHora: new Date(2026, 2, 5, 11, 0),  operacao: 'Transferência', nomeCliente: 'Juliana Ferreira',valor: 24000.00, isEntrada: true  },
-    { id: 4, dataHora: new Date(2026, 2, 5, 13, 45), operacao: 'Saque',         nomeCliente: 'Fernanda Lima',   valor: -5000.00, isEntrada: false },
-    { id: 5, dataHora: new Date(2026, 2, 5, 14, 20), operacao: 'Depósito',      nomeCliente: 'Carlos Mendes',   valor: 1200.00,  isEntrada: true  },
-    { id: 6, dataHora: new Date(2026, 2, 5, 15, 0),  operacao: 'Transferência', nomeCliente: 'Carlos Mendes',   valor: -1200.00, isEntrada: false },
-    { id: 7, dataHora: new Date(2026, 2, 5, 16, 30), operacao: 'Transferência', nomeCliente: 'Helena Rocha',    valor: 2340.20,  isEntrada: true  },
-    { id: 8, dataHora: new Date(2026, 4, 4, 8, 0),   operacao: 'Depósito',      nomeCliente: 'Roberto Alves',   valor: 8000.00,  isEntrada: true  },
-    { id: 9, dataHora: new Date(2026, 2, 6, 14, 0),  operacao: 'Saque',         nomeCliente: 'Roberto Alves',   valor: -3500.00, isEntrada: false },
-    { id: 10, dataHora: new Date(2026, 2, 8, 10, 0), operacao: 'Transferência', nomeCliente: 'Maria Oliveira',  valor: 6750.00,  isEntrada: true  },
-  ];
+export const MOCK_TRANSACTION_LIST: Transacao[] = [
+  {
+    id: 1,
+    dataHora: new Date(),
+    tipo: 'DEPOSITO',
+    valor: 1000,
+    contaOrigem: 1001, // Ana
+  },
+  {
+    id: 2,
+    dataHora: new Date(),
+    tipo: 'SAQUE',
+    valor: -200,
+    contaOrigem: 1001,
+  },
+  {
+    id: 3,
+    dataHora: new Date(),
+    tipo: 'TRANSFERENCIA',
+    valor: -500,
+    contaOrigem: 1001, // Ana enviou
+    contaDestino: 1002, // Bruno recebeu
+  },
+  {
+    id: 4,
+    dataHora: new Date(),
+    tipo: 'TRANSFERENCIA',
+    valor: 500,
+    contaOrigem: 1002, // Bruno enviou
+    contaDestino: 1001, // Ana recebeu
+  }
+];

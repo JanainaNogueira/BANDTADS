@@ -15,6 +15,7 @@ import { Customer } from '../../models/costumer.model';
   styleUrl: './edit-profile.component.css'
 })
 export class EditProfileComponent implements OnInit {
+
   perfilForm: FormGroup;
   isEditMode = false;
   customer!: Customer;
@@ -58,9 +59,7 @@ export class EditProfileComponent implements OnInit {
 
   consultaCEP() {
     const cep = this.perfilForm.get('cep')?.value?.replace(/\D/g, '');
-    if (!cep || cep.length < 8) {
-      return;
-    }
+    if (!cep || cep.length < 8) return;
 
     this.http.get(`https://viacep.com.br/ws/${cep}/json`)
       .subscribe((dados: any) => {
@@ -94,15 +93,14 @@ export class EditProfileComponent implements OnInit {
       ...this.customer,
       name: form.nome,
       email: form.email,
-      salary: form.salario,
+      salary: Number(form.salario),
       city: form.cidade,
       state: form.estado
     };
 
-    this.customerService.atualizarCliente(
-      this.customer.cpf,
-      clienteAtualizado
-    );
+    this.customerService.atualizarCliente(clienteAtualizado);
+
+    this.customerService.setClienteLogado(clienteAtualizado.cpf);
 
     this.customer = clienteAtualizado;
 

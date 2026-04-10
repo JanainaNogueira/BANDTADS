@@ -1,95 +1,151 @@
 <div class="h-screen w-screen flex overflow-hidden">
-    <app-menu></app-menu>
-    <main class="bg-[#F3F4F6] h-full overflow-y-scroll w-full flex flex-col gap-7 items-center">
-        <header class="w-[95%] h-[6%] mt-4">
-            <h1 class="font-medium text-xl mb-1.5">Bem vindo, {{login?.name}}</h1>
-            <p class="text-[#4B5563] text-xs">Como está seu dinheiro hoje</p>
-        </header>
-        <div class="flex flex-col justify-center items-center rounded-2xl h-[35%] w-[95%] bg-linear-to-br from-[#6366F1] via-[#4F46E5] to-[#4F46E5]">
-            <div class="h-[40%] w-[95%]">
-                <span class="text-[#C7D2FE]">Saldo Atual</span>
-                <p class="text-[#FFFFFF] text-3xl font-semibold">{{ login?.balance| currency:'BRL':'symbol':'1.2-2':'pt-BR' }}</p>
-            </div>
-            <div class="h-[35%] w-[95%] border-t-1 border-[#818CF8] flex justify-between items-center">
-                <div>
-                    <label class="text-[#C7D2FE]">Limite da Conta</label>
-                    <div class="flex items-end gap-1">
-                        <span class="text-[#C7D2FE] text-sm">{{login?.limit| currency:'BRL': 'symbol':'1.2-2' : 'pt-BR'}}</span>
-                    </div>
-                </div>
-                <div>
-                    <label class="text-[#C7D2FE]">Número da conta</label>
-                    <p class="text-[#FFFFFF]">{{login?.numberAccount}}</p>
-                </div>
-            </div>
-        </div>
-        <div class="h-[30%] w-[95%]">
-            <p class="text-[#6B7480] mb-2 font-semibold">O que deseja fazer</p>
-            <div class="w-full h-full flex justify-between">
-                <div (click)="abrirOperacoes(0)" class="cursor-pointer rounded-2xl flex flex-col items-center justify-center w-[20%] h-[75%] bg-[#FFFFFF]">
-                    <div class="w-12 h-12 flex items-center justify-center mb-3 rounded-full bg-[#6366F1]">
-                        <mat-icon class="text-white">swap_horiz</mat-icon>
-                    </div>
-                    <p class="text-[#111827]">Trânsferir</p>
-                </div>
-                <div (click)="abrirOperacoes(1)" class="cursor-pointer rounded-2xl flex flex-col items-center justify-center w-[20%] h-[75%] bg-[#FFFFFF]">
-                    <div class="w-12 h-12 flex items-center justify-center mb-3 rounded-full bg-[#10B981]">
-                        <mat-icon class="text-white">download</mat-icon>
-                    </div>
-                    <p class="text-[#111827]">Saque</p>
-                </div>
-                <div 
-                (click)="irParaExtrato()"
-                class="cursor-pointer rounded-2xl flex flex-col items-center justify-center w-[20%] h-[75%] bg-[#FFFFFF]">
-                    <div class="w-12 h-12 flex items-center justify-center mb-3 rounded-full bg-[#F59E0B]">
-                        <mat-icon class="text-white">description</mat-icon>
-                    </div>
-                    <p class="text-[#111827]">Extrato</p>
-                </div>
-                <div (click)="abrirOperacoes(2)" class="cursor-pointer rounded-2xl flex flex-col items-center justify-center w-[20%] h-[75%] bg-[#FFFFFF]">
-                    <div class="w-12 h-12 flex items-center justify-center mb-3 rounded-full bg-[#F43F5E]">
-                        <mat-icon class="text-white">add_2</mat-icon>
-                    </div>
-                    <p class="text-[#111827]">Depositar</p>
-                </div>
-            </div>
-        </div>
-        <div class="rounded-2xl h-[35%] w-[95%]">
-            <p class="text-[#111827] font-semibold text-sm m-4">Transações recentes</p>
-            <div class="bg-white rounded-xl shadow w-full">
+  <app-menu></app-menu>
 
-                <div 
-                    *ngFor="let transaction of transactions"
-                    class="flex items-center justify-between p-4 border-b last:border-none">
-                    <div class="flex items-center gap-3">
-                    <div
-                        class="w-10 h-10 flex items-center justify-center align-middle rounded-full"
-                        [ngClass]="{
-                        'bg-blue-100': transaction.valor > 0,
-                        'bg-red-100': transaction.valor < 0
-                        }">
-                        <mat-icon
-                        [ngClass]="{
-                            'text-blue-500': transaction.valor > 0,
-                            'text-red-500': transaction.valor < 0
-                        }">
-                            {{ transaction.operacao }}
-                        </mat-icon>
-                    </div>
-                    <div>
-                        <p class="font-medium text-gray-800">{{ transaction.nomeCliente }}</p>
-                        <span class="text-sm text-gray-500">{{ transaction.dataHora |date:'dd/MM/yyyy HH:mm'  }}</span>
-                    </div>
-                    </div>
-                    <p class="font-semibold"
-                    [ngClass]="{
-                        'text-blue-500': transaction.valor > 0,
-                        'text-red-500': transaction.valor < 0
-                    }">
-                        R${{ transaction.valor }}
-                    </p>
-                </div>
-            </div>
+  <main class="bg-[#F3F4F6] h-full overflow-y-scroll w-full flex flex-col gap-7 items-center">
+
+    <!-- HEADER -->
+    <header class="w-[95%] h-[6%] mt-4">
+      <h1 class="font-medium text-xl mb-1.5">
+        Bem vindo, {{login?.name}}
+      </h1>
+      <p class="text-[#4B5563] text-xs">
+        Como está seu dinheiro hoje
+      </p>
+    </header>
+
+    <!-- SALDO -->
+    <div class="flex flex-col justify-center items-center rounded-2xl h-[35%] w-[95%] bg-linear-to-br from-[#6366F1] via-[#4F46E5] to-[#4F46E5]">
+      <div class="h-[40%] w-[95%]">
+        <span class="text-[#C7D2FE]">Saldo Atual</span>
+        <p class="text-[#FFFFFF] text-3xl font-semibold">
+          {{ login?.balance | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+        </p>
+      </div>
+
+      <div class="h-[35%] w-[95%] border-t border-[#818CF8] flex justify-between items-center">
+        <div>
+          <label class="text-[#C7D2FE]">Limite da Conta</label>
+          <span class="text-[#C7D2FE] text-sm">
+            {{login?.limit | currency:'BRL':'symbol':'1.2-2':'pt-BR'}}
+          </span>
         </div>
-    </main>
+
+        <div>
+          <label class="text-[#C7D2FE]">Número da conta</label>
+          <p class="text-[#FFFFFF]">{{login?.numberAccount}}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- AÇÕES -->
+    <div class="h-[30%] w-[95%]">
+      <p class="text-[#6B7480] mb-2 font-semibold">O que deseja fazer</p>
+
+      <div class="w-full h-full flex justify-between">
+
+        <div (click)="abrirOperacoes(0)" class="cursor-pointer rounded-2xl flex flex-col items-center justify-center w-[20%] h-[75%] bg-white">
+          <div class="w-12 h-12 flex items-center justify-center mb-3 rounded-full bg-[#6366F1]">
+            <mat-icon class="text-white">swap_horiz</mat-icon>
+          </div>
+          <p>Transferir</p>
+        </div>
+
+        <div (click)="abrirOperacoes(1)" class="cursor-pointer rounded-2xl flex flex-col items-center justify-center w-[20%] h-[75%] bg-white">
+          <div class="w-12 h-12 flex items-center justify-center mb-3 rounded-full bg-[#10B981]">
+            <mat-icon class="text-white">download</mat-icon>
+          </div>
+          <p>Saque</p>
+        </div>
+
+        <div (click)="irParaExtrato()" class="cursor-pointer rounded-2xl flex flex-col items-center justify-center w-[20%] h-[75%] bg-white">
+          <div class="w-12 h-12 flex items-center justify-center mb-3 rounded-full bg-[#F59E0B]">
+            <mat-icon class="text-white">description</mat-icon>
+          </div>
+          <p>Extrato</p>
+        </div>
+
+        <div (click)="abrirOperacoes(2)" class="cursor-pointer rounded-2xl flex flex-col items-center justify-center w-[20%] h-[75%] bg-white">
+          <div class="w-12 h-12 flex items-center justify-center mb-3 rounded-full bg-[#F43F5E]">
+            <mat-icon class="text-white">add</mat-icon>
+          </div>
+          <p>Depositar</p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TRANSAÇÕES -->
+    <div class="rounded-2xl h-[35%] w-[95%]">
+      <p class="text-[#111827] font-semibold text-sm m-4">
+        Transações recentes
+      </p>
+
+      <div class="bg-white rounded-xl shadow w-full">
+
+        <div 
+          *ngFor="let transaction of transactions"
+          class="flex items-center justify-between p-4 border-b last:border-none">
+
+          <div class="flex items-center gap-3">
+
+            <div class="w-10 h-10 flex items-center justify-center rounded-full"
+              [ngClass]="{
+                'bg-blue-100': transaction.valor > 0,
+                'bg-red-100': transaction.valor < 0
+              }">
+
+              <mat-icon
+                [ngClass]="{
+                  'text-blue-500': transaction.valor > 0,
+                  'text-red-500': transaction.valor < 0
+                }">
+                swap_horiz
+              </mat-icon>
+
+            </div>
+
+            <div>
+
+              <p class="font-medium text-gray-800">
+
+                <ng-container *ngIf="transaction.operacao === 'Transferência'">
+
+                  <span *ngIf="transaction.isEntrada">
+                    De {{ transaction.nomeDestinatario}}
+                  </span>
+
+                  <span *ngIf="!transaction.isEntrada">
+                    Para {{ transaction.nomeDestinatario }}
+                  </span>
+
+                </ng-container>
+
+                <ng-container *ngIf="transaction.operacao !== 'Transferência'">
+                  {{ transaction.operacao }}
+                </ng-container>
+
+              </p>
+
+              <span class="text-sm text-gray-500">
+                {{ transaction.dataHora | date:'dd/MM/yyyy HH:mm' }}
+              </span>
+
+            </div>
+          </div>
+
+          <p class="font-semibold"
+            [ngClass]="{
+              'text-blue-500': transaction.valor > 0,
+              'text-red-500': transaction.valor < 0
+            }">
+
+            {{ transaction.valor | currency:'BRL':'symbol':'1.2-2':'pt-BR' }}
+
+          </p>
+
+        </div>
+      </div>
+    </div>
+
+  </main>
 </div>

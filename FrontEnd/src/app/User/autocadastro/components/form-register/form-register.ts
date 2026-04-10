@@ -5,6 +5,7 @@ import { ButtonSubmit } from '../../../../components/button-submit/button-submit
 import { CommonModule } from '@angular/common';
 import { FormTitle } from '../../../../components/form-title/form-title';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-form-register',
@@ -18,7 +19,7 @@ export class FormRegister {
   dadosPessoais: FormGroup;
   endereco: FormGroup;
 
-  constructor(private http: HttpClient, private form: FormBuilder) {
+  constructor(private http: HttpClient, private form: FormBuilder, private router:Router) {
 
     this.dadosPessoais = this.form.group({
       nome: ['', [Validators.required, Validators.pattern(/^[A-Za-zÀ-ÿ\s]+$/)]],
@@ -39,7 +40,17 @@ export class FormRegister {
   }
 
   enviarDados() {
-    
+    if (this.endereco.invalid || this.dadosPessoais.invalid) {
+      return;
+    }
+
+    const dados = {
+      ...this.dadosPessoais.value,
+      ...this.endereco.getRawValue()
+    };
+
+    console.log('Dados enviados:', dados);
+    this.router.navigate(['/login']);
   }
 
   consultaCEP() {
@@ -95,4 +106,6 @@ export class FormRegister {
       const control = this.dadosPessoais.get(campo);
       return control?.touched && control?.hasError(erro);
     }
+
+
 }

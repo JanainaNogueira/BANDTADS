@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { MenuActions } from './components/menu-actions/menu-actions';
 import { MOCK_CUSTOMERS, MOCK_LOGIN_USER } from '../../../assets/mock/customers.mock';
 import { MOCK_MANAGERS, MOCK_MANAGERS_LIST } from '../../../assets/mock/managers.mock';
 import { MOCK_ADMINS } from '../../../assets/mock/admin.mock';
@@ -10,10 +9,11 @@ import { LoginService } from '../../services/login.service';
 import { CustomerService } from '../../services/customer.service';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { MenuActions } from './components/menu-actions/menu-actions';
 
 @Component({
   selector: 'app-menu',
-  imports: [MenuActions,CommonModule],
+  imports: [CommonModule],
   templateUrl: './menu.html',
   styleUrl: './menu.css',
 })

@@ -3,11 +3,11 @@ import { Menu } from '../../components/menu/menu';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { Operacoes } from '../../components/operacoes/operacoes';
 import { Router } from '@angular/router';
 import { Customer } from '../../models/costumer.model';
 import { CustomerService } from '../../services/customer.service';
 import { Transacao, TransactionService } from '../../services/transaction.service';
+import { Operacoes } from './components/operacoes/operacoes';
 
 @Component({
   selector: 'app-home',

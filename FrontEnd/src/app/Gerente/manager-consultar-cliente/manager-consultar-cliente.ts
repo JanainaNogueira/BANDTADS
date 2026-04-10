@@ -2,7 +2,7 @@ import { CommonModule, CurrencyPipe } from '@angular/common';
 import { Component } from '@angular/core';
 import { CpfPipe } from '../../pipes/cpf.pipe';
 import { Menu } from '../../components/menu/menu';
-import { ManagerTopPanel } from '../../components/manager-top-panel/manager-top-panel';
+import { ManagerTopPanel } from '../componente/manager-top-panel/manager-top-panel';
 import { MOCK_CUSTOMERS } from '../../../assets/mock/customers.mock';
 import { Customer } from '../../models/costumer.model';
 

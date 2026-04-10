@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CustomersList } from '../../components/customers-list/customers-list';
-import { ManagerTopPanel } from '../../components/manager-top-panel/manager-top-panel';
+import { ManagerTopPanel } from '../componente/manager-top-panel/manager-top-panel';
 import { Menu } from '../../components/menu/menu';
 import { CustomerService } from '../../services/customer.service';
 import { FormsModule } from '@angular/forms';

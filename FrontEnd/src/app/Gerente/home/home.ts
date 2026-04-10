@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { Menu } from '../../components/menu/menu';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
-import { ManagerTopPanel } from '../../components/manager-top-panel/manager-top-panel';
+import { ManagerTopPanel } from '../componente/manager-top-panel/manager-top-panel';
 import { CustomersHome } from './components/customers-home/customers-home';
 import { MOCK_CUSTOMERS } from '../../../assets/mock/customers.mock';
 

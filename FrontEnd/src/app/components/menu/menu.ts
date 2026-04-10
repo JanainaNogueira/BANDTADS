@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { MenuActions } from '../menu-actions/menu-actions';
+import { MenuActions } from './components/menu-actions/menu-actions';
 import { MOCK_CUSTOMERS, MOCK_LOGIN_USER } from '../../../assets/mock/customers.mock';
 import { MOCK_MANAGERS, MOCK_MANAGERS_LIST } from '../../../assets/mock/managers.mock';
 import { MOCK_ADMINS } from '../../../assets/mock/admin.mock';

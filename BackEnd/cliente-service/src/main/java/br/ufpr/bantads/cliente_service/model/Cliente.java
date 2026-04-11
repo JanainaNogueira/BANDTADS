@@ -1,4 +1,4 @@
-package br.ufpr.bantads.cliente_service.models;
+package br.ufpr.bantads.cliente_service.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -35,16 +35,20 @@ public class Cliente {
     @JoinColumn(name = "endereco_id", nullable = false)
     private Endereco endereco;
 
+    @Column(name = "status", nullable = false)
+    private String status = StatusEnum.PENDENTE;
+
     public Cliente() {
     }
 
-    public Cliente(String nome, String email, String cpf, String telefone, Double salario, Endereco endereco) {
+    public Cliente(String nome, String email, String cpf, String telefone, Double salario, Endereco endereco, String status) {
         this.nome = nome;
         this.email = email;
         this.cpf = cpf;
         this.telefone = telefone;
         this.salario = salario;
         this.endereco = endereco;
+        this.status = status;
     }
 
     public Integer getId() {
@@ -101,6 +105,14 @@ public class Cliente {
 
     public void setEndereco(Endereco endereco) {
         this.endereco = endereco;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
 }

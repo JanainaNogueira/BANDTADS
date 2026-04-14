@@ -5,9 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { AuthSidePanel } from '../../components/auth-side-panel/auth-side-panel';
 import { FormTitle } from '../../components/form-title/form-title';
 import { Router } from '@angular/router';
-import { MOCK_CUSTOMERS } from '../../../assets/mock/customers.mock';
-import { MOCK_MANAGERS } from '../../../assets/mock/managers.mock';
-import { MOCK_ADMINS } from '../../../assets/mock/admin.mock';
+import { LoginService } from '../../services/login.service';
 
 @Component({
   selector: 'app-login',
@@ -18,7 +16,10 @@ import { MOCK_ADMINS } from '../../../assets/mock/admin.mock';
 export class Login {
   @ViewChild(FormLogin) formLogin!: FormLogin;
 
-  constructor(private router: Router) { }
+  constructor(
+    private router: Router,
+    private loginService: LoginService
+  ) {}
 
   tipo = 'cliente';
   erroLogin = false;
@@ -39,37 +40,46 @@ export class Login {
     this.erroLogin = false;
   }
 
-  fazerLogin(dados: any) {
-    let lista: any[] = [];
+  fazerLogin(dados: { email: string; senha: string; lembrar: boolean }): void {
+    this.loginService.login(dados.email, dados.senha).subscribe({
+      next: (usuario) => {
+        const tipoResposta = this.normalizarTipo(usuario.tipo || this.tipo);
 
-    if (this.tipo === 'cliente') {
-      lista = MOCK_CUSTOMERS;
-    } else if (this.tipo === 'gerente') {
-      lista = MOCK_MANAGERS;
-    } else if (this.tipo === 'admin') {
-      lista = MOCK_ADMINS;
+        if (tipoResposta !== this.tipo) {
+          this.erroLogin = true;
+          return;
+        }
+
+        this.erroLogin = false;
+        localStorage.setItem('tipoUsuario', tipoResposta);
+        localStorage.setItem('email', usuario.login || dados.email);
+        localStorage.setItem('nome', usuario.login || dados.email);
+
+        if (tipoResposta === 'cliente') {
+          this.router.navigate(['/home']);
+        } else if (tipoResposta === 'gerente') {
+          this.router.navigate(['/home-gerente']);
+        } else {
+          this.router.navigate(['/home-admin']);
+        }
+      },
+      error: () => {
+        this.erroLogin = true;
+      },
+    });
+  }
+
+  private normalizarTipo(tipo: string): string {
+    const tipoNormalizado = tipo.toLowerCase().trim();
+
+    if (tipoNormalizado === 'admin' || tipoNormalizado === 'administrador') {
+      return 'admin';
     }
 
-    const usuario = lista.find(
-      u => u.email === dados.email && u.senha === dados.senha
-    );
-
-    if (usuario) {
-      this.erroLogin = false;
-
-      localStorage.setItem('tipoUsuario', this.tipo);
-      localStorage.setItem('email', usuario.email);
-      localStorage.setItem('nome', usuario.nome || usuario.name);
-
-      if (this.tipo === 'cliente') {
-        this.router.navigate(['/home']);
-      } else if (this.tipo === 'gerente') {
-        this.router.navigate(['/home-gerente']);
-      } else {
-        this.router.navigate(['/home-admin']);
-      }
-    } else {
-      this.erroLogin = true;
+    if (tipoNormalizado === 'gerente' || tipoNormalizado === 'manager') {
+      return 'gerente';
     }
+
+    return 'cliente';
   }
 }

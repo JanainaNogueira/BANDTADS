@@ -1,4 +1,4 @@
-package br.ufpr.bantads.cliente_service.models;
+package br.ufpr.bantads.gerente_service.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

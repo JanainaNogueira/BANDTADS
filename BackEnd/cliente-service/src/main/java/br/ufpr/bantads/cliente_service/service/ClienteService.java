@@ -4,9 +4,9 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import br.ufpr.bantads.cliente_service.config.ClienteRepository;
 import br.ufpr.bantads.cliente_service.model.Cliente;
 import br.ufpr.bantads.cliente_service.model.StatusEnum;
-import br.ufpr.bantads.cliente_service.repository.ClienteRepository;
 
 public class ClienteService {
 
@@ -14,11 +14,16 @@ public class ClienteService {
     private ClienteRepository repository;
 
     public Cliente salvarCliente(Cliente cliente) {
+        if (cliente == null) {
+            throw new IllegalArgumentException("Cliente não pode ser nulo");
+        }
         return repository.saveClient(cliente);
     }
 
-    public String deletarCliente(String id) {
-        return repository.deleteById(id);
+    public Cliente deletarCliente(Integer id) {
+        return repository.deleteClient(id).orElseThrow(
+                () -> new RuntimeException("Cliente não encontrado com o ID: " + id)
+        );
     }
 
     public List<Cliente> listarClientes() {
@@ -62,7 +67,9 @@ public class ClienteService {
     }
 
     public Cliente atualizarCliente(Cliente cliente) {
-        return repository.saveClient(cliente);
+        return repository.updateClient(cliente).orElseThrow(
+                () -> new RuntimeException("Cliente não encontrado")
+        );
     }
 
     public String aprovarCliente(Integer id) {

@@ -1,4 +1,4 @@
-package br.ufpr.bantads.cliente_service.repository;
+package br.ufpr.bantads.cliente_service.config;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,7 +13,9 @@ public interface ClienteRepository extends JpaRepository<Cliente, Integer> {
 
     Cliente saveClient(Cliente cliente);
 
-    String deleteById(String id);
+    Optional<Cliente> deleteClient(Integer id);
+
+    Optional<Cliente> updateClient(Cliente cliente);
 
     List<Cliente> findAllClients();
 

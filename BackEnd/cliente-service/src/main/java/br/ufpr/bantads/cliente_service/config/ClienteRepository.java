@@ -1,4 +1,4 @@
-package br.ufpr.bantads.cliente_service.repository;
+package br.ufpr.bantads.cliente_service.config;
 
 import java.util.List;
 import java.util.Optional;

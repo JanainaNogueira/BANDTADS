@@ -29,9 +29,9 @@ public class ContaService {
         return repository.findAll();
     }
 
-    public Conta buscarContaPorId(@NonNull Integer id) {
-        return repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Conta não encontrada com o ID: " + id));
+    public Conta buscarContaPorId(@NonNull Integer contaId) {
+        return repository.findById(contaId)
+                .orElseThrow(() -> new RuntimeException("Conta não encontrada com o ID: " + contaId));
     }
 
     public Conta buscarContaPorNumero(String numeroConta) {
@@ -43,7 +43,7 @@ public class ContaService {
         return repository.findByClienteId(clienteId);
     }
 
-    public void deletarConta(@NonNull Integer id) {
-        repository.deleteById(id);
+    public void deletarConta(@NonNull Integer contaId) {
+        repository.deleteById(contaId);
     }
 }

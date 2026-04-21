@@ -4,9 +4,9 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import br.ufpr.bantads.cliente_service.config.ClienteRepository;
 import br.ufpr.bantads.cliente_service.model.Cliente;
 import br.ufpr.bantads.cliente_service.model.StatusEnum;
-import br.ufpr.bantads.cliente_service.repository.ClienteRepository;
 
 public class ClienteService {
 

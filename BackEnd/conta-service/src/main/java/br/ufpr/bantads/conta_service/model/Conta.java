@@ -15,7 +15,7 @@ public class Conta {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private Integer id;
+    private Integer contaId;
 
     @Column(name = "cliente_id", nullable = false)
     private Integer clienteId;
@@ -47,12 +47,12 @@ public class Conta {
         this.gerenteId = gerenteId;
     }
 
-    public Integer getId() {
-        return id;
+    public Integer getContaId() {
+        return contaId;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setContaId(Integer contaId) {
+        this.contaId = contaId;
     }
 
     public Integer getClienteId() {

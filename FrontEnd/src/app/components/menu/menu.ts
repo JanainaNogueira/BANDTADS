@@ -13,7 +13,7 @@ import { MenuActions } from './components/menu-actions/menu-actions';
 
 @Component({
   selector: 'app-menu',
-  imports: [CommonModule],
+  imports: [CommonModule, MenuActions],
   templateUrl: './menu.html',
   styleUrl: './menu.css',
 })

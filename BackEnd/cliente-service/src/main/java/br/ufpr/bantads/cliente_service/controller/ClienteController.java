@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.ufpr.bantads.cliente_service.dtos.AutocadastroDTO;
 import br.ufpr.bantads.cliente_service.model.Cliente;
 import br.ufpr.bantads.cliente_service.service.ClienteService;
 
@@ -22,85 +23,72 @@ import br.ufpr.bantads.cliente_service.service.ClienteService;
 public class ClienteController {
 
     @Autowired
-    private ClienteService service;
+    private ClienteService clienteService;
 
     @PostMapping
-    public ResponseEntity<Cliente> autocadastro(@RequestBody Cliente cliente) {
-        Cliente clienteSalvo = service.salvarCliente(cliente);
+    public ResponseEntity<Cliente> autocadastro(@RequestBody AutocadastroDTO cliente) {
+        Cliente clienteSalvo = clienteService.salvarCliente(cliente);
         return ResponseEntity.status(HttpStatus.CREATED).body(clienteSalvo);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletarCliente(@PathVariable Integer id) {
-        service.deletarCliente(id);
+        clienteService.deletarCliente(id);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping
     public ResponseEntity<List<Cliente>> listarClientes() {
-        List<Cliente> clientes = service.listarClientes();
+        List<Cliente> clientes = clienteService.listarClientes();
         return ResponseEntity.ok(clientes);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Object> buscarClientePorId(@PathVariable Integer id) {
-        Cliente cliente = service.buscarClientePorId(id);
+    public ResponseEntity<Cliente> buscarClientePorId(@PathVariable Integer id) {
+        Cliente cliente = clienteService.buscarClientePorId(id);
         return ResponseEntity.ok(cliente);
     }
 
     @GetMapping("/email/{email}")
-    public ResponseEntity<Object> buscarClientePorEmail(@PathVariable String email) {
-        Cliente cliente = service.buscarClientePorEmail(email);
+    public ResponseEntity<Cliente> buscarClientePorEmail(@PathVariable String email) {
+        Cliente cliente = clienteService.buscarClientePorEmail(email);
         return ResponseEntity.ok(cliente);
     }
 
     @GetMapping("/cpf/{cpf}")
-    public ResponseEntity<Object> buscarClientePorCpf(@PathVariable String cpf) {
-        Cliente cliente = service.buscarClientePorCpf(cpf);
+    public ResponseEntity<Cliente> buscarClientePorCpf(@PathVariable String cpf) {
+        Cliente cliente = clienteService.buscarClientePorCpf(cpf);
         return ResponseEntity.ok(cliente);
     }
 
     @GetMapping("/nome/{nome}")
-    public ResponseEntity<Object> buscarClientePorNome(@PathVariable String nome) {
-        Cliente cliente = service.buscarClientePorNome(nome);
+    public ResponseEntity<Cliente> buscarClientePorNome(@PathVariable String nome) {
+        Cliente cliente = clienteService.buscarClientePorNome(nome);
         return ResponseEntity.ok(cliente);
     }
 
     @GetMapping("/status/{status}")
-    public ResponseEntity<Object> buscarClientesPorStatus(@PathVariable String status) {
-        List<Cliente> clientes = service.buscarClientesPorStatus(status);
-
-        if (clientes == null || clientes.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
+    public ResponseEntity<List<Cliente>> buscarClientesPorStatus(@PathVariable String status) {
+        List<Cliente> clientes = clienteService.buscarClientesPorStatus(status);
         return ResponseEntity.ok(clientes);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Object> atualizarCliente(@PathVariable Integer id) {
-        Cliente cliente = service.buscarClientePorId(id);
-        Cliente atualizado = service.atualizarCliente(cliente);
+    public ResponseEntity<Cliente> atualizarCliente(@PathVariable Integer id, @RequestBody Cliente cliente) {
+        cliente.setId(id);
+        Cliente atualizado = clienteService.atualizarCliente(cliente);
         return ResponseEntity.ok(atualizado);
     }
 
     @PostMapping("/{id}/aprovar")
-    public ResponseEntity<Object> aprovarCliente(@PathVariable Integer id) {
-        String clienteAprovado = service.aprovarCliente(id);
-
-        if (clienteAprovado == null) {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<Cliente> aprovarCliente(@PathVariable Integer id) {
+        Cliente clienteAprovado = clienteService.aprovarCliente(id);
         return ResponseEntity.ok(clienteAprovado);
     }
 
     @PostMapping("/{id}/rejeitar")
-    public ResponseEntity<Object> rejeitarCliente(@PathVariable Integer id) {
-        String clienteRejeitado = service.rejeitarCliente(id);
-
-        if (clienteRejeitado == null) {
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<Cliente> rejeitarCliente(@PathVariable Integer id) {
+        Cliente clienteRejeitado = clienteService.rejeitarCliente(id);
         return ResponseEntity.ok(clienteRejeitado);
     }
 

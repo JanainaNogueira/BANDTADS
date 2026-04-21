@@ -7,19 +7,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import br.ufpr.bantads.cliente_service.model.Cliente;
+import br.ufpr.bantads.cliente_service.model.StatusEnum;
 
 @Repository
 public interface ClienteRepository extends JpaRepository<Cliente, Integer> {
-
-    Cliente saveClient(Cliente cliente);
-
-    Optional<Cliente> deleteClient(Integer id);
-
-    Optional<Cliente> updateClient(Cliente cliente);
-
-    List<Cliente> findAllClients();
-
-    Optional<Cliente> findById(Integer id);
 
     Optional<Cliente> findByEmail(String email);
 
@@ -27,6 +18,6 @@ public interface ClienteRepository extends JpaRepository<Cliente, Integer> {
 
     Optional<Cliente> findByName(String nome);
 
-    List<Cliente> findByStatus(String status);
+    List<Cliente> findByStatus(StatusEnum status);
 
 }

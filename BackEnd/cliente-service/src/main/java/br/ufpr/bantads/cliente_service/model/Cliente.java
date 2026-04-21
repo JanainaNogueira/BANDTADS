@@ -36,12 +36,12 @@ public class Cliente {
     private Endereco endereco;
 
     @Column(name = "status", nullable = false)
-    private String status = StatusEnum.PENDENTE;
+    private StatusEnum status = StatusEnum.PENDENTE;
 
     public Cliente() {
     }
 
-    public Cliente(String nome, String email, String cpf, String telefone, Double salario, Endereco endereco, String status) {
+    public Cliente(String nome, String email, String cpf, String telefone, Double salario, Endereco endereco, StatusEnum status) {
         this.nome = nome;
         this.email = email;
         this.cpf = cpf;
@@ -107,11 +107,11 @@ public class Cliente {
         this.endereco = endereco;
     }
 
-    public String getStatus() {
+    public StatusEnum getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(StatusEnum status) {
         this.status = status;
     }
 

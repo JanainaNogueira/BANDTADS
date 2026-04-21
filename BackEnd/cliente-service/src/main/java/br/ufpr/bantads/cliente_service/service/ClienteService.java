@@ -3,30 +3,61 @@ package br.ufpr.bantads.cliente_service.service;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import br.ufpr.bantads.cliente_service.config.ClienteRepository;
+import br.ufpr.bantads.cliente_service.config.EnderecoRepository;
+import br.ufpr.bantads.cliente_service.dtos.AutocadastroDTO;
 import br.ufpr.bantads.cliente_service.model.Cliente;
+import br.ufpr.bantads.cliente_service.model.Endereco;
 import br.ufpr.bantads.cliente_service.model.StatusEnum;
+
+@Service
 
 public class ClienteService {
 
     @Autowired
-    private ClienteRepository repository;
+    private ClienteRepository clienteRepository;
 
-    public Cliente salvarCliente(Cliente cliente) {
-        return repository.saveClient(cliente);
+    @Autowired
+    private EnderecoRepository enderecoRepository;
+
+    public Cliente salvarCliente(AutocadastroDTO clienteDTO) {
+
+        Endereco endereco = new Endereco();
+        endereco.setCep(clienteDTO.endereco().cep());
+        endereco.setNumero(clienteDTO.endereco().numero());
+        endereco.setRua(clienteDTO.endereco().rua());
+        endereco.setComplemento(clienteDTO.endereco().complemento());
+        endereco.setCidade(clienteDTO.endereco().cidade());
+        endereco.setEstado(clienteDTO.endereco().estado());
+
+        endereco = enderecoRepository.save(endereco);
+
+        Cliente cliente = new Cliente();
+        cliente.setNome(clienteDTO.nome());
+        cliente.setCpf(clienteDTO.cpf());
+        cliente.setTelefone(clienteDTO.telefone());
+        cliente.setEmail(clienteDTO.email());
+        cliente.setEndereco(endereco);
+        cliente.setStatus(StatusEnum.PENDENTE);
+
+        return clienteRepository.save(cliente);
     }
 
-    public String deletarCliente(String id) {
-        return repository.deleteById(id);
+    public void deletarCliente(Integer id) {
+        if (!clienteRepository.existsById(id)) {
+            throw new RuntimeException("Cliente não encontrado com o ID: " + id);
+        }
+        clienteRepository.deleteById(id);
     }
 
     public List<Cliente> listarClientes() {
-        return repository.findAllClients();
+        return clienteRepository.findAll();
     }
 
     public Cliente buscarClientePorId(Integer id) {
-        Cliente cliente = repository.findById(id).orElseThrow(
+        Cliente cliente = clienteRepository.findById(id).orElseThrow(
                 () -> new RuntimeException("Cliente não encontrado com o ID: " + id)
         );
 
@@ -34,7 +65,7 @@ public class ClienteService {
     }
 
     public Cliente buscarClientePorEmail(String email) {
-        Cliente cliente = repository.findByEmail(email).orElseThrow(
+        Cliente cliente = clienteRepository.findByEmail(email).orElseThrow(
                 () -> new RuntimeException("Cliente não encontrado com o email: " + email)
         );
 
@@ -42,7 +73,7 @@ public class ClienteService {
     }
 
     public Cliente buscarClientePorCpf(String cpf) {
-        Cliente cliente = repository.findByCpf(cpf).orElseThrow(
+        Cliente cliente = clienteRepository.findByCpf(cpf).orElseThrow(
                 () -> new RuntimeException("Cliente não encontrado com o CPF: " + cpf)
         );
 
@@ -50,7 +81,7 @@ public class ClienteService {
     }
 
     public Cliente buscarClientePorNome(String nome) {
-        Cliente cliente = repository.findByName(nome).orElseThrow(
+        Cliente cliente = clienteRepository.findByName(nome).orElseThrow(
                 () -> new RuntimeException("Cliente não encontrado com o nome: " + nome)
         );
 
@@ -58,36 +89,32 @@ public class ClienteService {
     }
 
     public List<Cliente> buscarClientesPorStatus(String status) {
-        return repository.findByStatus(status);
+        return clienteRepository.findByStatus(StatusEnum.valueOf(status.toUpperCase()));
     }
 
     public Cliente atualizarCliente(Cliente cliente) {
-        return repository.saveClient(cliente);
+        if (!clienteRepository.existsById(cliente.getId())) {
+            throw new RuntimeException("Cliente não encontrado");
+        }
+        return clienteRepository.save(cliente);
     }
 
-    public String aprovarCliente(Integer id) {
-        Cliente cliente = repository.findById(id).orElseThrow(
-                () -> new RuntimeException("Cliente não encontrado com o ID: " + id)
-        );
+    public Cliente aprovarCliente(Integer id) {
+        Cliente cliente = buscarClientePorId(id);
 
         cliente.setStatus(StatusEnum.APROVADO);
-        repository.saveClient(cliente);
         // integrar com a criação de conta
 
-        return "Cliente aprovado!";
+        return clienteRepository.save(cliente);
     }
 
-    public String rejeitarCliente(Integer id) {
-        Cliente cliente = repository.findById(id).orElseThrow(
-                () -> new RuntimeException("Cliente não encontrado com o ID: " + id)
-        );
-
+    public Cliente rejeitarCliente(Integer id) {
+        Cliente cliente = buscarClientePorId(id);
         cliente.setStatus(StatusEnum.REPROVADO);
-        repository.saveClient(cliente);
         // excluir ou apenas inativar?
         // se apenas inativar, como vamos lidar com casos em que o cliente é rejeitado e depois tenta realizar o autocadastro novamente?
 
-        return "Cliente rejeitado!";
+        return clienteRepository.save(cliente);
     }
 
 }

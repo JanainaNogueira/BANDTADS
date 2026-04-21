@@ -34,7 +34,7 @@ public class GerenteService {
         return gerenteRepository.findByNomeContainingIgnoreCase(nome);
     }
 
-   public void criar(AdicionarGerenteDTO gerenteDto) {
+   public Gerente criar(AdicionarGerenteDTO gerenteDto) {
         Gerente gerente = new Gerente();
         gerente.setNome(gerenteDto.nome());
         gerente.setCpf(gerenteDto.cpf());
@@ -43,6 +43,8 @@ public class GerenteService {
         gerente.setSenha(gerenteDto.senha());
 
         gerente = gerenteRepository.save(gerente);
+
+        return gerente;
     }
 
     public Gerente atualizar(Integer id, Gerente gerenteAtualizado) {

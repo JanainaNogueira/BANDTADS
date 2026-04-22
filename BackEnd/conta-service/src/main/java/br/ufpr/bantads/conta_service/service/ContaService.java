@@ -1,5 +1,7 @@
 package br.ufpr.bantads.conta_service.service;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -45,5 +47,27 @@ public class ContaService {
 
     public void deletarConta(@NonNull Integer id) {
         repository.deleteById(id);
+    }
+
+    public Conta criarContaParaCliente(@NonNull Integer clienteId) {
+        List<Conta> contasExistentes = repository.findByClienteId(clienteId);
+        if (!contasExistentes.isEmpty()) {
+            return contasExistentes.get(0);
+        }
+
+        Conta conta = new Conta();
+        conta.setClienteId(clienteId);
+        conta.setNumeroConta(gerarNumeroConta(clienteId));
+        conta.setDataCriacao(LocalDateTime.now());
+        conta.setSaldo(BigDecimal.ZERO);
+        conta.setLimite(BigDecimal.ZERO);
+        conta.setGerenteId(null);
+
+        return repository.save(conta);
+    }
+
+    private String gerarNumeroConta(Integer clienteId) {
+        long sufixo = System.currentTimeMillis() % 100000;
+        return String.format("%06d-%05d", clienteId, sufixo);
     }
 }

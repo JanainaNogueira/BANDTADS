@@ -49,8 +49,17 @@ export class FormRegister {
       ...this.endereco.getRawValue()
     };
 
-    console.log('Dados enviados:', dados);
-    this.router.navigate(['/login']);
+    this.http.post('http://localhost:8080/clientes', dados)
+      .subscribe({
+        next: (res) => {
+          alert('Cadastro enviadopara análise!');
+          this.router.navigate(['/login']);
+        },
+        error: (err) => {
+          alert('Ocorreu um erro ao enviar o cadastro. Tente novamente.');
+          console.error('Erro ao cadastrar:', err);
+        }
+      });
   }
 
   consultaCEP() {

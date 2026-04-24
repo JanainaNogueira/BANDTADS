@@ -52,7 +52,7 @@ export class FormRegister {
     this.http.post('http://localhost:8080/clientes', dados)
       .subscribe({
         next: (res) => {
-          alert('Cadastro enviadopara análise!');
+          alert('Cadastro enviado para análise!');
           this.router.navigate(['/login']);
         },
         error: (err) => {

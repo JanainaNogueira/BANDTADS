@@ -8,6 +8,7 @@ export interface ManagerSummary {
   name: string;
   email: string;
   phone: string;
+  clients?: number;
   status: ManagerStatus;
   cpf?: string;
 }

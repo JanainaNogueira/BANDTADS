@@ -1,5 +1,3 @@
-import { ManagerStatus } from "../../assets/mock/managers.mock";
-
 export interface Manager {
   name: string;
   cpf: string;
@@ -10,8 +8,8 @@ export interface ManagerSummary {
   name: string;
   email: string;
   phone: string;
-  clients: number;
   status: ManagerStatus;
+  cpf?: string;
 }
 
 export interface ManagerCreateEdit{
@@ -23,4 +21,4 @@ export interface ManagerCreateEdit{
   senha: string;
 }
 
-
+export type ManagerStatus = 'active' | 'inactive';

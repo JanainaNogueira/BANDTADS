@@ -5,6 +5,12 @@ export interface Manager {
   cpf: string;
 }
 
+export interface Gerente {
+  id: number;
+  nome: string;
+  email: string;
+  telefone: string;
+}
 export interface ManagerSummary {
   id: number;
   name: string;
@@ -23,10 +29,25 @@ export interface ManagerCreateEdit{
   senha: string;
 }
 
+export interface AdicionarGerenteDTO{
+  nome: string,
+  cpf: string,
+  email: string,
+  telefone: string,
+  senha: string
+}
+
 export interface LerGerenteDTO{
   nome: string,
   cpf: string,
   email: string,
   telefone: string
+}
+
+export interface EditaGerenteDTO{
+  nome: string,
+  email: string,
+  telefone: string,
+  senha: string
 }
 

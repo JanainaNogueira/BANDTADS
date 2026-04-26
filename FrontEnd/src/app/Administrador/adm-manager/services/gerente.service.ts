@@ -11,19 +11,19 @@ export class GerenteService {
     return this.api.get(ENDPOINTS.gerente.listar);
   }
 
-  listar(cpf: string){
-    return this.api.get(ENDPOINTS.gerente.listarGerente(cpf))
+  listar(id: number){
+    return this.api.get(ENDPOINTS.gerente.listarGerente(id))
   }
 
   criar(gerente: any) {
     return this.api.post(ENDPOINTS.gerente.criar, gerente);
   }
 
-  atualizar(cpf: string, gerente: any) {
-    return this.api.put(ENDPOINTS.gerente.atualizar(cpf), gerente);
+  atualizar(id: number, gerente: any) {
+    return this.api.put(ENDPOINTS.gerente.atualizar(id), gerente);
   }
 
-  deletar(cpf: string) {
-    return this.api.delete(ENDPOINTS.gerente.deletar(cpf));
+  deletar(id: number) {
+    return this.api.delete(ENDPOINTS.gerente.deletar(id));
   }
 }

@@ -23,4 +23,10 @@ export interface ManagerCreateEdit{
   senha: string;
 }
 
+export interface LerGerenteDTO{
+  nome: string,
+  cpf: string,
+  email: string,
+  telefone: string
+}
 

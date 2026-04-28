@@ -11,7 +11,7 @@ import { Operacoes } from './components/operacoes/operacoes';
 
 @Component({
   selector: 'app-home',
-  imports: [Menu, CommonModule, MatIconModule, MatDialogModule],
+  imports: [Menu, CommonModule, MatIconModule, MatDialogModule, Operacoes],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })
@@ -111,24 +111,31 @@ export class Home {
   }
 
   abrirOperacoes(tabInicial: number): void {
+    console.log('Abrindo operações para tab:', tabInicial);
+    console.log('Usuário logado:', this.login);
+
     if (!this.login) {
-      console.error('Cliente não carregado');
+      console.error('Cliente não carregado na Home');
       return;
     }
 
-    const ref = this.dialog.open(Operacoes, {
-      data: {
-        tabInicial,
-        cliente: this.login
-      },
-      width: '760px',
-      maxWidth: '96vw'
-    });
+    try {
+      const ref = this.dialog.open(Operacoes, {
+        data: {
+          tabInicial,
+          cliente: this.login
+        },
+        width: '760px',
+        maxWidth: '96vw'
+      });
 
-    ref.afterClosed().subscribe(() => {
-      this.carregarUsuarioLogado();
-      this.carregarTransacoes();
-    });
+      ref.afterClosed().subscribe(() => {
+        this.carregarUsuarioLogado();
+        this.carregarTransacoes();
+      });
+    } catch (err) {
+      console.error('Erro ao abrir o diálogo de operações:', err);
+    }
   }
 
   irParaExtrato(): void {

@@ -1,11 +1,12 @@
 import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 import { MOCK_TRANSACTION_LIST } from '../../assets/mock/customers.mock';
 
 export interface Transacao {
-  id: number;
-  dataHora: Date;
+  id?: number;
+  dataHora?: Date;
   tipo: 'DEPOSITO' | 'SAQUE' | 'TRANSFERENCIA';
   valor: number;
   contaOrigem: number;
@@ -22,33 +23,62 @@ export interface TransacaoExtrato extends Transacao {
 })
 export class TransactionService {
   private readonly STORAGE_KEY = 'bantads_transactions';
+  private readonly API_URL = '/api/contas'; // Utilizar proxy/gateway
 
   private transactionsSubject = new BehaviorSubject<Transacao[]>([]);
   transactions$ = this.transactionsSubject.asObservable();
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) {
-    this.initializeStorage();
-
+  constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private http: HttpClient
+  ) {
+    // initializeStorage removido para evitar uso de MOCKS
+    
     const lista = this.getAllTransactions();
     this.transactionsSubject.next(lista);
   }
 
+  depositar(contaId: number, valor: number): Observable<void> {
+    return this.http.post<void>(`${this.API_URL}/${contaId}/deposito`, {
+      contaIdLogada: contaId,
+      valor: valor
+    });
+  }
+
+  sacar(contaId: number, valor: number): Observable<void> {
+    return this.http.post<void>(`${this.API_URL}/${contaId}/saque`, {
+      contaIdLogada: contaId,
+      valor: valor
+    });
+  }
+
+  transferir(contaId: number, numeroContaDestino: string, valor: number): Observable<void> {
+    return this.http.post<void>(`${this.API_URL}/${contaId}/transferencia`, {
+      contaIdLogada: contaId,
+      numeroContaDestino: numeroContaDestino,
+      valor: valor
+    });
+  }
+
+  consultarExtrato(contaId: number, inicio: Date, fim: Date): Observable<Transacao[]> {
+    const dataInicioFormatoYMD = inicio.toISOString().split('T')[0];
+    const dataFimFormatoYMD = fim.toISOString().split('T')[0];
+    
+    return this.http.get<Transacao[]>(`${this.API_URL}/${contaId}/extrato`, {
+      params: {
+        dataInicio: dataInicioFormatoYMD,
+        dataFim: dataFimFormatoYMD
+      }
+    });
+  }
+
   private initializeStorage(): void {
-    if (!isPlatformBrowser(this.platformId)) return;
-
-    const stored = localStorage.getItem(this.STORAGE_KEY);
-
-    if (!stored) {
-      localStorage.setItem(
-        this.STORAGE_KEY,
-        JSON.stringify(MOCK_TRANSACTION_LIST)
-      );
-    }
+    // Método desativado
   }
 
   getAllTransactions(): Transacao[] {
     if (!isPlatformBrowser(this.platformId)) {
-      return this.toDateList(MOCK_TRANSACTION_LIST as Transacao[]);
+      return [];
     }
 
     try {
@@ -57,7 +87,7 @@ export class TransactionService {
 
       return this.toDateList(parsed);
     } catch {
-      return this.toDateList(MOCK_TRANSACTION_LIST as Transacao[]);
+      return [];
     }
   }
 
@@ -72,11 +102,10 @@ export class TransactionService {
   }
 
   addTransaction(data: Omit<Transacao, 'id' | 'dataHora'>): void {
-    const all = this.getAllTransactions();
 
-    const nextId = all.length
-      ? Math.max(...all.map((item) => item.id)) + 1
-      : 1;
+    const all = this.getAllTransactions();
+    const ids = all.map((item) => item.id).filter((id): id is number => typeof id === 'number');
+    const nextId = ids.length ? Math.max(...ids) + 1 : 1;
 
     const newTransaction: Transacao = {
       ...data,
@@ -97,30 +126,6 @@ export class TransactionService {
   }
 
 
-  transferir(
-    contaOrigem: number,
-    contaDestino: number,
-    valor: number
-  ): void {
-    if (contaOrigem === contaDestino) return;
-    if (valor <= 0) return;
-
-    // saída
-    this.addTransaction({
-      tipo: 'TRANSFERENCIA',
-      valor: -valor,
-      contaOrigem,
-      contaDestino,
-    });
-
-    // entrada
-    this.addTransaction({
-      tipo: 'TRANSFERENCIA',
-      valor: valor,
-      contaOrigem: contaDestino,
-      contaDestino: contaOrigem,
-    });
-  }
 
   isEntrada(t: Transacao, conta: number): boolean {
     if (t.tipo === 'DEPOSITO') return true;
@@ -133,8 +138,12 @@ export class TransactionService {
     return list
       .map((item) => ({
         ...item,
-        dataHora: new Date(item.dataHora),
+        dataHora: item.dataHora ? new Date(item.dataHora) : new Date(),
       }))
-      .sort((a, b) => b.dataHora.getTime() - a.dataHora.getTime());
+      .sort((a, b) => {
+        const timeA = a.dataHora ? a.dataHora.getTime() : 0;
+        const timeB = b.dataHora ? b.dataHora.getTime() : 0;
+        return timeB - timeA;
+      });
   }
 }

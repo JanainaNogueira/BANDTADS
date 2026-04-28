@@ -104,15 +104,6 @@ export class Operacoes {
     }
   }
 
-  depositarValor(valor: number) {
-    if (valor <= 0) {
-      this.erro = 'Valor inválido.';
-      return;
-    }
-
-    this.saldoAtual += valor;
-  }
-
   executar() {
 
     this.erro = '';
@@ -131,7 +122,7 @@ export class Operacoes {
     let destino: Customer | undefined;
 
     switch (this.tabAtiva) {
-      //tranferencia
+    // tranferencia
       case 0:
 
         if (!this.contaDestino) {
@@ -144,66 +135,82 @@ export class Operacoes {
           return;
         }
 
-        destino = this.customerService
-          .obterTodosClientes()
-          .find(c => c.numberAccount === Number(this.contaDestino));
-
-        if (!destino) {
-          this.erro = 'Conta destino não encontrada.';
+        if (this.valor > this.saldoDisponivelTotal) {
+          this.erro = 'Saldo + limite insuficiente para transferência.';
           return;
         }
 
-        // saldo
-        this.descontarValor(this.valor);
-        destino.balance += this.valor;
+        this.transactionService.transferir(this.contaLogada, this.contaDestino.toString(), this.valor).subscribe({
+          next: () => {
+            this.descontarValor(this.valor);
+            this.sucesso = 'Transferência realizada com sucesso!';
+            this.persistirSaldoCliente();
+            this.resetCampos();
+          },
+          error: (err) => {
+            if (err.status === 404) {
+              this.erro = 'Conta destino não encontrada.';
+            } else {
+              this.erro = 'Erro ao realizar transferência.';
+            }
+            console.error(err);
+          }
+        });
 
-        this.customerService.atualizarCliente(destino);
-
-        this.transactionService.transferir(
-          this.contaLogada,
-          destino.numberAccount,
-          this.valor
-        );
-
-        this.sucesso = 'Transferência realizada com sucesso!';
-        break;
+        return; // Retorno antecipado para não executar o codigo abaixo
 
       // saque
       case 1:
 
-        if (this.valor > this.saldoAtual) {
-          this.erro = 'Saldo insuficiente para saque.';
+        if (this.valor > this.saldoDisponivelTotal) {
+          this.erro = 'Saldo + limite insuficiente para saque.';
           return;
         }
 
-        this.saldoAtual -= this.valor;
-
-        this.transactionService.addTransaction({
-          tipo: 'SAQUE',
-          valor: -this.valor,
-          contaOrigem: this.contaLogada
+        this.transactionService.sacar(this.contaLogada, this.valor).subscribe({
+          next: () => {
+            this.descontarValor(this.valor);
+            this.sucesso = 'Saque realizado com sucesso!';
+            this.persistirSaldoCliente();
+            this.resetCampos();
+          },
+          error: (err) => {
+            this.erro = 'Erro ao realizar saque.';
+            console.error(err);
+          }
         });
 
-        this.sucesso = 'Saque realizado com sucesso!';
-  break;
+        return; // Retorno antecipado para não executar o codigo das outras abas abaixo
 
       // deposito
       case 2:
 
-        this.depositarValor(this.valor);
+        if (this.valor <= 0) {
+          this.erro = 'Valor inválido.';
+          return;
+        }
 
-        this.transactionService.addTransaction({
-          tipo: 'DEPOSITO',
-          valor: this.valor,
-          contaOrigem: this.contaLogada
+        this.transactionService.depositar(this.contaLogada, this.valor).subscribe({
+          next: () => {
+            this.saldoAtual += this.valor;
+            this.sucesso = 'Depósito realizado com sucesso!';
+            this.persistirSaldoCliente();
+            this.resetCampos();
+          },
+          error: (err) => {
+            this.erro = 'Erro ao realizar depósito.';
+            console.error(err);
+          }
         });
-
-        this.sucesso = 'Depósito realizado com sucesso!';
-        break;
+        
+        return; // Retorno antecipado para não executar o codigo das outras abas abaixo
     }
 
     this.persistirSaldoCliente();
+    this.resetCampos();
+  }
 
+  private resetCampos() {
     this.valor = 0;
     this.valorFormatado = '';
     this.contaDestino = 0;

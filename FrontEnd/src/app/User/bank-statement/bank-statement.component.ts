@@ -104,58 +104,89 @@ export class BankStatementComponent {
   }
 
   // Transações
-  const todas = this.transactionService.getTransactionsByAccount(this.login.numberAccount);
-  const clientes = this.customerService.obterTodosClientes();
+  this.transactionService.consultarExtrato(this.login.numberAccount, startDate, endDate).subscribe({
+    next: (extrato: Transacao[]) => {
+      const clientes = this.customerService.obterTodosClientes();
 
-  for (const t of todas) {
-    if (t.contaOrigem !== this.login.numberAccount && t.contaDestino !== this.login.numberAccount) {
-      continue;
-    }
+      // Mapear transações para os grupos
+      for (const t of extrato) {
+        t.dataHora = (t as any).dataHora ? new Date((t as any).dataHora) : new Date();
+        const tDia = new Date(t.dataHora);
+        tDia.setHours(0, 0, 0, 0);
 
-    const tDia = new Date(t.dataHora);
-    tDia.setHours(0, 0, 0, 0);
+        const key = this.toDateKey(tDia);
+        const grupo = mapaGrupos.get(key);
+        if (!grupo) continue;
 
-    const grupo = mapaGrupos.get(this.toDateKey(tDia));
-    if (!grupo) continue;
+        // Regra de Cores (R8): Saída = Vermelho, Entrada = Azul
+        // Em transferências, depende se o cliente logado é origem ou destino
+        // O valor vindo do back-end já deve vir negativo para saídas e positivo para entradas na conta consultada
+        const isEntrada = t.valor >= 0;
 
-    const isEntrada = this.transactionService.isEntrada(t, this.login.numberAccount);
+        let nomeOutro = '';
+        if (t.tipo === 'TRANSFERENCIA') {
+           // No back-end, salvamos clienteOrigemId e clienteDestinoId
+           const origId = (t as any).clienteOrigemId;
+           const destId = (t as any).clienteDestinoId;
 
-    let nomeOutro = '';
-    if (t.tipo === 'TRANSFERENCIA') {
-      if (isEntrada) {
-        const origem = clientes.find(c => c.numberAccount === t.contaOrigem);
-        nomeOutro = origem?.name || '';
-      } else {
-        const destino = clientes.find(c => c.numberAccount === t.contaDestino);
-        nomeOutro = destino?.name || '';
+           if (isEntrada) {
+             // Se é entrada, o outro é quem enviou (origem)
+             const origem = clientes.find(c => c.id === origId || c.numberAccount === origId);
+             nomeOutro = origem ? `De: ${origem.name || origem.nome}` : 'Origem Desconhecida';
+           } else {
+             // Se é saída, o outro é quem recebeu (destino)
+             const destino = clientes.find(c => c.id === destId || c.numberAccount === destId);
+             nomeOutro = destino ? `Para: ${destino.name || destino.nome}` : 'Destino Desconhecido';
+           }
+        } else {
+          nomeOutro = isEntrada ? 'Depósito' : 'Saque';
+        }
+
+        grupo.push({ ...t, isEntrada, nomeOutro });
       }
-    } else {
-      nomeOutro = isEntrada ? 'Depósito' : 'Você';
+
+      // Cálculo de Saldo Consolidado (R8)
+      // Precisamos do saldo atual e ir voltando no tempo para calcular o saldo de cada dia
+      let saldoCorrente = this.login!.balance;
+      
+      const chavesOrdenadas = Array.from(mapaGrupos.keys()).sort().reverse(); // Do dia mais recente para o mais antigo
+      
+      this.gruposDia = chavesOrdenadas.map(key => {
+          const transacoes = mapaGrupos.get(key) || [];
+          const [y, m, d] = key.split('-').map(Number);
+          const data = new Date(y, m - 1, d);
+
+          // Ordenar transações do dia (mais recentes primeiro)
+          transacoes.sort((a, b) => {
+            const timeA = a.dataHora ? a.dataHora.getTime() : 0;
+            const timeB = b.dataHora ? b.dataHora.getTime() : 0;
+            return timeB - timeA;
+          });
+
+          // O saldo consolidado do dia é o saldo ao FINAL do dia.
+          const saldoAoFinalDoDia = saldoCorrente;
+          
+          // Para o próximo dia (que é anterior no tempo), subtraímos o que entrou e somamos o que saiu hoje
+          const totalMovimentadoHoje = transacoes.reduce((soma, t) => soma + t.valor, 0);
+          saldoCorrente -= totalMovimentadoHoje;
+
+          return {
+            data,
+            dataFormatada: data.toLocaleDateString('pt-BR'),
+            transacoes,
+            saldoDia: saldoAoFinalDoDia,
+            aberto: transacoes.length > 0 // Deixar aberto se houver transações
+          };
+      });
+
+      this.pesquisaRealizada = true;
+    },
+    error: (err) => {
+      this.erroValidacao = 'Erro ao consultar o extrato.';
+      console.error(err);
     }
+  });
 
-    grupo.push({ ...t, isEntrada, nomeOutro });
-  }
-
-  this.gruposDia = Array.from(mapaGrupos.entries())
-    .map(([key, transacoes]) => {
-      const [y, m, d] = key.split('-').map(Number);
-      const data = new Date(y, m - 1, d);
-
-      transacoes.sort((a, b) => b.dataHora.getTime() - a.dataHora.getTime());
-
-      const saldoDia = transacoes.reduce((soma, t) => soma + t.valor, 0);
-
-      return {
-        data,
-        dataFormatada: data.toLocaleDateString('pt-BR'),
-        transacoes,
-        saldoDia,
-        aberto: false
-      };
-    })
-    .sort((a, b) => b.data.getTime() - a.data.getTime());
-
-  this.pesquisaRealizada = true;
 }
 
   toggleDia(grupo: GrupoDia): void {

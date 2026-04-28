@@ -1,5 +1,7 @@
 import { Injectable, PLATFORM_ID, Inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 import { MOCK_CUSTOMERS } from '../../assets/mock/customers.mock';
 import { Customer } from '../models/costumer.model';
 
@@ -9,26 +11,22 @@ import { Customer } from '../models/costumer.model';
 export class CustomerService {
   private readonly STORAGE_KEY = 'bantads_customers';
   private readonly LOGGED_USER_KEY = 'bantads_logged_user';
+  private readonly API_URL = '/api/clientes';
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) {
-    this.initializeStorage();
+  constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private http: HttpClient
+  ) {
+    // initializeStorage removido para evitar uso de MOCKS
   }
 
-//  Quando tiver API vou remover essa inicialização
-
   private initializeStorage(): void {
-    if (!isPlatformBrowser(this.platformId)) {
-      return;
-    }
-    const stored = localStorage.getItem(this.STORAGE_KEY);
-    if (!stored) {
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(MOCK_CUSTOMERS));
-    }
+    // Método desativado
   }
 
   getClienteLogado(): Customer | null {
     if (!isPlatformBrowser(this.platformId)) {
-      return MOCK_CUSTOMERS.length ? MOCK_CUSTOMERS[0] : null;
+      return null;
     }
 
     const cpf = localStorage.getItem(this.LOGGED_USER_KEY);
@@ -52,9 +50,7 @@ export class CustomerService {
 
   buscarClientePorCpf(cpf: string): Customer | null {
     if (!isPlatformBrowser(this.platformId)) {
-      return MOCK_CUSTOMERS.find(
-        (item) => this.normalizarCpf(item.cpf) === this.normalizarCpf(cpf)
-      ) || null;
+      return null;
     }
 
     const clientes = this.obterTodosClientes();
@@ -67,7 +63,7 @@ export class CustomerService {
 
   obterTodosClientes(): Customer[] {
     if (!isPlatformBrowser(this.platformId)) {
-      return MOCK_CUSTOMERS;
+      return [];
     }
 
     try {
@@ -136,5 +132,18 @@ export class CustomerService {
 
   private normalizarCpf(cpf: string): string {
     return cpf?.replace(/\D/g, '') || '';
+  }
+
+  obterClientesPendentes(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.API_URL}/status/PENDENTE`);
+  }
+
+  aprovarCliente(id: number): Observable<any> {
+    return this.http.post<any>(`${this.API_URL}/${id}/aprovar`, {});
+  }
+
+  rejeitarCliente(id: number, motivo: string = ''): Observable<any> {
+    // Caso a API aceite um DTO com motivo no futuro, enviar no body
+    return this.http.post<any>(`${this.API_URL}/${id}/rejeitar`, { motivo });
   }
 }

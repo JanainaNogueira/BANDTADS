@@ -5,6 +5,7 @@ import { CpfPipe } from '../../../../pipes/cpf.pipe';
 import { ModalRecusar } from '../modal-recusar/modal-recusar';
 import { Status } from '../../../../models/status-enum.model';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { CustomerService } from '../../../../services/customer.service';
 
 export interface Manager {
   name: string;
@@ -12,11 +13,14 @@ export interface Manager {
 }
 
 export interface Customer {
+  id?: number;
   cpf: string;
-  name: string;
+  nome?: string;
+  name?: string;
   email: string;
-  salary: number;
-  status: Status;
+  salario?: number;
+  salary?: number;
+  status: Status | string;
   password?: string;
 }
 
@@ -29,7 +33,7 @@ export interface Customer {
 
 export class CustomersHome {
 
-  constructor(private snackBar: MatSnackBar) {}
+  constructor(private snackBar: MatSnackBar, private customerService: CustomerService) {}
 
   @Input() customers: Customer[] = [];
 
@@ -54,12 +58,14 @@ export class CustomersHome {
   }
 
   get filteredCustomers() {
-    return this.customers.filter(c => c.status === Status.PENDENTE);
+    return this.customers.filter(c => c.status === Status.PENDENTE || c.status === 'PENDENTE');
   }
 
   get sortedCustomers() {
     return [...this.filteredCustomers].sort((a, b) => {
-      const result = a.name.localeCompare(b.name);
+      const nameA = a.nome || a.name || '';
+      const nameB = b.nome || b.name || '';
+      const result = nameA.localeCompare(nameB);
 
       return this.sortDirection === 'asc' ? result : -result;
     });
@@ -88,23 +94,47 @@ export class CustomersHome {
   }
 
   recusarCliente(cpf: string) {
-    this.customers = this.customers.filter(c => c.cpf !== cpf);
-    this.fecharModal();
+    const customer = this.customers.find(c => c.cpf === cpf);
+    if (!customer) return;
+
+    if (customer.id) {
+      this.customerService.rejeitarCliente(customer.id).subscribe({
+        next: () => {
+           this.customers = this.customers.filter(c => c.cpf !== cpf);
+           this.fecharModal();
+        },
+        error: (err) => console.error("Erro ao recusar cliente", err)
+      });
+    } else {
+      console.warn("Cliente sem ID para recusar via API");
+    }
   }
 
-  aprovarCadastro(cliente: any) {
-
+  aprovarCadastro(cliente: Customer) {
     const customer = this.customers.find(c => c.cpf === cliente.cpf);
+    if (!customer) return;
 
-    if (customer) {
-      const senhaGerada = this.gerarSenha();
+    const email = customer.email;
+    const senhaGerada = this.gerarSenha();
 
-      customer.status = Status.APROVADO;
-      customer.password = senhaGerada;
-
-      this.enviarEmail(customer.email, senhaGerada);
+    if (customer.id) {
+      // Chama API Back-End REAL
+      this.customerService.aprovarCliente(customer.id).subscribe({
+        next: (res) => {
+          // Remove da lista de pendentes da tela
+          this.customers = this.customers.filter(c => c.cpf !== cliente.cpf);
+          
+          this.enviarEmail(email, senhaGerada);
+          this.exibirSnackbarParaAprovacao();
+        },
+        error: (err) => console.error("Erro ao aprovar cliente", err)
+      });
+    } else {
+      console.warn("Cliente sem ID para aprovar via API");
     }
+  }
 
+  private exibirSnackbarParaAprovacao() {
     this.snackBar.open('Enviando e-mail com as credenciais...', 'Fechar', {
       duration: 3000,
       horizontalPosition: 'right',

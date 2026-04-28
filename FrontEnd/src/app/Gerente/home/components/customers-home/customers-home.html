@@ -24,10 +24,10 @@
         @for (c of paginatedCustomers; track c.cpf) {
           <tr class="transition border-b border-gray-200 hover:bg-gray-100">
             <td class="px-6 py-4 text-left font-medium">
-              {{ c.name }}
+              {{ c.nome || c.name }}
             </td>
             <td class="px-6 py-4 text-left">{{ c.cpf | cpf }}</td>
-            <td class="px-6 py-4 text-left">{{ c.salary | currency:'BRL' }}</td>
+            <td class="px-6 py-4 text-left">{{ (c.salario || c.salary) | currency:'BRL' }}</td>
             <td class="px-6 py-4 text-left flex gap-6">
               <div class="flex items-center gap-1 text-green-600 cursor-pointer">
                 <mat-icon>check_circle</mat-icon>

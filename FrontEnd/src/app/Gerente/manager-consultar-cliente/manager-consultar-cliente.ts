@@ -3,8 +3,8 @@ import { Component } from '@angular/core';
 import { CpfPipe } from '../../pipes/cpf.pipe';
 import { Menu } from '../../components/menu/menu';
 import { ManagerTopPanel } from '../componente/manager-top-panel/manager-top-panel';
-import { MOCK_CUSTOMERS } from '../../../assets/mock/customers.mock';
 import { Customer } from '../../models/costumer.model';
+import { CustomerService } from '../../services/customer.service';
 
 @Component({
 	selector: 'app-manager-consultar-cliente',
@@ -17,6 +17,8 @@ export class ManagerConsultarCliente {
 	cliente: Customer | null = null;
 	mensagem = '';
 
+	constructor(private customerService: CustomerService) {}
+
 	consultarCliente(): void {
 		const cpfNormalizado = this.normalizarCpf(this.cpfDigitado);
 
@@ -26,16 +28,24 @@ export class ManagerConsultarCliente {
 			return;
 		}
 
-		const clienteEncontrado = MOCK_CUSTOMERS.find((item) => this.normalizarCpf(item.cpf) === cpfNormalizado);
+		// tenta consultar via API e mostra mensagem apropriada
+		this.customerService.obterTodosClientesApi().subscribe({
+			next: (clientes) => {
+				const encontrado = clientes.find((item) => this.normalizarCpf(item.cpf) === cpfNormalizado);
+				if (!encontrado) {
+					this.cliente = null;
+					this.mensagem = 'Cliente não encontrado para o CPF informado.';
+					return;
+				}
 
-		if (!clienteEncontrado) {
-			this.cliente = null;
-			this.mensagem = 'Cliente não encontrado para o CPF informado.';
-			return;
-		}
-
-		this.cliente = clienteEncontrado;
-		this.mensagem = '';
+				this.cliente = encontrado;
+				this.mensagem = '';
+			},
+			error: () => {
+				this.cliente = null;
+				this.mensagem = 'Erro ao consultar o serviço. Tente novamente.';
+			}
+		});
 	}
 
 	atualizarCpf(event: Event): void {

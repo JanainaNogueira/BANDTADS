@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import br.ufpr.bantads.gerente_service.dtos.AdicionarGerenteDTO;
+import br.ufpr.bantads.gerente_service.dtos.EditarGerenteDTO;
 import br.ufpr.bantads.gerente_service.dtos.LerGerenteDTO;
 import br.ufpr.bantads.gerente_service.model.Gerente;
 import br.ufpr.bantads.gerente_service.repository.GerenteRepository;
@@ -20,18 +21,47 @@ public class GerenteService {
             .stream()
             .map(g -> new LerGerenteDTO(
                 g.getNome(),
-                g.getEmail()
+                g.getCpf(),
+                g.getEmail(),
+                g.getTelefone()
             ))
             .toList();
     }
 
-    public Gerente buscarGerentePorId(Integer id) {
-        return gerenteRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Gerente não encontrado"));
+   public LerGerenteDTO buscarGerentePorId(Integer id) {
+        Gerente gerente = gerenteRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Gerente não encontrado"));
+
+        return new LerGerenteDTO(
+            gerente.getNome(),
+            gerente.getCpf(),
+            gerente.getEmail(),
+            gerente.getTelefone()
+        );
+    }
+    
+    public List<LerGerenteDTO> buscarGerentePorNome(String nome) {
+        return gerenteRepository.findByNomeContainingIgnoreCase(nome)
+        .stream()
+        .map(g -> new LerGerenteDTO(
+            g.getNome(),
+            g.getCpf(),
+            g.getEmail(),
+            g.getTelefone()
+        ))
+        .toList();
     }
 
-    public List<Gerente> buscarGerentePorNome(String nome) {
-        return gerenteRepository.findByNomeContainingIgnoreCase(nome);
+  public LerGerenteDTO buscarGerentePorCPF(String cpf) {
+        Gerente gerente = gerenteRepository.findByCpf(cpf)
+            .orElseThrow(() -> new RuntimeException("Gerente com cpf: " + cpf + " não encontrado"));
+
+        return new LerGerenteDTO(
+            gerente.getNome(),
+            gerente.getCpf(),
+            gerente.getEmail(),
+            gerente.getTelefone()
+        );
     }
 
    public Gerente criar(AdicionarGerenteDTO gerenteDto) {
@@ -47,13 +77,40 @@ public class GerenteService {
         return gerente;
     }
 
-    public Gerente atualizar(Integer id, Gerente gerenteAtualizado) {
-        Gerente gerente = buscarGerentePorId(id);
-        return gerenteRepository.save(gerente);
+    public LerGerenteDTO atualizar(Integer id, EditarGerenteDTO dto) {
+        Gerente gerente = gerenteRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Gerente não encontrado"));
+
+        if (dto.nome() != null && !dto.nome().isBlank()) {
+            gerente.setNome(dto.nome());
+        }
+
+        if (dto.telefone() != null && !dto.telefone().isBlank()) {
+            gerente.setTelefone(dto.telefone());
+        }
+
+        if (dto.email() != null && !dto.email().isBlank()) {
+            gerente.setEmail(dto.email());
+        }
+
+        if (dto.senha() != null && !dto.senha().isBlank()) {
+            gerente.setSenha(dto.senha());
+        }
+
+        gerente = gerenteRepository.save(gerente);
+
+        return new LerGerenteDTO(
+            gerente.getNome(),
+            gerente.getEmail(),
+            gerente.getCpf(),
+            gerente.getTelefone()
+        );
     }
 
     public void deletar(Integer id) {
-        Gerente gerente = buscarGerentePorId(id);
+        Gerente gerente = gerenteRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Gerente não encontrado"));
+
         gerenteRepository.delete(gerente);
     }
 }

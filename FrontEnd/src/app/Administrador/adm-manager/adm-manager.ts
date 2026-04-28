@@ -4,17 +4,11 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { FormManager } from './components/form-manager/form-manager';
 import { Menu } from '../../components/menu/menu';
 import { ManagerCreateEdit, ManagerSummary } from '../../models/manager.model';
-import {  MatIconModule } from '@angular/material/icon';
-import { ManagerStatus, MOCK_MANAGERS_LIST, MOCK_MANAGERS_CREATE } from '../../../assets/mock/managers.mock';
+import { MatIconModule } from '@angular/material/icon';
 import { RemoveManager } from './components/remove-manager/remove-manager';
-import { CustomerService } from '../../services/customer.service';
-
-interface StoredManager {
-  nome: string;
-  cpf: string;
-  telefone: string;
-  email: string;
-}
+import { ManagerStatus } from '../../models/manager.model';
+import { ManagerService } from '../../services/manager.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-adm-manager',
@@ -22,30 +16,32 @@ interface StoredManager {
   templateUrl: './adm-manager.html',
   styleUrl: './adm-manager.css',
 })
+
 export class AdmManager implements OnInit {
-  private readonly MANAGERS_STORAGE_KEY = 'bantads_managers';
-
-  constructor(
-    private dialog: MatDialog,
-    private customerService: CustomerService,
-  ) {
-  }
-
-  ngOnInit(): void {
-    const dadosSalvos = localStorage.getItem('managers');
-    if (dadosSalvos) {
-      this.managers = JSON.parse(dadosSalvos);
-    } else {
-      this.managers = [...MOCK_MANAGERS_LIST];
-    }
-    this.refreshManagerClientsCount();
-    this.syncManagersStorage();
-  }
-
-  mockGerente: ManagerCreateEdit = MOCK_MANAGERS_CREATE;
   managers: ManagerSummary[] = [];
   searchTerm = '';
   selectedStatus: ManagerStatus | 'all' = 'all';
+
+  constructor(
+    private dialog: MatDialog,
+    private managerService: ManagerService,
+    private snackBar: MatSnackBar
+  ) { }
+
+  ngOnInit(): void {
+    this.carregarGerentes();
+  }
+
+  carregarGerentes(): void {
+    this.managerService.listar().subscribe({
+      next: (res) => {
+        this.managers = res;
+      },
+      error: () => {
+        this.showMessage('Erro ao carregar gerentes');
+      }
+    });
+  }
 
   abrirModalCriar(): void {
     const dialogRef = this.dialog.open(FormManager, {
@@ -56,19 +52,22 @@ export class AdmManager implements OnInit {
 
     dialogRef.afterClosed().subscribe((res) => {
       if (res && res.modo === 'criar') {
-        const dados = res.gerente; 
-        const novoGerente: ManagerSummary = {
-          id: this.managers.length + 1,
-          name: dados.nome,
-          email: dados.email,
-          phone: dados.telefone,
-          status: 'pending',
-          clients: 0
-        };
-        this.managers = [...this.managers, novoGerente];
-        localStorage.setItem('managers', JSON.stringify(this.managers));
+
+        const dados = res.gerente;
+
+        this.managerService.criar(dados).subscribe({
+          next: () => {
+            this.showMessage('Gerente criado com sucesso!');
+            this.carregarGerentes();
+          },
+          error: () => {
+            this.showMessage('Erro ao criar gerente!');
+          }
+        });
+
+        console.log('Gerente criado');
       }
-    });
+    })
   }
 
   abrirModalEditar(gerente: ManagerSummary): void {
@@ -84,31 +83,55 @@ export class AdmManager implements OnInit {
     dialogRef.afterClosed().subscribe((res) => {
       if (res && res.modo === 'editar') {
         const dados = res.gerente;
-        this.managers = this.managers.map((m) => {
-          if (m.id === dados.id) {
-            return {
-              ...m,
-              name: dados.nome,
-              email: dados.email,
-              phone: dados.telefone
-            };
+
+        this.managerService.atualizar(dados.id, dados).subscribe({
+          next: () => {
+            this.showMessage('Gerente editado com sucesso!');
+            this.carregarGerentes();
+          },
+          error: () => {
+            this.showMessage('Erro ao editar gerente!');
           }
-          return m;
         });
-        localStorage.setItem('managers', JSON.stringify(this.managers));
+
+        console.log('Gerente editado:', dados);
       }
+    })
+  }
+
+  abrirModalRemover(manager: ManagerSummary): void {
+    const dialogRef = this.dialog.open(RemoveManager, {
+      width: '560px',
+      maxWidth: '95vw',
+      data: {
+        managerCpf: manager.cpf
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (!result?.success) {
+        return;
+      }
+
+      this.managerService.deletar(manager.id).subscribe({
+        next: () => {
+          this.showMessage('Gerente removido com sucesso!');
+          this.carregarGerentes();
+        },
+        error: () => {
+          this.showMessage('Erro ao remover gerente!');
+        }
+      });
     });
   }
 
   get statusTabs(): Array<{ key: ManagerStatus | 'all'; label: string; count: number }> {
     return [
-        { key: 'all', label: 'Todos', count: this.managers.length },
-        { key: 'active', label: 'Ativos', count: this.getCountByStatus('active') },
-        { key: 'pending', label: 'Pendentes', count: this.getCountByStatus('pending') },
-        { key: 'inactive', label: 'Inativos', count: this.getCountByStatus('inactive') }
-      ];
+      { key: 'all', label: 'Todos', count: this.managers.length },
+      { key: 'active', label: 'Ativos', count: this.getCountByStatus('active') },
+      { key: 'inactive', label: 'Inativos', count: this.getCountByStatus('inactive') }
+    ];
   }
-  
 
   get filteredManagers(): ManagerSummary[] {
     const normalizedTerm = this.searchTerm.trim().toLowerCase();
@@ -261,5 +284,13 @@ export class AdmManager implements OnInit {
       .toLowerCase()
       .replace(/\s+/g, ' ')
       .trim();
+  }
+  private showMessage(message: string) {
+    this.snackBar.open(message, 'Fechar', {
+      duration: 3000,
+      horizontalPosition: 'right',
+      verticalPosition: 'bottom',
+      panelClass: ['text-white', 'rounded-3xl']
+    });
   }
 }

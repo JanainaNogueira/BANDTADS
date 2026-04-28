@@ -45,6 +45,10 @@ export class CustomersPage implements OnInit {
     this.customerService.obterTodosClientes().subscribe({
       next: (clientes) => this.customers = clientes,
       error: (err) => console.error('Erro ao carregar clientes', err)
+
+//     this.customerService.obterTodosClientesApi().subscribe({
+//       next: (list) => this.customers = list,
+//       error: () => { this.customers = this.customerService.obterTodosClientes(); }
     });
     this.route.url.subscribe((segments) => {
       const path = segments[0]?.path;

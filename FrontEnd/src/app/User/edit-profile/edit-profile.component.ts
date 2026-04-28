@@ -3,13 +3,13 @@ import { Menu } from '../../components/menu/menu';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
-import { NgClass } from '@angular/common';
+import { NgClass, CommonModule } from '@angular/common';
 import { CustomerService } from '../../services/customer.service';
 import { Customer } from '../../models/costumer.model';
 
 @Component({
   selector: 'app-edit-profile',
-  imports: [Menu, ReactiveFormsModule, NgxMaskDirective, NgClass],
+  imports: [Menu, ReactiveFormsModule, NgxMaskDirective, NgClass, CommonModule],
   providers: [provideNgxMask()],
   templateUrl: './edit-profile.component.html',
   styleUrl: './edit-profile.component.css'
@@ -41,20 +41,20 @@ export class EditProfileComponent implements OnInit {
   }
 
   ngOnInit() {
-    const cliente = this.customerService.getClienteLogado();
-
-    if (cliente) {
-      this.customer = cliente;
-
-      this.perfilForm.patchValue({
-        nome: cliente.name,
-        email: cliente.email,
-        telefone: '',
-        salario: cliente.salary,
-        cidade: cliente.city,
-        estado: cliente.state
-      });
-    }
+    this.customerService.getClienteLogado().subscribe({
+      next: (cliente) => {
+        if (cliente) {
+          this.customer = cliente;
+          this.perfilForm.patchValue({
+            nome: cliente.name || cliente.nome,
+            email: cliente.email,
+            salario: cliente.salary,
+            cidade: cliente.city,
+            estado: cliente.state
+          });
+        }
+      }
+    });
   }
 
   consultaCEP() {
@@ -98,12 +98,13 @@ export class EditProfileComponent implements OnInit {
       state: form.estado
     };
 
-    this.customerService.atualizarCliente(clienteAtualizado);
-
-    this.customerService.setClienteLogado(clienteAtualizado.cpf);
-
-    this.customer = clienteAtualizado;
-
-    alert('Dados atualizados!');
+    this.customerService.atualizarCliente(clienteAtualizado).subscribe({
+      next: () => {
+        this.customerService.setClienteLogado(clienteAtualizado.cpf);
+        this.customer = clienteAtualizado;
+        alert('Dados atualizados!');
+      },
+      error: (err) => console.error('Erro ao atualizar cliente', err)
+    });
   }
 }

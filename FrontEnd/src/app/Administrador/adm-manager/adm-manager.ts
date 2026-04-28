@@ -29,21 +29,21 @@ export class AdmManager implements OnInit {
     private dialog: MatDialog,
     private customerService: CustomerService,
   ) {
-    this.syncManagersStorage();
-    this.refreshManagerClientsCount();
   }
-    ngOnInit(): void {
-      const dadosSalvos = localStorage.getItem('managers');
 
-      if (dadosSalvos) {
-        this.managers = JSON.parse(dadosSalvos);
-      } else {
-        this.managers = [...MOCK_MANAGERS_LIST];
-      }
+  ngOnInit(): void {
+    const dadosSalvos = localStorage.getItem('managers');
+    if (dadosSalvos) {
+      this.managers = JSON.parse(dadosSalvos);
+    } else {
+      this.managers = [...MOCK_MANAGERS_LIST];
     }
+    this.refreshManagerClientsCount();
+    this.syncManagersStorage();
+  }
 
   mockGerente: ManagerCreateEdit = MOCK_MANAGERS_CREATE;
-  managers: ManagerSummary[] = MOCK_MANAGERS_LIST;
+  managers: ManagerSummary[] = [];
   searchTerm = '';
   selectedStatus: ManagerStatus | 'all' = 'all';
 
@@ -56,9 +56,7 @@ export class AdmManager implements OnInit {
 
     dialogRef.afterClosed().subscribe((res) => {
       if (res && res.modo === 'criar') {
-
         const dados = res.gerente; 
-
         const novoGerente: ManagerSummary = {
           id: this.managers.length + 1,
           name: dados.nome,
@@ -67,12 +65,8 @@ export class AdmManager implements OnInit {
           status: 'pending',
           clients: 0
         };
-
         this.managers = [...this.managers, novoGerente];
-
         localStorage.setItem('managers', JSON.stringify(this.managers));
-
-        console.log('Gerente criado:', novoGerente);
       }
     });
   }
@@ -89,9 +83,7 @@ export class AdmManager implements OnInit {
 
     dialogRef.afterClosed().subscribe((res) => {
       if (res && res.modo === 'editar') {
-
         const dados = res.gerente;
-
         this.managers = this.managers.map((m) => {
           if (m.id === dados.id) {
             return {
@@ -103,10 +95,7 @@ export class AdmManager implements OnInit {
           }
           return m;
         });
-
         localStorage.setItem('managers', JSON.stringify(this.managers));
-
-        console.log('Gerente editado:', dados);
       }
     });
   }
@@ -151,14 +140,8 @@ export class AdmManager implements OnInit {
   }
 
   getStatusLabel(status: ManagerStatus): string {
-    if (status === 'active') {
-      return 'Ativo';
-    }
-
-    if (status === 'pending') {
-      return 'Pendente';
-    }
-
+    if (status === 'active') return 'Ativo';
+    if (status === 'pending') return 'Pendente';
     return 'Inativo';
   }
 
@@ -171,29 +154,21 @@ export class AdmManager implements OnInit {
   }
 
   abrirModalRemover(manager: ManagerSummary): void {
-    const managerCpf = this.resolveManagerCpf(manager);
-    if (!managerCpf) {
-      return;
-    }
+    this.resolveManagerCpf(manager, (managerCpf) => {
+      if (!managerCpf) return;
 
-    const dialogRef = this.dialog.open(RemoveManager, {
-      width: '560px',
-      maxWidth: '95vw',
-      data: {
-        managerCpf,
-      },
-    });
+      const dialogRef = this.dialog.open(RemoveManager, {
+        width: '560px',
+        maxWidth: '95vw',
+        data: { managerCpf },
+      });
 
-    dialogRef.afterClosed().subscribe((result) => {
-      if (!result?.success) {
-        return;
-      }
-
-      this.managers = this.managers.filter(
-        (item) => item.id !== manager.id
-      );
-      this.refreshManagerClientsCount();
-      this.syncManagersStorage();
+      dialogRef.afterClosed().subscribe((result) => {
+        if (!result?.success) return;
+        this.managers = this.managers.filter((item) => item.id !== manager.id);
+        this.refreshManagerClientsCount();
+        this.syncManagersStorage();
+      });
     });
   }
 
@@ -203,81 +178,71 @@ export class AdmManager implements OnInit {
 
   private updateManagerStatus(managerId: number, status: ManagerStatus): void {
     this.managers = this.managers.map((manager) => {
-      if (manager.id !== managerId) {
-        return manager;
-      }
-
-      return {
-        ...manager,
-        status
-      };
+      if (manager.id !== managerId) return manager;
+      return { ...manager, status };
     });
   }
 
   private refreshManagerClientsCount(): void {
-    const customers = this.customerService.obterTodosClientes();
-    this.managers = this.managers.map((manager) => ({
-      ...manager,
-      clients: customers.filter(
-        (customer) => this.normalizeName(customer.manager.name) === this.normalizeName(manager.name)
-      ).length,
-    }));
+    this.customerService.obterTodosClientes().subscribe({
+      next: (customers) => {
+        this.managers = this.managers.map((manager) => ({
+          ...manager,
+          clients: customers.filter(
+            (customer: any) => customer.manager && this.normalizeName(customer.manager.name) === this.normalizeName(manager.name)
+          ).length,
+        }));
+      }
+    });
   }
 
   private syncManagersStorage(): void {
-    if (typeof localStorage === 'undefined') {
-      return;
-    }
+    if (typeof localStorage === 'undefined') return;
 
-    const payload = this.managers.map((manager) => ({
-      nome: manager.name,
-      cpf: this.resolveManagerCpf(manager),
-      telefone: manager.phone,
-      email: manager.email,
-    })).filter((manager) => !!manager.cpf) as StoredManager[];
-
-    localStorage.setItem(this.MANAGERS_STORAGE_KEY, JSON.stringify(payload));
+    this.customerService.obterTodosClientes().subscribe({
+      next: (customers) => {
+        const payload = this.managers.map((manager) => {
+          const cpf = customers.find(c => c.manager && this.normalizeName(c.manager.name) === this.normalizeName(manager.name))?.manager.cpf 
+                      || this.generateFallbackCpf(manager.id);
+          return {
+            nome: manager.name,
+            cpf: cpf,
+            telefone: manager.phone,
+            email: manager.email,
+          };
+        }) as StoredManager[];
+        localStorage.setItem(this.MANAGERS_STORAGE_KEY, JSON.stringify(payload));
+      }
+    });
   }
 
-  private resolveManagerCpf(manager: ManagerSummary): string | null {
-    const customers = this.customerService.obterTodosClientes();
-    const fromCustomers = customers.find(
-      (customer) => this.normalizeName(customer.manager.name) === this.normalizeName(manager.name)
-    )?.manager.cpf;
+  private resolveManagerCpf(manager: ManagerSummary, callback: (cpf: string) => void): void {
+    this.customerService.obterTodosClientes().subscribe({
+      next: (customers) => {
+        const fromCustomers = customers.find(
+          (customer: any) => customer.manager && this.normalizeName(customer.manager.name) === this.normalizeName(manager.name)
+        )?.manager.cpf;
 
-    if (fromCustomers) {
-      return fromCustomers;
-    }
+        if (fromCustomers) {
+          callback(fromCustomers);
+          return;
+        }
 
-    const fromStorage = this.getStoredManagers().find(
-      (item) => this.normalizeName(item.nome) === this.normalizeName(manager.name)
-    )?.cpf;
+        const fromStorage = this.getStoredManagers().find(
+          (item) => this.normalizeName(item.nome) === this.normalizeName(manager.name)
+        )?.cpf;
 
-    if (fromStorage) {
-      return fromStorage;
-    }
-
-    return this.generateFallbackCpf(manager.id);
+        callback(fromStorage || this.generateFallbackCpf(manager.id));
+      }
+    });
   }
 
   private getStoredManagers(): StoredManager[] {
-    if (typeof localStorage === 'undefined') {
-      return [];
-    }
-
+    if (typeof localStorage === 'undefined') return [];
     const raw = localStorage.getItem(this.MANAGERS_STORAGE_KEY);
-    if (!raw) {
-      return [];
-    }
-
+    if (!raw) return [];
     try {
-      const parsed = JSON.parse(raw) as Partial<StoredManager>[];
-      return parsed.filter((item) => !!item?.cpf && !!item?.nome).map((item) => ({
-        nome: item.nome!,
-        cpf: item.cpf!,
-        telefone: item.telefone || '',
-        email: item.email || '',
-      }));
+      return JSON.parse(raw);
     } catch {
       return [];
     }
@@ -289,15 +254,12 @@ export class AdmManager implements OnInit {
   }
 
   private normalizeName(name: string): string {
+    if (!name) return '';
     return name
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
       .toLowerCase()
       .replace(/\s+/g, ' ')
       .trim();
-  }
-
-  private normalizeCpf(cpf: string): string {
-    return cpf.replace(/\D/g, '');
   }
 }

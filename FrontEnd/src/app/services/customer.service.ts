@@ -36,7 +36,20 @@ export class CustomerService {
     return this.http.post<any>(`${this.API_URL}/${id}/rejeitar`, {});
   }
 
-  atualizarCliente(id: number, cliente: Customer): Observable<Customer> {
-    return this.http.put<Customer>(`${this.API_URL}/${id}`, cliente);
+  setClienteLogado(cpf: string): void {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('bantads_logged_user', cpf.replace(/\D/g, ''));
+    }
+  }
+
+  getClienteLogado(): Observable<Customer | null> {
+    if (typeof window === 'undefined') return new Observable(sub => sub.next(null));
+    const email = localStorage.getItem('email');
+    if (!email) return new Observable(sub => sub.next(null));
+    return this.buscarClientePorEmail(email);
+  }
+
+  atualizarCliente(cliente: Customer): Observable<Customer> {
+    return this.http.put<Customer>(`${this.API_URL}/${cliente.id}`, cliente);
   }
 }

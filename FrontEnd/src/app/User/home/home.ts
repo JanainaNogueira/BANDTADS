@@ -12,7 +12,7 @@ import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-home',
-  imports: [Menu, CommonModule, MatIconModule, MatDialogModule, Operacoes],
+  imports: [Menu, CommonModule, MatIconModule, MatDialogModule],
   templateUrl: './home.html',
   styleUrl: './home.css',
 })

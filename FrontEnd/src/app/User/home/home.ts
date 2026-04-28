@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Menu } from '../../components/menu/menu';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
@@ -6,8 +6,9 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { Customer } from '../../models/costumer.model';
 import { CustomerService } from '../../services/customer.service';
-import { Transacao, TransactionService } from '../../services/transaction.service';
+import { TransactionService, Transacao } from '../../services/transaction.service';
 import { Operacoes } from './components/operacoes/operacoes';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-home',
@@ -15,7 +16,10 @@ import { Operacoes } from './components/operacoes/operacoes';
   templateUrl: './home.html',
   styleUrl: './home.css',
 })
-export class Home {
+export class Home implements OnInit {
+  login: Customer | null = null;
+  transactions: any[] = [];
+
   constructor(
     private dialog: MatDialog,
     private router: Router,
@@ -23,168 +27,73 @@ export class Home {
     private transactionService: TransactionService
   ) {}
 
-  transactions: any[] = [];
-
-  email: string = '';
-  tipo: string = "";
-  login: Customer | null = null;
-
   ngOnInit() {
-    this.carregarUsuarioLogado();
-    this.carregarTransacoes();
+    this.carregarDados();
+  }
 
-    this.transactionService.transactions$.subscribe(() => {
-      this.carregarTransacoes();
-    });
+  carregarDados() {
+    const email = localStorage.getItem('email');
+    if (email) {
+      this.customerService.buscarClientePorEmail(email).subscribe({
+        next: (cliente) => {
+          this.login = cliente;
+          this.carregarUltimasTransacoes();
+        },
+        error: (err) => console.error('Erro ao carregar dados do cliente', err)
+      });
+    }
+  }
 
-    this.transactionService.transactions$.subscribe(lista => {
+  carregarUltimasTransacoes() {
+    if (!this.login || !this.login.numberAccount) return;
 
-      if (!this.login) return;
+    const hoje = new Date();
+    const inicio = new Date();
+    inicio.setDate(hoje.getDate() - 30);
 
-      const clientes = this.customerService.obterTodosClientes();
+    forkJoin({
+      extrato: this.transactionService.consultarExtrato(this.login.numberAccount, inicio, hoje),
+      clientes: this.customerService.obterTodosClientes()
+    }).subscribe({
+      next: (resp) => {
+        this.transactions = resp.extrato
+          .slice(0, 3)
+          .map(t => {
+            const isEntrada = t.valor > 0 || t.tipo === 'DEPOSITO' || (t.tipo === 'TRANSFERENCIA' && t.contaDestino === this.login?.numberAccount);
+            let nomeOutro = '';
 
-      this.transactions = lista
-        .filter(t =>
-          t.contaOrigem === this.login?.numberAccount ||
-          t.contaDestino === this.login?.numberAccount
-        )
-        .slice(0, 3)
-        .map(t => {
-
-          const isEntrada = this.isEntrada(t);
-
-          let nomeDestinatario = '';
-
-          if (t.tipo === 'TRANSFERENCIA') {
-            if (isEntrada) {
-              const origem = clientes.find(c => c.numberAccount === t.contaOrigem);
-              nomeDestinatario = origem?.name || '';
+            if (t.tipo === 'TRANSFERENCIA') {
+              const outroId = isEntrada ? t.clienteOrigemId : t.clienteDestinoId;
+              const outro = resp.clientes.find(c => c.id === outroId);
+              nomeOutro = outro ? (outro.name || outro.nome || '') : 'Transferência';
             } else {
-              const destino = clientes.find(c => c.numberAccount === t.contaDestino);
-              nomeDestinatario = destino?.name || '';
+              nomeOutro = t.tipo === 'DEPOSITO' ? 'Depósito' : 'Saque';
             }
-          }
 
-          return {
-            ...t,
-            operacao: this.getOperacao(t),
-            isEntrada,
-            nomeDestinatario
-          };
-        });
+            return {
+              ...t,
+              isEntrada,
+              nomeOutro,
+              operacao: t.tipo
+            };
+          });
+      }
     });
-  }
-
-  private isEntrada(t: Transacao): boolean {
-    if (!this.login) return false;
-
-    if (t.tipo === 'DEPOSITO') return true;
-    if (t.tipo === 'SAQUE') return false;
-
-    return t.contaDestino === this.login.numberAccount;
-  }
-
-  private getOperacao(t: Transacao): string {
-    switch (t.tipo) {
-      case 'DEPOSITO':
-        return 'Depósito';
-      case 'SAQUE':
-        return 'Saque';
-      case 'TRANSFERENCIA':
-        return 'Transferência';
-      default:
-        return '';
-    }
-  }
-
-  private carregarUsuarioLogado(): void {
-    if (typeof localStorage === 'undefined') return;
-
-    this.email = localStorage.getItem('email') || '';
-    this.tipo = localStorage.getItem('tipoUsuario') || "";
-
-    if (this.tipo == "cliente") {
-      this.login = this.customerService
-        .obterTodosClientes()
-        .find((cliente) => cliente.email == this.email) || null;
-    }
   }
 
   abrirOperacoes(tabInicial: number): void {
-    console.log('Abrindo operações para tab:', tabInicial);
-    console.log('Usuário logado:', this.login);
+    if (!this.login) return;
 
-    if (!this.login) {
-      console.error('Cliente não carregado na Home');
-      return;
-    }
+    const ref = this.dialog.open(Operacoes, {
+      data: { tabInicial, cliente: this.login },
+      width: '760px',
+      maxWidth: '96vw'
+    });
 
-    try {
-      const ref = this.dialog.open(Operacoes, {
-        data: {
-          tabInicial,
-          cliente: this.login
-        },
-        width: '760px',
-        maxWidth: '96vw'
-      });
-
-      ref.afterClosed().subscribe(() => {
-        this.carregarUsuarioLogado();
-        this.carregarTransacoes();
-      });
-    } catch (err) {
-      console.error('Erro ao abrir o diálogo de operações:', err);
-    }
+    ref.afterClosed().subscribe(() => this.carregarDados());
   }
 
-  irParaExtrato(): void {
+  irParaExtrato() {
     this.router.navigate(['/bank-statement']);
   }
-
-  private carregarTransacoes() {
-  if (!this.login) return;
-
-  const lista = this.transactionService.getAllTransactions();
-  const clientes = this.customerService.obterTodosClientes();
-
-  this.transactions = lista
-    .filter(t =>{
-      const minhaConta = this.login!.numberAccount;
-
-    if (t.tipo === 'TRANSFERENCIA') {
-      // evita duplicidade
-      return (
-        t.contaOrigem === minhaConta ||
-        (t.contaDestino === minhaConta && t.valor > 0)
-      );
-    }
-
-    return t.contaOrigem === minhaConta;
-  })
-    .slice(0, 3)
-    .map(t => {
-
-      const isEntrada = this.isEntrada(t);
-
-      let nomeDestinatario = '';
-
-      if (t.tipo === 'TRANSFERENCIA') {
-        if (isEntrada) {
-          const origem = clientes.find(c => c.numberAccount === t.contaOrigem);
-          nomeDestinatario = origem?.name || '';
-        } else {
-          const destino = clientes.find(c => c.numberAccount === t.contaDestino);
-          nomeDestinatario = destino?.name || '';
-        }
-      }
-
-      return {
-        ...t,
-        operacao: this.getOperacao(t),
-        isEntrada,
-        nomeDestinatario
-      };
-    });
-}
 }

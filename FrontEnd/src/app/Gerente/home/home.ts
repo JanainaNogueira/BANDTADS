@@ -14,7 +14,6 @@ import { Customer } from '../../models/costumer.model';
   styleUrl: './home.css',
 })
 export class HomeGerente implements OnInit {
-
   customers: Customer[] = [];
 
   constructor(private customerService: CustomerService) {}
@@ -29,9 +28,8 @@ export class HomeGerente implements OnInit {
         this.customers = resp;
       },
       error: (err) => {
-        console.error('Erro ao carregar pendentes', err);
+        console.error('Erro ao carregar clientes pendentes', err);
       }
     });
   }
-
 }

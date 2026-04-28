@@ -2,6 +2,29 @@ import { Injectable, PLATFORM_ID, Inject } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { MOCK_CUSTOMERS } from '../../assets/mock/customers.mock';
 import { Customer } from '../models/costumer.model';
+import { HttpClient } from '@angular/common/http';
+import { Observable, forkJoin, of } from 'rxjs';
+import { map, catchError, switchMap } from 'rxjs/operators';
+
+interface BackendCliente {
+  id: number;
+  nome: string;
+  cpf: string;
+  email: string;
+  telefone?: string;
+  salario?: number;
+  endereco?: { cidade?: string; estado?: string };
+}
+
+interface LerContaDTO {
+  contaId: number;
+  clienteId: number;
+  numeroConta: string;
+  dataCriacao: string;
+  saldo: number;
+  limite: number;
+  gerenteId?: number;
+}
 
 @Injectable({
   providedIn: 'root',
@@ -10,11 +33,14 @@ export class CustomerService {
   private readonly STORAGE_KEY = 'bantads_customers';
   private readonly LOGGED_USER_KEY = 'bantads_logged_user';
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object) {
+  private readonly clientesApiUrl = 'http://localhost:8080/clientes';
+  private readonly contasApiUrl = 'http://localhost:8081/contas';
+
+  constructor(@Inject(PLATFORM_ID) private platformId: Object, private http: HttpClient) {
     this.initializeStorage();
   }
 
-//  Quando tiver API vou remover essa inicialização
+  //  Quando tiver API vou remover essa inicialização
 
   private initializeStorage(): void {
     if (!isPlatformBrowser(this.platformId)) {
@@ -132,6 +158,61 @@ export class CustomerService {
     }
     localStorage.removeItem(this.STORAGE_KEY);
     localStorage.removeItem(this.LOGGED_USER_KEY);
+  }
+
+  // consultam o back 
+  obterTodosClientesApi(): Observable<Customer[]> {
+
+    return this.http.get<BackendCliente[]>(this.clientesApiUrl).pipe(
+      switchMap((clientes) => {
+        if (!clientes || clientes.length === 0) return of([]);
+
+        const observables = clientes.map((c) => {
+          return this.http
+            .get<LerContaDTO[]>(`${this.contasApiUrl}/cliente/${c.id}`)
+            .pipe(
+              map((contas) => {
+                const conta = (contas && contas.length) ? contas[0] : null;
+                const customer: Customer = {
+                  idCliente: String(c.id),
+                  cpf: c.cpf,
+                  name: c.nome,
+                  email: c.email,
+                  salary: c.salario ?? 0,
+                  numberAccount: conta ? Number(conta.numeroConta) : 0,
+                  balance: conta ? conta.saldo : 0,
+                  limit: conta ? conta.limite : 0,
+                  city: c.endereco?.cidade ?? '',
+                  state: c.endereco?.estado ?? '',
+                  manager: { cpf: '', name: '' },
+                  status: null as any,
+                };
+
+                return customer;
+              }),
+              catchError(() =>
+                of({
+                  idCliente: String(c.id),
+                  cpf: c.cpf,
+                  name: c.nome,
+                  email: c.email,
+                  salary: c.salario ?? 0,
+                  numberAccount: 0,
+                  balance: 0,
+                  limit: 0,
+                  city: c.endereco?.cidade ?? '',
+                  state: c.endereco?.estado ?? '',
+                  manager: { cpf: '', name: '' },
+                  status: null as any,
+                })
+              )
+            );
+        });
+
+        return forkJoin(observables);
+      }),
+      catchError(() => of(MOCK_CUSTOMERS))
+    );
   }
 
   private normalizarCpf(cpf: string): string {

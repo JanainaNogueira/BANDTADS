@@ -42,7 +42,11 @@ export class CustomersPage implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.customers = this.customerService.obterTodosClientes();
+
+    this.customerService.obterTodosClientesApi().subscribe({
+      next: (list) => this.customers = list,
+      error: () => { this.customers = this.customerService.obterTodosClientes(); }
+    });
     this.route.url.subscribe((segments) => {
       const path = segments[0]?.path;
       this.page = path === 'gerente-consultar-cliente' ? 2 : 1;

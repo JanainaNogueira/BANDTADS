@@ -1,6 +1,7 @@
 package br.ufpr.bantads.auth_service.service;
 
 import br.ufpr.bantads.auth_service.dto.AuthDTO;
+import br.ufpr.bantads.auth_service.dto.AuthenticatedUserDTO;
 import br.ufpr.bantads.auth_service.model.Usuario;
 import br.ufpr.bantads.auth_service.repository.UsuarioRepository;
 import io.jsonwebtoken.Jwts;
@@ -19,7 +20,6 @@ import java.util.Optional;
 public class AuthService {
 
     private static final String SALT = "tads";
-    private static final long JWT_EXPIRATION_MS = 3600000;
 
     @Value("${jwt.secret}")
     private String jwtSecret;
@@ -27,7 +27,7 @@ public class AuthService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    public Usuario autenticar(AuthDTO dto) {
+    public AuthenticatedUserDTO autenticar(AuthDTO dto) {
 
         Optional<Usuario> usuarioOpt = usuarioRepository.findByLogin(dto.getLogin());
 
@@ -43,19 +43,25 @@ public class AuthService {
             throw new RuntimeException("Usuário ou senha inválidos");
         }
 
-        return usuario;
+        String token = gerarToken(usuario.getLogin(), usuario.getTipo());
+
+        return new AuthenticatedUserDTO(
+                usuario.getId(),
+                usuario.getLogin(),
+                usuario.getTipo(),
+                token
+        );
     }
 
-    public String gerarToken(Usuario usuario) {
+    private String gerarToken(String login, String tipo) {
         Key key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
 
         long now = System.currentTimeMillis();
 
         return Jwts.builder()
-                .setSubject(usuario.getLogin())
-                .claim("tipo", usuario.getTipo())
+                .setSubject(login)
+                .claim("tipo", tipo)
                 .setIssuedAt(new java.util.Date(now))
-                .setExpiration(new java.util.Date(now + JWT_EXPIRATION_MS))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }

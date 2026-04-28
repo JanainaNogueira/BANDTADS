@@ -1,9 +1,9 @@
 package br.ufpr.bantads.auth_service.controller;
 
 import br.ufpr.bantads.auth_service.dto.AuthDTO;
+import br.ufpr.bantads.auth_service.dto.AuthenticatedUserDTO;
 import br.ufpr.bantads.auth_service.dto.LoginResponseDTO;
 import br.ufpr.bantads.auth_service.dto.UsuarioResponseDTO;
-import br.ufpr.bantads.auth_service.model.Usuario;
 import br.ufpr.bantads.auth_service.service.AuthService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,20 +23,18 @@ public class AuthController {
     public ResponseEntity<?> login(@Valid @RequestBody AuthDTO dto) {
 
         try {
-            Usuario usuario = authService.autenticar(dto);
-
-            String token = authService.gerarToken(usuario);
+            AuthenticatedUserDTO authenticatedUser = authService.autenticar(dto);
 
             UsuarioResponseDTO usuarioDTO = new UsuarioResponseDTO(
-                    usuario.getId(),
-                    usuario.getLogin(),
-                    usuario.getTipo()
+                    authenticatedUser.getId(),
+                    authenticatedUser.getLogin(),
+                    authenticatedUser.getTipo()
             );
 
             LoginResponseDTO response = new LoginResponseDTO(
-                    token,
+                    authenticatedUser.getAccessToken(),
                     "bearer",
-                    usuario.getTipo(),
+                    authenticatedUser.getTipo(),
                     usuarioDTO
             );
 

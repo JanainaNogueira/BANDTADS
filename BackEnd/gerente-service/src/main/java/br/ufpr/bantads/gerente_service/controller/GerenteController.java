@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.ufpr.bantads.gerente_service.dtos.AdicionarGerenteDTO;
+import br.ufpr.bantads.gerente_service.dtos.EditarGerenteDTO;
 import br.ufpr.bantads.gerente_service.dtos.LerGerenteDTO;
 import br.ufpr.bantads.gerente_service.model.Gerente;
 import br.ufpr.bantads.gerente_service.read.model.GerenteClientesView;
@@ -37,7 +38,7 @@ public class GerenteController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Gerente> buscarPorId(@PathVariable Integer id) {
+    public ResponseEntity<LerGerenteDTO> buscarPorId(@PathVariable Integer id) {
         return ResponseEntity.ok(gerenteService.buscarGerentePorId(id));
     }
 
@@ -50,7 +51,7 @@ public class GerenteController {
     }
 
     @GetMapping("/buscar")
-    public ResponseEntity<List<Gerente>> buscarPorNome(@RequestParam String nome) {
+    public ResponseEntity<List<LerGerenteDTO>> buscarPorNome(@RequestParam String nome) {
         return ResponseEntity.ok(gerenteService.buscarGerentePorNome(nome));
     }
 
@@ -61,13 +62,10 @@ public class GerenteController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Gerente> atualizar(
-            @PathVariable Integer id,
-            @RequestBody Gerente gerenteAtualizado) {
-
-        return ResponseEntity.ok(gerenteService.atualizar(id, gerenteAtualizado));
+    public ResponseEntity<LerGerenteDTO> atualizar(@PathVariable Integer id, @RequestBody EditarGerenteDTO dto) {
+        return ResponseEntity.ok(gerenteService.atualizar(id, dto));
     }
-
+    
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Integer id) {
         gerenteService.deletar(id);

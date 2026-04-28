@@ -1,6 +1,7 @@
 package br.ufpr.bantads.cliente_service.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,37 @@ public class ClienteService {
     private EnderecoRepository enderecoRepository;
 
     public Cliente salvarCliente(AutocadastroDTO clienteDTO) {
+
+        Optional<Cliente> existeOpt = clienteRepository.findByCpf(clienteDTO.cpf());
+
+        //validação de cadastro existente ou duplicado
+        if (existeOpt.isPresent()) {
+            Cliente clienteExiste = existeOpt.get();
+
+            switch (clienteExiste.getStatus()) {
+                case PENDENTE:
+                    throw new RuntimeException("Cliente já cadastrado e em análise");
+                case APROVADO:
+                    throw new RuntimeException("Cliente já cadastrado e aprovado");
+                case REPROVADO:
+                    Endereco endereco = clienteExiste.getEndereco();
+                    endereco.setCep(clienteDTO.endereco().cep());
+                    endereco.setNumero(clienteDTO.endereco().numero());
+                    endereco.setRua(clienteDTO.endereco().rua());
+                    endereco.setComplemento(clienteDTO.endereco().complemento());
+                    endereco.setCidade(clienteDTO.endereco().cidade());
+                    endereco.setEstado(clienteDTO.endereco().estado());
+
+                    endereco = enderecoRepository.save(endereco);
+
+                    clienteExiste.setNome(clienteDTO.nome());
+                    clienteExiste.setTelefone(clienteDTO.telefone());
+                    clienteExiste.setEmail(clienteDTO.email());
+                    clienteExiste.setEndereco(endereco);
+
+                    return clienteRepository.save(clienteExiste);
+            }
+        }
 
         Endereco endereco = new Endereco();
         endereco.setCep(clienteDTO.endereco().cep());
@@ -111,8 +143,6 @@ public class ClienteService {
     public Cliente rejeitarCliente(Integer id) {
         Cliente cliente = buscarClientePorId(id);
         cliente.setStatus(StatusEnum.REPROVADO);
-        // excluir ou apenas inativar?
-        // se apenas inativar, como vamos lidar com casos em que o cliente é rejeitado e depois tenta realizar o autocadastro novamente?
 
         return clienteRepository.save(cliente);
     }

@@ -1,0 +1,42 @@
+version: "3.9"
+
+services:
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - gateway
+    networks:
+      - bantads-network
+
+  gateway:
+    build: ./gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - backend
+    networks:
+      - bantads-network
+
+  backend:
+    build: ./backend
+    ports:
+      - "8081:8080"
+    depends_on:
+      - rabbitmq
+    networks:
+      - bantads-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - bantads-network
+
+networks:
+  bantads-network:
+    driver: bridge

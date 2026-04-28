@@ -37,4 +37,8 @@ public class MovimentacaoService {
     public List<Movimentacao> listarMovimentacoesPorConta(Integer contaId) {
         return repository.findByContaIdOrderByDataHoraDesc(contaId);
     }
+
+    public List<Movimentacao> listarMovimentacoesPorContaEPeriodo(Integer contaId, LocalDateTime start, LocalDateTime end) {
+        return repository.findByContaIdAndDataHoraBetweenOrderByDataHoraAsc(contaId, start, end);
+    }
 }

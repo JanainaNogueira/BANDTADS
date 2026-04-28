@@ -81,8 +81,8 @@
             </span>
 
             <span class="text-right font-semibold text-sm self-center"
-                  [class.text-blue-500]="grupo.saldoDia >= 0"
-                  [class.text-red-500]="grupo.saldoDia < 0">
+                  [class.text-blue-600]="grupo.saldoDia >= 0"
+                  [class.text-red-600]="grupo.saldoDia < 0">
               {{ formatarValor(grupo.saldoDia) }}
             </span>
           </div>
@@ -91,8 +91,8 @@
             <div *ngFor="let t of grupo.transacoes"
                  class="grid grid-cols-[1.5fr_1fr_1.5fr_1fr] px-5 py-3 border-b last:border-none"
                  [ngClass]="{
-                   'bg-blue-50 text-blue-700': t.isEntrada,
-                   'bg-red-50 text-red-700': !t.isEntrada
+                   'bg-blue-50 text-blue-600': t.isEntrada,
+                   'bg-red-50 text-red-600': !t.isEntrada
                  }">
 
               <span class="text-sm self-center">
@@ -106,16 +106,16 @@
               <span class="self-center">
                 <span class="inline-block px-3 py-1 rounded-md text-xs font-medium"
                       [ngClass]="{
-                        'bg-blue-100 text-blue-700': t.isEntrada,
-                        'bg-red-100 text-red-700': !t.isEntrada
+                        'bg-blue-100 text-blue-600': t.isEntrada,
+                        'bg-red-100 text-red-600': !t.isEntrada
                       }">
                   {{ t.nomeOutro }}
                 </span>
               </span>
 
               <span class="text-sm font-semibold text-right self-center"
-                    [class.text-blue-500]="t.isEntrada"
-                    [class.text-red-500]="!t.isEntrada">
+                    [class.text-blue-600]="t.isEntrada"
+                    [class.text-red-600]="!t.isEntrada">
                 {{ formatarValor(t.valor) }}
               </span>
 

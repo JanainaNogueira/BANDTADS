@@ -17,7 +17,6 @@ import { CustomerService } from '../../../../services/customer.service';
 export class Operacoes {
 
   tabAtiva = 0;
-
   cliente!: Customer;
 
   saldoAtual = 0;
@@ -61,7 +60,6 @@ export class Operacoes {
     this.emailCliente = this.cliente.email;
   }
 
-
   get valorValido(): boolean {
     if (this.tabAtiva === 0) {
       return this.valor > 0 && this.contaDestino > 0;
@@ -94,27 +92,7 @@ export class Operacoes {
     this.sucesso = '';
   }
 
-  descontarValor(valor: number) {
-    if (valor <= this.saldoAtual) {
-      this.saldoAtual -= valor;
-    } else {
-      const restante = valor - this.saldoAtual;
-      this.saldoAtual = 0;
-      this.limiteAtual -= restante;
-    }
-  }
-
-  depositarValor(valor: number) {
-    if (valor <= 0) {
-      this.erro = 'Valor inválido.';
-      return;
-    }
-
-    this.saldoAtual += valor;
-  }
-
   executar() {
-
     this.erro = '';
     this.sucesso = '';
 
@@ -128,103 +106,61 @@ export class Operacoes {
       return;
     }
 
-    let destino: Customer | undefined;
-
     switch (this.tabAtiva) {
-      //tranferencia
-      case 0:
-
+      case 0: // transferência
         if (!this.contaDestino) {
           this.erro = 'Informe a conta destino.';
           return;
         }
-
         if (this.contaDestino === this.contaLogada) {
           this.erro = 'Não pode transferir para si mesmo.';
           return;
         }
 
-        destino = this.customerService
-          .obterTodosClientes()
-          .find(c => c.numberAccount === Number(this.contaDestino));
-
-        if (!destino) {
-          this.erro = 'Conta destino não encontrada.';
-          return;
-        }
-
-        // saldo
-        this.descontarValor(this.valor);
-        destino.balance += this.valor;
-
-        this.customerService.atualizarCliente(destino);
-
-        this.transactionService.transferir(
-          this.contaLogada,
-          destino.numberAccount,
-          this.valor
-        );
-
-        this.sucesso = 'Transferência realizada com sucesso!';
+        this.transactionService.transferir(this.contaLogada, this.contaDestino.toString(), this.valor).subscribe({
+          next: () => {
+            this.sucesso = 'Transferência realizada com sucesso!';
+            this.resetCampos();
+          },
+          error: (err) => {
+            this.erro = 'Erro ao realizar transferência. Verifique o saldo ou a conta destino.';
+            console.error(err);
+          }
+        });
         break;
 
-      // saque
-      case 1:
-
-        if (this.valor > this.saldoAtual) {
-          this.erro = 'Saldo insuficiente para saque.';
-          return;
-        }
-
-        this.saldoAtual -= this.valor;
-
-        this.transactionService.addTransaction({
-          tipo: 'SAQUE',
-          valor: -this.valor,
-          contaOrigem: this.contaLogada
+      case 1: // saque
+        this.transactionService.sacar(this.contaLogada, this.valor).subscribe({
+          next: () => {
+            this.sucesso = 'Saque realizado com sucesso!';
+            this.resetCampos();
+          },
+          error: (err) => {
+            this.erro = 'Erro ao realizar saque.';
+            console.error(err);
+          }
         });
+        break;
 
-        this.sucesso = 'Saque realizado com sucesso!';
-  break;
-
-      // deposito
-      case 2:
-
-        this.depositarValor(this.valor);
-
-        this.transactionService.addTransaction({
-          tipo: 'DEPOSITO',
-          valor: this.valor,
-          contaOrigem: this.contaLogada
+      case 2: // deposito
+        this.transactionService.depositar(this.contaLogada, this.valor).subscribe({
+          next: () => {
+            this.sucesso = 'Depósito realizado com sucesso!';
+            this.resetCampos();
+          },
+          error: (err) => {
+            this.erro = 'Erro ao realizar depósito.';
+            console.error(err);
+          }
         });
-
-        this.sucesso = 'Depósito realizado com sucesso!';
         break;
     }
+  }
 
-    this.persistirSaldoCliente();
-
+  private resetCampos() {
     this.valor = 0;
     this.valorFormatado = '';
     this.contaDestino = 0;
-  }
-
-  private persistirSaldoCliente(): void {
-    const clientes = this.customerService.obterTodosClientes();
-
-    const index = clientes.findIndex(
-      c => c.email.toLowerCase() === this.emailCliente.toLowerCase()
-    );
-
-    if (index === -1) return;
-
-    clientes[index] = {
-      ...clientes[index],
-      balance: this.saldoAtual,
-      limit: this.limiteAtual
-    };
-
-    this.customerService.salvarClientes(clientes);
   }
 
   selecionarTab(index: number) {

@@ -1,6 +1,6 @@
-import { Injectable, PLATFORM_ID, Inject } from '@angular/core';
-import { isPlatformBrowser } from '@angular/common';
-import { MOCK_CUSTOMERS } from '../../assets/mock/customers.mock';
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 import { Customer } from '../models/costumer.model';
 import { HttpClient } from '@angular/common/http';
 import { Observable, forkJoin, of } from 'rxjs';
@@ -30,136 +30,50 @@ interface LerContaDTO {
   providedIn: 'root',
 })
 export class CustomerService {
-  private readonly STORAGE_KEY = 'bantads_customers';
-  private readonly LOGGED_USER_KEY = 'bantads_logged_user';
+  private readonly API_URL = '/api/clientes';
 
-  private readonly clientesApiUrl = 'http://localhost:8080/clientes';
-  private readonly contasApiUrl = 'http://localhost:8081/contas';
+  constructor(private http: HttpClient) {}
 
-  constructor(@Inject(PLATFORM_ID) private platformId: Object, private http: HttpClient) {
-    this.initializeStorage();
+  buscarClientePorCpf(cpf: string): Observable<Customer> {
+    const cpfLimpo = cpf.replace(/\D/g, '');
+    return this.http.get<Customer>(`${this.API_URL}/cpf/${cpfLimpo}`);
   }
 
-  //  Quando tiver API vou remover essa inicialização
-
-  private initializeStorage(): void {
-    if (!isPlatformBrowser(this.platformId)) {
-      return;
-    }
-    const stored = localStorage.getItem(this.STORAGE_KEY);
-    if (!stored) {
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(MOCK_CUSTOMERS));
-    }
+  buscarClientePorEmail(email: string): Observable<Customer> {
+    return this.http.get<Customer>(`${this.API_URL}/email/${email}`);
   }
 
-  getClienteLogado(): Customer | null {
-    if (!isPlatformBrowser(this.platformId)) {
-      return MOCK_CUSTOMERS.length ? MOCK_CUSTOMERS[0] : null;
-    }
+  obterTodosClientes(): Observable<Customer[]> {
+    return this.http.get<Customer[]>(this.API_URL);
+  }
 
-    const cpf = localStorage.getItem(this.LOGGED_USER_KEY);
+  obterClientesPendentes(): Observable<Customer[]> {
+    return this.http.get<Customer[]>(`${this.API_URL}/status/PENDENTE`);
+  }
 
-    if (!cpf) {
-      const clientes = this.obterTodosClientes();
-      if (!clientes.length) return null;
+  aprovarCliente(id: number): Observable<any> {
+    return this.http.post<any>(`${this.API_URL}/${id}/aprovar`, {});
+  }
 
-      const primeiro = clientes[0];
-      this.setClienteLogado(primeiro.cpf);
-      return primeiro;
-    }
-
-    return this.buscarClientePorCpf(cpf);
+  rejeitarCliente(id: number): Observable<any> {
+    return this.http.post<any>(`${this.API_URL}/${id}/rejeitar`, {});
   }
 
   setClienteLogado(cpf: string): void {
-    if (!isPlatformBrowser(this.platformId)) return;
-    localStorage.setItem(this.LOGGED_USER_KEY, this.normalizarCpf(cpf));
-  }
-
-  buscarClientePorCpf(cpf: string): Customer | null {
-    if (!isPlatformBrowser(this.platformId)) {
-      return MOCK_CUSTOMERS.find(
-        (item) => this.normalizarCpf(item.cpf) === this.normalizarCpf(cpf)
-      ) || null;
-    }
-
-    const clientes = this.obterTodosClientes();
-    const cpfNormalizado = this.normalizarCpf(cpf);
-
-    return clientes.find(
-      (item) => this.normalizarCpf(item.cpf) === cpfNormalizado
-    ) || null;
-  }
-
-  obterTodosClientes(): Customer[] {
-    if (!isPlatformBrowser(this.platformId)) {
-      return MOCK_CUSTOMERS;
-    }
-
-    try {
-      const stored = localStorage.getItem(this.STORAGE_KEY);
-      return stored ? JSON.parse(stored) : [];
-    } catch {
-      return [];
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('bantads_logged_user', cpf.replace(/\D/g, ''));
     }
   }
 
-  adicionarCliente(cliente: Customer): void {
-    if (!isPlatformBrowser(this.platformId)) {
-      return;
-    }
-    const clientes = this.obterTodosClientes();
-    clientes.push(cliente);
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(clientes));
+  getClienteLogado(): Observable<Customer | null> {
+    if (typeof window === 'undefined') return new Observable(sub => sub.next(null));
+    const email = localStorage.getItem('email');
+    if (!email) return new Observable(sub => sub.next(null));
+    return this.buscarClientePorEmail(email);
   }
 
-  salvarClientes(clientes: Customer[]): void {
-    if (!isPlatformBrowser(this.platformId)) {
-      return;
-    }
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(clientes));
-  }
-
-  atualizarCliente(clienteAtualizado: Customer): void {
-    if (!isPlatformBrowser(this.platformId)) {
-      return;
-    }
-
-    const clientes = this.obterTodosClientes();
-
-    const index = clientes.findIndex(
-      (c) => this.normalizarCpf(c.cpf) === this.normalizarCpf(clienteAtualizado.cpf)
-    );
-
-    if (index !== -1) {
-      clientes[index] = clienteAtualizado;
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(clientes));
-    }
-  }
-
-  removerCliente(cpf: string): void {
-    if (!isPlatformBrowser(this.platformId)) {
-      return;
-    }
-
-    const clientes = this.obterTodosClientes();
-    const cpfNormalizado = this.normalizarCpf(cpf);
-
-    const filtrados = clientes.filter(
-      (c) => this.normalizarCpf(c.cpf) !== cpfNormalizado
-    );
-
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(filtrados));
-  }
-
-  limparStorage(): void {
-    if (!isPlatformBrowser(this.platformId)) {
-      return;
-    }
-    localStorage.removeItem(this.STORAGE_KEY);
-    localStorage.removeItem(this.LOGGED_USER_KEY);
-  }
-
+  atualizarCliente(cliente: Customer): Observable<Customer> {
+    return this.http.put<Customer>(`${this.API_URL}/${cliente.id}`, cliente);
   // consultam o back 
   obterTodosClientesApi(): Observable<Customer[]> {
 

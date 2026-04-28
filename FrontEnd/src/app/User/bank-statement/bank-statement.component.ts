@@ -1,6 +1,7 @@
 import { Component } from '@angular/core'; 
 import { CommonModule, DatePipe } from '@angular/common';
 import { ReactiveFormsModule, FormControl, Validators } from '@angular/forms';
+import { forkJoin } from 'rxjs';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -66,13 +67,16 @@ export class BankStatementComponent {
 
   private carregarUsuarioLogado() {
     const email = localStorage.getItem('email') || '';
-    this.login = this.customerService
-      .obterTodosClientes()
-      .find(c => c.email === email) || null;
+    if (email) {
+      this.customerService.buscarClientePorEmail(email).subscribe({
+        next: (c) => this.login = c,
+        error: (err) => console.error('Erro ao carregar cliente logado:', err)
+      });
+    }
   }
 
   pesquisar(): void {
-  if (!this.login) {
+  if (!this.login || !this.login.numberAccount) {
     this.erroValidacao = 'Cliente não carregado';
     return;
   }
@@ -104,58 +108,77 @@ export class BankStatementComponent {
   }
 
   // Transações
-  const todas = this.transactionService.getTransactionsByAccount(this.login.numberAccount);
-  const clientes = this.customerService.obterTodosClientes();
+  forkJoin({
+    extrato: this.transactionService.consultarExtrato(this.login.numberAccount, startDate, endDate),
+    clientes: this.customerService.obterTodosClientes()
+  }).subscribe({
+    next: (resp) => {
+      const { extrato, clientes } = resp;
 
-  for (const t of todas) {
-    if (t.contaOrigem !== this.login.numberAccount && t.contaDestino !== this.login.numberAccount) {
-      continue;
-    }
+      for (const t of extrato) {
+        t.dataHora = (t as any).dataHora ? new Date((t as any).dataHora) : new Date();
+        const tDia = new Date(t.dataHora);
+        tDia.setHours(0, 0, 0, 0);
 
-    const tDia = new Date(t.dataHora);
-    tDia.setHours(0, 0, 0, 0);
+        const key = this.toDateKey(tDia);
+        const grupo = mapaGrupos.get(key);
+        if (!grupo) continue;
 
-    const grupo = mapaGrupos.get(this.toDateKey(tDia));
-    if (!grupo) continue;
+        const isEntrada = t.valor >= 0 || t.tipo === 'DEPOSITO' || (t.tipo === 'TRANSFERENCIA' && t.contaDestino === this.login?.numberAccount);
 
-    const isEntrada = this.transactionService.isEntrada(t, this.login.numberAccount);
+        let nomeOutro = '';
+        if (t.tipo === 'TRANSFERENCIA') {
+           const origId = t.clienteOrigemId;
+           const destId = t.clienteDestinoId;
 
-    let nomeOutro = '';
-    if (t.tipo === 'TRANSFERENCIA') {
-      if (isEntrada) {
-        const origem = clientes.find(c => c.numberAccount === t.contaOrigem);
-        nomeOutro = origem?.name || '';
-      } else {
-        const destino = clientes.find(c => c.numberAccount === t.contaDestino);
-        nomeOutro = destino?.name || '';
+           if (isEntrada) {
+             const origem = clientes.find(c => c.id === origId);
+             nomeOutro = origem ? `De: ${origem.name || origem.nome}` : 'Origem Desconhecida';
+           } else {
+             const destino = clientes.find(c => c.id === destId);
+             nomeOutro = destino ? `Para: ${destino.name || destino.nome}` : 'Destino Desconhecido';
+           }
+        } else {
+          nomeOutro = isEntrada ? 'Depósito' : 'Saque';
+        }
+
+        grupo.push({ ...t, isEntrada, nomeOutro } as TransacaoExtrato);
       }
-    } else {
-      nomeOutro = isEntrada ? 'Depósito' : 'Você';
+
+      let saldoCorrente = this.login!.balance;
+      const chavesOrdenadas = Array.from(mapaGrupos.keys()).sort().reverse();
+      
+      this.gruposDia = chavesOrdenadas.map(key => {
+          const transacoes = mapaGrupos.get(key) || [];
+          const [y, m, d] = key.split('-').map(Number);
+          const data = new Date(y, m - 1, d);
+
+          transacoes.sort((a, b) => {
+            const timeA = a.dataHora ? a.dataHora.getTime() : 0;
+            const timeB = b.dataHora ? b.dataHora.getTime() : 0;
+            return timeB - timeA;
+          });
+
+          const saldoAoFinalDoDia = saldoCorrente;
+          const totalMovimentadoHoje = transacoes.reduce((soma, t) => soma + t.valor, 0);
+          saldoCorrente -= totalMovimentadoHoje;
+
+          return {
+            data,
+            dataFormatada: data.toLocaleDateString('pt-BR'),
+            transacoes,
+            saldoDia: saldoAoFinalDoDia,
+            aberto: transacoes.length > 0
+          };
+      });
+
+      this.pesquisaRealizada = true;
+    },
+    error: (err) => {
+      this.erroValidacao = 'Erro ao consultar o extrato.';
+      console.error(err);
     }
-
-    grupo.push({ ...t, isEntrada, nomeOutro });
-  }
-
-  this.gruposDia = Array.from(mapaGrupos.entries())
-    .map(([key, transacoes]) => {
-      const [y, m, d] = key.split('-').map(Number);
-      const data = new Date(y, m - 1, d);
-
-      transacoes.sort((a, b) => b.dataHora.getTime() - a.dataHora.getTime());
-
-      const saldoDia = transacoes.reduce((soma, t) => soma + t.valor, 0);
-
-      return {
-        data,
-        dataFormatada: data.toLocaleDateString('pt-BR'),
-        transacoes,
-        saldoDia,
-        aberto: false
-      };
-    })
-    .sort((a, b) => b.data.getTime() - a.data.getTime());
-
-  this.pesquisaRealizada = true;
+  });
 }
 
   toggleDia(grupo: GrupoDia): void {

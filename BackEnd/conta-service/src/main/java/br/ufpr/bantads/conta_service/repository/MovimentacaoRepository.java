@@ -1,5 +1,6 @@
 package br.ufpr.bantads.conta_service.repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,4 +12,6 @@ import br.ufpr.bantads.conta_service.model.Movimentacao;
 public interface MovimentacaoRepository extends JpaRepository<Movimentacao, Integer> {
 
     List<Movimentacao> findByContaIdOrderByDataHoraDesc(Integer contaId);
+    
+    List<Movimentacao> findByContaIdAndDataHoraBetweenOrderByDataHoraAsc(Integer contaId, LocalDateTime start, LocalDateTime end);
 }

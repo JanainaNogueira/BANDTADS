@@ -82,7 +82,6 @@ export class AdmManager implements OnInit {
 
     dialogRef.afterClosed().subscribe((res) => {
       if (res && res.modo === 'editar') {
-
         const dados = res.gerente;
 
         this.managerService.atualizar(dados.id, dados).subscribe({
@@ -164,17 +163,128 @@ export class AdmManager implements OnInit {
   }
 
   getStatusLabel(status: ManagerStatus): string {
-    if (status === 'active') {
-      return 'Ativo';
-    }
-
+    if (status === 'active') return 'Ativo';
+    if (status === 'pending') return 'Pendente';
     return 'Inativo';
+  }
+
+  approveManager(managerId: number): void {
+    this.updateManagerStatus(managerId, 'active');
+  }
+
+  rejectManager(managerId: number): void {
+    this.updateManagerStatus(managerId, 'inactive');
+  }
+
+  abrirModalRemover(manager: ManagerSummary): void {
+    this.resolveManagerCpf(manager, (managerCpf) => {
+      if (!managerCpf) return;
+
+      const dialogRef = this.dialog.open(RemoveManager, {
+        width: '560px',
+        maxWidth: '95vw',
+        data: { managerCpf },
+      });
+
+      dialogRef.afterClosed().subscribe((result) => {
+        if (!result?.success) return;
+        this.managers = this.managers.filter((item) => item.id !== manager.id);
+        this.refreshManagerClientsCount();
+        this.syncManagersStorage();
+      });
+    });
   }
 
   private getCountByStatus(status: ManagerStatus): number {
     return this.managers.filter((manager) => manager.status === status).length;
   }
 
+  private updateManagerStatus(managerId: number, status: ManagerStatus): void {
+    this.managers = this.managers.map((manager) => {
+      if (manager.id !== managerId) return manager;
+      return { ...manager, status };
+    });
+  }
+
+  private refreshManagerClientsCount(): void {
+    this.customerService.obterTodosClientes().subscribe({
+      next: (customers) => {
+        this.managers = this.managers.map((manager) => ({
+          ...manager,
+          clients: customers.filter(
+            (customer: any) => customer.manager && this.normalizeName(customer.manager.name) === this.normalizeName(manager.name)
+          ).length,
+        }));
+      }
+    });
+  }
+
+  private syncManagersStorage(): void {
+    if (typeof localStorage === 'undefined') return;
+
+    this.customerService.obterTodosClientes().subscribe({
+      next: (customers) => {
+        const payload = this.managers.map((manager) => {
+          const cpf = customers.find(c => c.manager && this.normalizeName(c.manager.name) === this.normalizeName(manager.name))?.manager.cpf 
+                      || this.generateFallbackCpf(manager.id);
+          return {
+            nome: manager.name,
+            cpf: cpf,
+            telefone: manager.phone,
+            email: manager.email,
+          };
+        }) as StoredManager[];
+        localStorage.setItem(this.MANAGERS_STORAGE_KEY, JSON.stringify(payload));
+      }
+    });
+  }
+
+  private resolveManagerCpf(manager: ManagerSummary, callback: (cpf: string) => void): void {
+    this.customerService.obterTodosClientes().subscribe({
+      next: (customers) => {
+        const fromCustomers = customers.find(
+          (customer: any) => customer.manager && this.normalizeName(customer.manager.name) === this.normalizeName(manager.name)
+        )?.manager.cpf;
+
+        if (fromCustomers) {
+          callback(fromCustomers);
+          return;
+        }
+
+        const fromStorage = this.getStoredManagers().find(
+          (item) => this.normalizeName(item.nome) === this.normalizeName(manager.name)
+        )?.cpf;
+
+        callback(fromStorage || this.generateFallbackCpf(manager.id));
+      }
+    });
+  }
+
+  private getStoredManagers(): StoredManager[] {
+    if (typeof localStorage === 'undefined') return [];
+    const raw = localStorage.getItem(this.MANAGERS_STORAGE_KEY);
+    if (!raw) return [];
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return [];
+    }
+  }
+
+  private generateFallbackCpf(id: number): string {
+    const base = 90000000000 + id;
+    return String(base).padStart(11, '0').slice(-11);
+  }
+
+  private normalizeName(name: string): string {
+    if (!name) return '';
+    return name
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
   private showMessage(message: string) {
     this.snackBar.open(message, 'Fechar', {
       duration: 3000,

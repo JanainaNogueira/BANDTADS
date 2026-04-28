@@ -25,7 +25,7 @@ public class AuthController {
         try {
             Usuario usuario = authService.autenticar(dto);
 
-            String token = "jwt-token-aqui";
+            String token = authService.gerarToken(usuario);
 
             UsuarioResponseDTO usuarioDTO = new UsuarioResponseDTO(
                     usuario.getId(),

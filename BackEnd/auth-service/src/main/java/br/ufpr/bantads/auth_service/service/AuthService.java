@@ -3,17 +3,26 @@ package br.ufpr.bantads.auth_service.service;
 import br.ufpr.bantads.auth_service.dto.AuthDTO;
 import br.ufpr.bantads.auth_service.model.Usuario;
 import br.ufpr.bantads.auth_service.repository.UsuarioRepository;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.security.Key;
 import java.util.Optional;
 
 @Service
 public class AuthService {
 
     private static final String SALT = "tads";
+    private static final long JWT_EXPIRATION_MS = 3600000;
+
+    @Value("${jwt.secret}")
+    private String jwtSecret;
 
     @Autowired
     private UsuarioRepository usuarioRepository;
@@ -35,6 +44,20 @@ public class AuthService {
         }
 
         return usuario;
+    }
+
+    public String gerarToken(Usuario usuario) {
+        Key key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+
+        long now = System.currentTimeMillis();
+
+        return Jwts.builder()
+                .setSubject(usuario.getLogin())
+                .claim("tipo", usuario.getTipo())
+                .setIssuedAt(new java.util.Date(now))
+                .setExpiration(new java.util.Date(now + JWT_EXPIRATION_MS))
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
     }
 
     public String gerarSHA256(String senha, String salt) {

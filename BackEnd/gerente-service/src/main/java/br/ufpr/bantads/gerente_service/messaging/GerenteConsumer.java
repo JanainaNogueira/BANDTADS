@@ -1,4 +1,4 @@
-package br.ufpr.bantads.gerente_service.consumer;
+package br.ufpr.bantads.gerente_service.messaging;
 
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 

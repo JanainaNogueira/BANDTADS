@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
-import { ManagerSummary, ManagerStatus } from '../models/manager.model';
+import { ManagerSummary, ManagerStatus } from '../../../models/manager.model';
 
 interface GerenteResponse {
   id: number;

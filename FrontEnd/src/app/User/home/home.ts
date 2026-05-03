@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { Customer } from '../../models/costumer.model';
+import { Customer } from '../../models/customer.model';
 import { CustomerService } from '../../services/customer.service';
 import { TransactionService, Transacao } from '../../services/transaction.service';
 import { Operacoes } from './components/operacoes/operacoes';

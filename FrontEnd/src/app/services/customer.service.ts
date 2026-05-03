@@ -33,6 +33,10 @@ export class CustomerService {
 
   constructor(private http: HttpClient) { }
 
+  criarCliente(dados: any): Observable<any> {
+    return this.http.post(this.clientesApiUrl, dados);
+  }
+
   buscarClientePorCpf(cpf: string): Observable<Customer> {
     const cpfLimpo = cpf.replace(/\D/g, '');
     return this.http.get<Customer>(`${this.clientesApiUrl}/cpf/${cpfLimpo}`);

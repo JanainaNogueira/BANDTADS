@@ -1,11 +1,13 @@
 import { Component } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ButtonSubmit } from '../../../../components/button-submit/button-submit';
 import { CommonModule } from '@angular/common';
 import { FormTitle } from '../../../../components/form-title/form-title';
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 import { Router } from '@angular/router';
+import { CepService } from '../../../../services/cep.service';
+import { CustomerService } from '../../../../services/customer.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-form-register',
@@ -19,7 +21,13 @@ export class FormRegister {
   dadosPessoais: FormGroup;
   endereco: FormGroup;
 
-  constructor(private http: HttpClient, private form: FormBuilder, private router:Router) {
+  constructor(
+    private form: FormBuilder, 
+    private router: Router, 
+    private customerService: CustomerService, 
+    private cepService: CepService, 
+    private snackBar: MatSnackBar
+  ) {
 
     this.dadosPessoais = this.form.group({
       nome: ['', [Validators.required, Validators.pattern(/^[A-Za-zÀ-ÿ\s]+$/)]],
@@ -49,14 +57,14 @@ export class FormRegister {
       ...this.endereco.getRawValue()
     };
 
-    this.http.post('http://localhost:8080/clientes', dados)
+    this.customerService.criarCliente(dados)
       .subscribe({
         next: (res) => {
-          alert('Cadastro enviado para análise!');
+          this.showMessage('Cadastro enviado para análise!');
           this.router.navigate(['/login']);
         },
         error: (err) => {
-          alert('Ocorreu um erro ao enviar o cadastro. Tente novamente.');
+          this.showMessage('Ocorreu um erro ao enviar o cadastro. Tente novamente.');
           console.error('Erro ao cadastrar:', err);
         }
       });
@@ -71,50 +79,62 @@ export class FormRegister {
 
     console.log(cep);
 
-    this.http.get(`https://viacep.com.br/ws/${cep}/json`)
-      .subscribe((dados: any) => {
+    this.cepService.buscarCep(cep).subscribe({
+      next: (dados) => {
         if (!dados.erro) {
           this.endereco.patchValue({
             rua: dados.logradouro,
             cidade: dados.localidade,
             uf: dados.uf
           })
-        } 
+        }
         else {
           this.endereco.patchValue({
             cep: ''
           });
-          alert("CEP não encontrado.");
+          this.showMessage('CEP não encontrado.');
         }
-      });
-    }
-
-    paginaAtual = 1;
-
-    irParaPagina2() {
-      this.paginaAtual = 2;
-    }
-
-    voltarPagina1() {
-      this.paginaAtual = 1;
-    }
-
-    bloquearNumeros(event: KeyboardEvent) {
-      const char = event.key;
-      if (!/[a-zA-ZÀ-ÿ\s]/.test(char)) {
-        event.preventDefault();
+      },
+      error: () => {
+        this.showMessage('Erro ao buscar CEP.');
       }
-    }
+    });
+  }
 
-    campoInvalido(campo: string) {
-      const control = this.dadosPessoais.get(campo);
-      return control?.invalid && control?.touched;
-    }
+  paginaAtual = 1;
 
-    campoTemErro(campo: string, erro: string) {
-      const control = this.dadosPessoais.get(campo);
-      return control?.touched && control?.hasError(erro);
-    }
+  irParaPagina2() {
+    this.paginaAtual = 2;
+  }
 
+  voltarPagina1() {
+    this.paginaAtual = 1;
+  }
+
+  bloquearNumeros(event: KeyboardEvent) {
+    const char = event.key;
+    if (!/[a-zA-ZÀ-ÿ\s]/.test(char)) {
+      event.preventDefault();
+    }
+  }
+
+  campoInvalido(campo: string) {
+    const control = this.dadosPessoais.get(campo);
+    return control?.invalid && control?.touched;
+  }
+
+  campoTemErro(campo: string, erro: string) {
+    const control = this.dadosPessoais.get(campo);
+    return control?.touched && control?.hasError(erro);
+  }
+
+  private showMessage(message: string) {
+    this.snackBar.open(message, 'Fechar', {
+      duration: 3000,
+      horizontalPosition: 'right',
+      verticalPosition: 'bottom',
+      panelClass: ['text-white', 'rounded-3xl']
+    });
+  }
 
 }

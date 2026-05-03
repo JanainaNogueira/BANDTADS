@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import br.ufpr.bantads.cliente_service.config.ClienteRepository;
 import br.ufpr.bantads.cliente_service.config.EnderecoRepository;
 import br.ufpr.bantads.cliente_service.dtos.AutocadastroDTO;
+import br.ufpr.bantads.cliente_service.messaging.ClienteEventPublisher;
 import br.ufpr.bantads.cliente_service.model.Cliente;
 import br.ufpr.bantads.cliente_service.model.Endereco;
 import br.ufpr.bantads.cliente_service.model.StatusEnum;
@@ -22,6 +23,9 @@ public class ClienteService {
 
     @Autowired
     private EnderecoRepository enderecoRepository;
+
+    @Autowired
+    private ClienteEventPublisher publisher;
 
     public Cliente salvarCliente(AutocadastroDTO clienteDTO) {
 
@@ -136,8 +140,10 @@ public class ClienteService {
 
         cliente.setStatus(StatusEnum.APROVADO);
         // integrar com a criação de conta
+        Cliente clienteSalvo = clienteRepository.save(cliente);
+        publisher.publicarClienteAprovado(clienteSalvo.getId());
 
-        return clienteRepository.save(cliente);
+        return clienteSalvo;
     }
 
     public Cliente rejeitarCliente(Integer id) {

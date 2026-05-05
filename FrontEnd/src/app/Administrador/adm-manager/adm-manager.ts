@@ -7,8 +7,8 @@ import { ManagerCreateEdit, ManagerSummary } from '../../models/manager.model';
 import { MatIconModule } from '@angular/material/icon';
 import { RemoveManager } from './components/remove-manager/remove-manager';
 import { ManagerStatus } from '../../models/manager.model';
-import { ManagerService } from '../../services/manager.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { ManagerService } from './services/manager.service';
 
 @Component({
   selector: 'app-adm-manager',

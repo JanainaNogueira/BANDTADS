@@ -17,9 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 import br.ufpr.bantads.gerente_service.dtos.AdicionarGerenteDTO;
 import br.ufpr.bantads.gerente_service.dtos.EditarGerenteDTO;
 import br.ufpr.bantads.gerente_service.dtos.LerGerenteDTO;
-import br.ufpr.bantads.gerente_service.model.Gerente;
-import br.ufpr.bantads.gerente_service.read.model.GerenteClientesView;
-import br.ufpr.bantads.gerente_service.read.repository.GerenteClientesRepository;
+import br.ufpr.bantads.gerente_service.model.GerenteAdmin;
+import br.ufpr.bantads.gerente_service.repository.GerenteRepository;
 import br.ufpr.bantads.gerente_service.service.GerenteService;
 
 @RestController
@@ -30,7 +29,7 @@ public class GerenteController {
     private GerenteService gerenteService;
 
     @Autowired
-    private GerenteClientesRepository gerenteClientesRepository;
+    private GerenteRepository gerenteClientesRepository;
 
     @GetMapping
     public ResponseEntity<List<LerGerenteDTO>> listar() {
@@ -42,13 +41,13 @@ public class GerenteController {
         return ResponseEntity.ok(gerenteService.buscarGerentePorId(id));
     }
 
-    @GetMapping("/{id}/clientes")
-    public ResponseEntity<GerenteClientesView> buscarComClientes(@PathVariable Integer id) {
-        return ResponseEntity.ok(
-            gerenteClientesRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Não encontrado"))
-        );
-    }
+    // @GetMapping("/{id}/clientes")
+    // public ResponseEntity<GerenteClientesView> buscarComClientes(@PathVariable Integer id) {
+    //     return ResponseEntity.ok(
+    //         gerenteClientesRepository.findById(id)
+    //             .orElseThrow(() -> new RuntimeException("Não encontrado"))
+    //     );
+    // }
 
     @GetMapping("/buscar")
     public ResponseEntity<List<LerGerenteDTO>> buscarPorNome(@RequestParam String nome) {
@@ -56,8 +55,8 @@ public class GerenteController {
     }
 
     @PostMapping
-    public ResponseEntity<Gerente> criar(@RequestBody AdicionarGerenteDTO dto) {
-        Gerente gerente = gerenteService.criar(dto);
+    public ResponseEntity<GerenteAdmin> criar(@RequestBody AdicionarGerenteDTO dto) {
+        GerenteAdmin gerente = gerenteService.criarGerente(dto);
         return ResponseEntity.ok(gerente);
     }
 

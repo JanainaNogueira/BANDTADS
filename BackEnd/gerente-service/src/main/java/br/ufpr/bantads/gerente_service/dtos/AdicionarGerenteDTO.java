@@ -17,4 +17,5 @@ public record AdicionarGerenteDTO(
 
     @NotBlank(message = "Senha é obrigatória")
     String senha
+
 ){}

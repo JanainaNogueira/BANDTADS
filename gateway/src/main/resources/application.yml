@@ -1,0 +1,41 @@
+server:
+  port: 8080
+
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: cliente-service
+          uri: http://cliente-service:8080
+          predicates:
+            - Path=/clientes/**
+          filters:
+            - StripPrefix=1
+
+        - id: conta-service
+          uri: http://conta-service:8080
+          predicates:
+            - Path=/contas/**
+          filters:
+            - StripPrefix=1
+
+        - id: gerente-service
+          uri: http://gerente-service:8080
+          predicates:
+            - Path=/gerentes/**
+          filters:
+            - StripPrefix=1
+
+        - id: auth-service
+          uri: http://auth-service:8080
+          predicates:
+            - Path=/auth/**
+          filters:
+            - StripPrefix=1
+
+        - id: saga-service
+          uri: http://saga-service:8080
+          predicates:
+            - Path=/saga/**
+          filters:
+            - StripPrefix=1

@@ -8,7 +8,7 @@ import { CommonModule } from '@angular/common';
 import { TopClientes } from './top-clientes/top-clientes';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ManagerConsultarCliente } from '../manager-consultar-cliente/manager-consultar-cliente';
-import { Customer } from '../../models/costumer.model';
+import { Customer } from '../../models/customer.model';
 
 @Component({
   selector: 'app-customers-page',

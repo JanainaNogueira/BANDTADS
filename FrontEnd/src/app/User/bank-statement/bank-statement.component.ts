@@ -10,7 +10,7 @@ import { MatNativeDateModule, MAT_DATE_LOCALE } from '@angular/material/core';
 import { Menu } from '../../components/menu/menu';
 import { Transacao, TransactionService } from '../../services/transaction.service';
 import { CustomerService} from '../../services/customer.service';
-import { Customer } from '../../models/costumer.model';
+import { Customer } from '../../models/customer.model';
 
 export interface TransacaoExtrato extends Transacao {
   isEntrada: boolean;

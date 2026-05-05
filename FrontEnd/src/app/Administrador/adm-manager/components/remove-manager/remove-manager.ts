@@ -1,7 +1,7 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Component, Inject, PLATFORM_ID } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { Customer } from '../../../../models/costumer.model';
+import { Customer } from '../../../../models/customer.model';
 import { CustomerService } from '../../../../services/customer.service';
 
 interface ManagerData {

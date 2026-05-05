@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { Customer } from '../../../../models/costumer.model';
+import { Customer } from '../../../../models/customer.model';
 import { TransactionService } from '../../../../services/transaction.service';
 import { CustomerService } from '../../../../services/customer.service';
 

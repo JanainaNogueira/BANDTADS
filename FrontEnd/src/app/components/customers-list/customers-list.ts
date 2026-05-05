@@ -2,7 +2,7 @@ import { CurrencyPipe} from '@angular/common';
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { CpfPipe } from '../../pipes/cpf.pipe';
 import { MatIconModule } from '@angular/material/icon';
-import { Customer } from '../../models/costumer.model';
+import { Customer } from '../../models/customer.model';
 
 
 @Component({

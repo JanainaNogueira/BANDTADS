@@ -11,6 +11,7 @@ import { ManagerConsultarCliente } from './Gerente/manager-consultar-cliente/man
 import { CustomersPage } from './Gerente/customers-page/customers-page';
 import { AdmManager } from './Administrador/adm-manager/adm-manager';
 import { FormManager } from './Administrador/adm-manager/components/form-manager/form-manager';
+import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
     {
@@ -20,7 +21,8 @@ export const routes: Routes = [
     },
     {
         path: 'home',
-        component: Home
+        component: Home,
+        canActivate: [authGuard]
     },
     {
         path: 'autocadastro',
@@ -32,34 +34,42 @@ export const routes: Routes = [
     },
     {
         path: 'editProfile',
-        component: EditProfileComponent
+        component: EditProfileComponent,
+        canActivate: [authGuard]
     },
     {
         path:'bank-statement',
-        component: BankStatementComponent
+        component: BankStatementComponent,
+        canActivate: [authGuard]
     },
     {
         path:'home-gerente',
-        component: HomeGerente
+        component: HomeGerente,
+        canActivate: [authGuard]
     },
     {
         path: 'clientes',
-        component: AdmCustomers
+        component: AdmCustomers,
+        canActivate: [authGuard]
     },
     {
         path: 'gerente-consultar-cliente',
-        component: CustomersPage
+        component: ManagerConsultarCliente,
+        canActivate: [authGuard]
     },
     {
         path: 'gerente-clientes',
-        component: CustomersPage
+        component: CustomersPage,
+        canActivate: [authGuard]
     },
     {
         path: 'home-admin',
-        component: HomeAdm
+        component: HomeAdm,
+        canActivate: [authGuard]
     },
     {
         path: 'adm-gerentes',
-        component: AdmManager
+        component: AdmManager,
+        canActivate: [authGuard]
     },
 ];

@@ -96,4 +96,16 @@ export class Home implements OnInit {
   irParaExtrato() {
     this.router.navigate(['/bank-statement']);
   }
+
+  get balanceClass(): string {
+    return (this.login?.balance ?? 0) < 0 ? 'text-red-500' : 'text-[#FFFFFF]';
+  }
+
+  get formattedBalance(): string {
+    const balance = this.login?.balance ?? 0;
+    return balance.toLocaleString('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+    });
+  }
 }

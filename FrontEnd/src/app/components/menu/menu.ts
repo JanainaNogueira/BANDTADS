@@ -61,9 +61,7 @@ export class Menu implements OnInit{
 
   logout(event: Event) {
     event.stopPropagation();
-
-    localStorage.removeItem('bantads_logged_user');
-
+    this.auth.logout();
     this.router.navigate(['/login']);
   }
 }

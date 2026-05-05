@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Observable, forkJoin, of } from 'rxjs';
+import { Customer } from '../models/costumer.model';
 import { Observable, of, forkJoin } from 'rxjs';
 import { Customer } from '../models/customer.model';
 import { map, catchError, switchMap } from 'rxjs/operators';
@@ -28,6 +30,10 @@ interface LerContaDTO {
   providedIn: 'root',
 })
 export class CustomerService {
+  private readonly API_URL = '/api/clientes';
+  private readonly clientesApiUrl = '/api/clientes';
+  private readonly contasApiUrl = '/api/contas';
+  private readonly MOCK_CUSTOMERS: Customer[] = [];
   private readonly clientesApiUrl = '/api/clientes';
   private readonly contasApiUrl = '/api/contas';
 
@@ -69,13 +75,17 @@ export class CustomerService {
   }
 
   getClienteLogado(): Observable<Customer | null> {
-    if (typeof window === 'undefined') return new Observable(sub => sub.next(null));
+    if (typeof window === 'undefined') return of(null);
     const email = localStorage.getItem('email');
-    if (!email) return new Observable(sub => sub.next(null));
+    if (!email) return of(null);
     return this.buscarClientePorEmail(email);
   }
 
   atualizarCliente(cliente: Customer): Observable<Customer> {
+    return this.http.put<Customer>(`${this.API_URL}/${cliente.id}`, cliente);
+  }
+
+  // consultam o back
     return this.http.put<Customer>(`${this.clientesApiUrl}/${cliente.id}`, cliente);
   }
 

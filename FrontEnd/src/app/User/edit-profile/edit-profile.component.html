@@ -32,14 +32,14 @@
         <div class="flex flex-col md:flex-row justify-between gap-6">
           <div>
             <p class="text-sm text-white/80">Saldo Atual</p>
-            <h2 class="text-4xl font-bold text-white">R$ {{ customer.balance }}</h2>
-            <p class="mt-4 font-semibold text-white">{{ customer.name }}</p>
-            <p class="text-sm text-white/80">CPF: {{ customer.cpf }}</p>
+            <h2 class="text-4xl font-bold text-white">R$ {{ customer?.balance | number:'1.2-2':'pt-BR' }}</h2>
+            <p class="mt-4 font-semibold text-white">{{ customer?.name }}</p>
+            <p class="text-sm text-white/80">CPF: {{ formatCpf(customer?.cpf || '') }}</p>
           </div>
 
           <div class="self-start md:self-center">
             <p class="text-sm text-white/80">Limite de crédito total</p>
-            <h2 class="text-4xl font-bold text-white">R$ {{ customer.limit }}</h2>
+            <h2 class="text-4xl font-bold text-white">R$ {{ customer?.limit | number:'1.2-2':'pt-BR' }}</h2>
           </div>
         </div>
       </div>
@@ -49,8 +49,8 @@
 
       <div class="flex justify-between mb-6">
         <h2 class="font-semibold text-lg">Informações Pessoais</h2>
-        <button (click)="toggleEditMode()"
-          class="text-sm px-4 py-1.5 rounded-lg font-medium transition-colors text-white"
+        <button type="button" (click)="toggleEditMode()"
+          class="text-sm px-4 py-1.5 rounded-lg font-medium transition-colors text-white cursor-pointer"
           [ngClass]="isEditMode
             ? 'bg-gray-400 hover:bg-gray-500'
             : 'bg-purple-600 hover:bg-purple-700'">
@@ -96,6 +96,7 @@
           <input
             type="text"
             formControlName="salario"
+            mask="separator.2"
             class="w-full border rounded-lg p-2 mt-1"
             [disabled]="!isEditMode"
           >
@@ -177,47 +178,15 @@
 
           <div>
             <label class="text-sm text-gray-600" for="estado">Estado</label>
-            <select
+            <input
               id="estado"
               formControlName="estado"
               class="w-full border rounded-lg p-2 mt-1 appearance-none"
               [disabled]="!isEditMode"
             >
-              <option value="">Selecione</option>
-              <option value="AC">AC</option>
-              <option value="AL">AL</option>
-              <option value="AP">AP</option>
-              <option value="AM">AM</option>
-              <option value="BA">BA</option>
-              <option value="CE">CE</option>
-              <option value="DF">DF</option>
-              <option value="ES">ES</option>
-              <option value="GO">GO</option>
-              <option value="MA">MA</option>
-              <option value="MT">MT</option>
-              <option value="MS">MS</option>
-              <option value="MG">MG</option>
-              <option value="PA">PA</option>
-              <option value="PB">PB</option>
-              <option value="PR">PR</option>
-              <option value="PE">PE</option>
-              <option value="PI">PI</option>
-              <option value="RJ">RJ</option>
-              <option value="RN">RN</option>
-              <option value="RS">RS</option>
-              <option value="RO">RO</option>
-              <option value="RR">RR</option>
-              <option value="SC">SC</option>
-              <option value="SP">SP</option>
-              <option value="SE">SE</option>
-              <option value="TO">TO</option>
-            </select>
           </div>
         </div>
       </div>
-
     </form>
-
   </main>
-
 </div>

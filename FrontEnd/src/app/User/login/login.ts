@@ -42,8 +42,8 @@ export class Login {
 
   fazerLogin(dados: { email: string; senha: string; lembrar: boolean }): void {
     this.loginService.login(dados.email, dados.senha).subscribe({
-      next: (usuario) => {
-        const tipoResposta = this.normalizarTipo(usuario.tipo || this.tipo);
+      next: (resposta) => {
+        const tipoResposta = this.normalizarTipo(resposta.tipo || this.tipo);
 
         if (tipoResposta !== this.tipo) {
           this.erroLogin = true;
@@ -51,9 +51,10 @@ export class Login {
         }
 
         this.erroLogin = false;
+        localStorage.setItem('token', resposta.access_token);
         localStorage.setItem('tipoUsuario', tipoResposta);
-        localStorage.setItem('email', usuario.login || dados.email);
-        localStorage.setItem('nome', usuario.login || dados.email);
+        localStorage.setItem('email', resposta.usuario.email || dados.email);
+        localStorage.setItem('nome', resposta.usuario.nome || resposta.usuario.name || dados.email);
 
         if (tipoResposta === 'cliente') {
           this.router.navigate(['/home']);

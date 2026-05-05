@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { MOCK_CUSTOMERS, MOCK_LOGIN_USER } from '../../../assets/mock/customers.mock';
 import { MOCK_MANAGERS, MOCK_MANAGERS_LIST } from '../../../assets/mock/managers.mock';
 import { MOCK_ADMINS } from '../../../assets/mock/admin.mock';
-import { Customer } from '../../models/costumer.model';
+import { Customer } from '../../models/customer.model';
 import { ManagerCreateEdit, ManagerSummary } from '../../models/manager.model';
 import { Admin } from '../../models/admin.model';
 import { LoginService } from '../../services/login.service';
@@ -61,9 +61,7 @@ export class Menu implements OnInit{
 
   logout(event: Event) {
     event.stopPropagation();
-
-    localStorage.removeItem('bantads_logged_user');
-
+    this.auth.logout();
     this.router.navigate(['/login']);
   }
 }

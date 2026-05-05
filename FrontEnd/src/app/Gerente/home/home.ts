@@ -5,7 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { ManagerTopPanel } from '../componente/manager-top-panel/manager-top-panel';
 import { CustomersHome } from './components/customers-home/customers-home';
 import { CustomerService } from '../../services/customer.service';
-import { Customer } from '../../models/costumer.model';
+import { Customer } from '../../models/customer.model';
 
 @Component({
   selector: 'app-home-gerente',

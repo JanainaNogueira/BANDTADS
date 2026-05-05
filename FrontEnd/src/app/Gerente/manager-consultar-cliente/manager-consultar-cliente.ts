@@ -3,7 +3,7 @@ import { Component } from '@angular/core';
 import { CpfPipe } from '../../pipes/cpf.pipe';
 import { Menu } from '../../components/menu/menu';
 import { ManagerTopPanel } from '../componente/manager-top-panel/manager-top-panel';
-import { Customer } from '../../models/costumer.model';
+import { Customer } from '../../models/customer.model';
 import { CustomerService } from '../../services/customer.service';
 
 @Component({

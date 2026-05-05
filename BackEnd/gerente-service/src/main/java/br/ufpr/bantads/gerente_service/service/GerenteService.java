@@ -8,7 +8,8 @@ import org.springframework.stereotype.Service;
 import br.ufpr.bantads.gerente_service.dtos.AdicionarGerenteDTO;
 import br.ufpr.bantads.gerente_service.dtos.EditarGerenteDTO;
 import br.ufpr.bantads.gerente_service.dtos.LerGerenteDTO;
-import br.ufpr.bantads.gerente_service.model.Gerente;
+import br.ufpr.bantads.gerente_service.model.GerenteAdmin;
+import br.ufpr.bantads.gerente_service.model.TipoUsuario;
 import br.ufpr.bantads.gerente_service.repository.GerenteRepository;
 
 @Service
@@ -29,7 +30,7 @@ public class GerenteService {
     }
 
    public LerGerenteDTO buscarGerentePorId(Integer id) {
-        Gerente gerente = gerenteRepository.findById(id)
+        GerenteAdmin gerente = gerenteRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Gerente não encontrado"));
 
         return new LerGerenteDTO(
@@ -53,7 +54,7 @@ public class GerenteService {
     }
 
   public LerGerenteDTO buscarGerentePorCPF(String cpf) {
-        Gerente gerente = gerenteRepository.findByCpf(cpf)
+        GerenteAdmin gerente = gerenteRepository.findByCpf(cpf)
             .orElseThrow(() -> new RuntimeException("Gerente com cpf: " + cpf + " não encontrado"));
 
         return new LerGerenteDTO(
@@ -64,13 +65,14 @@ public class GerenteService {
         );
     }
 
-   public Gerente criar(AdicionarGerenteDTO gerenteDto) {
-        Gerente gerente = new Gerente();
+   public GerenteAdmin criarGerente(AdicionarGerenteDTO gerenteDto) {
+        GerenteAdmin gerente = new GerenteAdmin();
         gerente.setNome(gerenteDto.nome());
         gerente.setCpf(gerenteDto.cpf());
         gerente.setTelefone(gerenteDto.telefone());
         gerente.setEmail(gerenteDto.email());
         gerente.setSenha(gerenteDto.senha());
+        gerente.setTipoUsuario(TipoUsuario.GERENTE);
 
         gerente = gerenteRepository.save(gerente);
 
@@ -78,7 +80,7 @@ public class GerenteService {
     }
 
     public LerGerenteDTO atualizar(Integer id, EditarGerenteDTO dto) {
-        Gerente gerente = gerenteRepository.findById(id)
+        GerenteAdmin gerente = gerenteRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Gerente não encontrado"));
 
         if (dto.nome() != null && !dto.nome().isBlank()) {
@@ -108,7 +110,7 @@ public class GerenteService {
     }
 
     public void deletar(Integer id) {
-        Gerente gerente = gerenteRepository.findById(id)
+        GerenteAdmin gerente = gerenteRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Gerente não encontrado"));
 
         gerenteRepository.delete(gerente);

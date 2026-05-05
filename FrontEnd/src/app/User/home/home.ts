@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { Customer } from '../../models/costumer.model';
+import { Customer } from '../../models/customer.model';
 import { CustomerService } from '../../services/customer.service';
 import { TransactionService, Transacao } from '../../services/transaction.service';
 import { Operacoes } from './components/operacoes/operacoes';
@@ -95,5 +95,17 @@ export class Home implements OnInit {
 
   irParaExtrato() {
     this.router.navigate(['/bank-statement']);
+  }
+
+  get balanceClass(): string {
+    return (this.login?.balance ?? 0) < 0 ? 'text-red-500' : 'text-[#FFFFFF]';
+  }
+
+  get formattedBalance(): string {
+    const balance = this.login?.balance ?? 0;
+    return balance.toLocaleString('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+    });
   }
 }

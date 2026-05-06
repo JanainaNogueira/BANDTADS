@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { Customer } from '../models/costumer.model';
-import { HttpClient } from '@angular/common/http';
 import { Observable, forkJoin, of } from 'rxjs';
+import { Customer } from '../models/costumer.model';
+import { Observable, of, forkJoin } from 'rxjs';
+import { Customer } from '../models/customer.model';
 import { map, catchError, switchMap } from 'rxjs/operators';
 
 interface BackendCliente {
@@ -31,32 +31,41 @@ interface LerContaDTO {
 })
 export class CustomerService {
   private readonly API_URL = '/api/clientes';
+  private readonly clientesApiUrl = '/api/clientes';
+  private readonly contasApiUrl = '/api/contas';
+  private readonly MOCK_CUSTOMERS: Customer[] = [];
+  private readonly clientesApiUrl = '/api/clientes';
+  private readonly contasApiUrl = '/api/contas';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
+
+  criarCliente(dados: any): Observable<any> {
+    return this.http.post(this.clientesApiUrl, dados);
+  }
 
   buscarClientePorCpf(cpf: string): Observable<Customer> {
     const cpfLimpo = cpf.replace(/\D/g, '');
-    return this.http.get<Customer>(`${this.API_URL}/cpf/${cpfLimpo}`);
+    return this.http.get<Customer>(`${this.clientesApiUrl}/cpf/${cpfLimpo}`);
   }
 
   buscarClientePorEmail(email: string): Observable<Customer> {
-    return this.http.get<Customer>(`${this.API_URL}/email/${email}`);
+    return this.http.get<Customer>(`${this.clientesApiUrl}/email/${email}`);
   }
 
   obterTodosClientes(): Observable<Customer[]> {
-    return this.http.get<Customer[]>(this.API_URL);
+    return this.http.get<Customer[]>(this.clientesApiUrl);
   }
 
   obterClientesPendentes(): Observable<Customer[]> {
-    return this.http.get<Customer[]>(`${this.API_URL}/status/PENDENTE`);
+    return this.http.get<Customer[]>(`${this.clientesApiUrl}/status/PENDENTE`);
   }
 
   aprovarCliente(id: number): Observable<any> {
-    return this.http.post<any>(`${this.API_URL}/${id}/aprovar`, {});
+    return this.http.post<any>(`${this.clientesApiUrl}/${id}/aprovar`, {});
   }
 
   rejeitarCliente(id: number): Observable<any> {
-    return this.http.post<any>(`${this.API_URL}/${id}/rejeitar`, {});
+    return this.http.post<any>(`${this.clientesApiUrl}/${id}/rejeitar`, {});
   }
 
   setClienteLogado(cpf: string): void {
@@ -66,14 +75,20 @@ export class CustomerService {
   }
 
   getClienteLogado(): Observable<Customer | null> {
-    if (typeof window === 'undefined') return new Observable(sub => sub.next(null));
+    if (typeof window === 'undefined') return of(null);
     const email = localStorage.getItem('email');
-    if (!email) return new Observable(sub => sub.next(null));
+    if (!email) return of(null);
     return this.buscarClientePorEmail(email);
   }
 
   atualizarCliente(cliente: Customer): Observable<Customer> {
     return this.http.put<Customer>(`${this.API_URL}/${cliente.id}`, cliente);
+  }
+
+  // consultam o back
+    return this.http.put<Customer>(`${this.clientesApiUrl}/${cliente.id}`, cliente);
+  }
+
   // consultam o back 
   obterTodosClientesApi(): Observable<Customer[]> {
 
@@ -124,12 +139,7 @@ export class CustomerService {
         });
 
         return forkJoin(observables);
-      }),
-      catchError(() => of(MOCK_CUSTOMERS))
+      })
     );
-  }
-
-  private normalizarCpf(cpf: string): string {
-    return cpf?.replace(/\D/g, '') || '';
   }
 }

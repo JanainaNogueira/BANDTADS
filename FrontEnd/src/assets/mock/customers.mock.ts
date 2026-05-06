@@ -1,4 +1,4 @@
-import { Customer } from "../../app/models/costumer.model";
+import { Customer } from "../../app/models/customer.model";
 import { Status } from "../../app/models/status-enum.model";
 import { Transacao } from "../../app/services/transaction.service";
 

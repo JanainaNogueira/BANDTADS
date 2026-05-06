@@ -2,6 +2,60 @@ version: "3.9"
 
 services:
 
+########## Databases #############
+
+  mongo-auth:
+    image: mongo:6
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo-auth-data:/data/db 
+    networks:
+      - bantads-network
+
+  db-cliente:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: cliente_db
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+    volumes:
+      - db-cliente-data:/var/lib/postgresql/data
+    networks:
+      - bantads-network
+  
+  db-conta:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: conta_db
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+    volumes:
+      - db-conta-data:/var/lib/postgresql/data
+    networks:
+      - bantads-network
+
+  mongo-conta:
+    image: mongo:6
+    ports:
+      - "27019:27017"
+    volumes:
+      - mongo-conta-data:/data/db
+    networks:
+      - bantads-network
+
+  db-gerente:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: gerente_db
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+    volumes:
+      - db-gerente-data:/var/lib/postgresql/data
+    networks:
+      - bantads-network
+
+####################################
   frontend:
     build: ./frontend
     ports:
@@ -15,17 +69,57 @@ services:
     build: ./gateway
     ports:
       - "8080:8080"
-    depends_on:
-      - backend
     networks:
       - bantads-network
 
-  backend:
-    build: ./backend
+  auth-service:
+    build: ./backend/auth-service
     ports:
       - "8081:8080"
     depends_on:
+      - mongo-auth
+    networks:
+      - bantads-network
+      
+  cliente-service:
+    build: ./backend/cliente-service
+    ports:
+      - "8082:8080"
+    depends_on:
+      - db-cliente
       - rabbitmq
+    networks:
+      - bantads-network
+  
+  conta-service:
+    build: ./backend/conta-service
+    ports:
+      - "8083:8080"
+    depends_on:
+      - db-conta
+      - mongo-conta
+      - rabbitmq
+    networks:
+      - bantads-network
+  
+  gerente-service:
+    build: ./backend/gerente-service
+    ports:
+      - "8084:8080"
+    depends_on:
+      - db-gerente
+      - rabbitmq
+    networks:
+      - bantads-network
+
+  saga-service:
+    build: ./backend/saga-service
+    ports:
+      - "8090:8080"
+    depends_on:
+      - rabbitmq
+      - cliente-service
+      - conta-service
     networks:
       - bantads-network
 
@@ -36,6 +130,13 @@ services:
       - "15672:15672"
     networks:
       - bantads-network
+
+volumes:
+  mongo-auth-data:
+  db-cliente-data:
+  db-conta-data:
+  mongo-conta-data:
+  db-gerente-data:
 
 networks:
   bantads-network:

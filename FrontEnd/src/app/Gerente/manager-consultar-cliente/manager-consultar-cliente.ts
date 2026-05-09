@@ -29,7 +29,7 @@ export class ManagerConsultarCliente {
 		}
 
 		// tenta consultar via API e mostra mensagem apropriada
-		this.customerService.obterTodosClientesApi().subscribe({
+		this.customerService.obterTodosClientes().subscribe({
 			next: (clientes) => {
 				const encontrado = clientes.find((item) => this.normalizarCpf(item.cpf) === cpfNormalizado);
 				if (!encontrado) {

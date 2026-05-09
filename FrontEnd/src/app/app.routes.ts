@@ -45,7 +45,6 @@ export const routes: Routes = [
     {
         path:'home-gerente',
         component: HomeGerente,
-        canActivate: [authGuard]
     },
     {
         path: 'clientes',

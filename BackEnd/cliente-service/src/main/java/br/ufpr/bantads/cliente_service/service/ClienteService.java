@@ -1,5 +1,6 @@
 package br.ufpr.bantads.cliente_service.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -9,7 +10,6 @@ import org.springframework.stereotype.Service;
 import br.ufpr.bantads.cliente_service.config.ClienteRepository;
 import br.ufpr.bantads.cliente_service.config.EnderecoRepository;
 import br.ufpr.bantads.cliente_service.dtos.AutocadastroDTO;
-import br.ufpr.bantads.cliente_service.messaging.ClienteEventPublisher;
 import br.ufpr.bantads.cliente_service.model.Cliente;
 import br.ufpr.bantads.cliente_service.model.Endereco;
 import br.ufpr.bantads.cliente_service.model.StatusEnum;
@@ -23,9 +23,6 @@ public class ClienteService {
 
     @Autowired
     private EnderecoRepository enderecoRepository;
-
-    @Autowired
-    private ClienteEventPublisher publisher;
 
     public Cliente salvarCliente(AutocadastroDTO clienteDTO) {
 
@@ -55,6 +52,10 @@ public class ClienteService {
                     clienteExiste.setTelefone(clienteDTO.telefone());
                     clienteExiste.setEmail(clienteDTO.email());
                     clienteExiste.setEndereco(endereco);
+
+                    clienteExiste.setStatus(StatusEnum.PENDENTE);
+                    clienteExiste.setMotivoReprovacao(null);
+                    clienteExiste.setDataReprovacao(null);
 
                     return clienteRepository.save(clienteExiste);
             }
@@ -141,14 +142,16 @@ public class ClienteService {
         cliente.setStatus(StatusEnum.APROVADO);
         // integrar com a criação de conta
         Cliente clienteSalvo = clienteRepository.save(cliente);
-        publisher.publicarClienteAprovado(clienteSalvo.getId());
+        // publisher.publicarClienteAprovado(clienteSalvo.getId());
 
         return clienteSalvo;
     }
 
-    public Cliente rejeitarCliente(Integer id) {
+    public Cliente rejeitarCliente(Integer id, String motivo) {
         Cliente cliente = buscarClientePorId(id);
         cliente.setStatus(StatusEnum.REPROVADO);
+        cliente.setMotivoReprovacao(motivo);
+        cliente.setDataReprovacao(LocalDateTime.now());
 
         return clienteRepository.save(cliente);
     }

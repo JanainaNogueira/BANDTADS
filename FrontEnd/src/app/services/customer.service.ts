@@ -1,10 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, forkJoin, of } from 'rxjs';
-import { Customer } from '../models/costumer.model';
-import { Observable, of, forkJoin } from 'rxjs';
-import { Customer } from '../models/customer.model';
 import { map, catchError, switchMap } from 'rxjs/operators';
+import { Customer } from '../models/customer.model';
 
 interface BackendCliente {
   id: number;
@@ -31,9 +29,6 @@ interface LerContaDTO {
 })
 export class CustomerService {
   private readonly API_URL = '/api/clientes';
-  private readonly clientesApiUrl = '/api/clientes';
-  private readonly contasApiUrl = '/api/contas';
-  private readonly MOCK_CUSTOMERS: Customer[] = [];
   private readonly clientesApiUrl = '/api/clientes';
   private readonly contasApiUrl = '/api/contas';
 
@@ -85,11 +80,6 @@ export class CustomerService {
     return this.http.put<Customer>(`${this.API_URL}/${cliente.id}`, cliente);
   }
 
-  // consultam o back
-    return this.http.put<Customer>(`${this.clientesApiUrl}/${cliente.id}`, cliente);
-  }
-
-  // consultam o back 
   obterTodosClientesApi(): Observable<Customer[]> {
 
     return this.http.get<BackendCliente[]>(this.clientesApiUrl).pipe(

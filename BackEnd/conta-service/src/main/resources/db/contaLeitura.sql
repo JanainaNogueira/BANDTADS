@@ -28,4 +28,3 @@ insert into conta (cliente_id, numero_conta, data_criacao, saldo, limite, gerent
 insert into movimentacao (conta_id, data_hora, tipo, cliente_origem_id, cliente_destino_id, valor) values
 (1, timestamp '2026-01-01 10:00:00', 'DEPOSITO', 1, 1, 1000.00),
 (1, timestamp '2026-01-02 10:00:00', 'SAQUE', 1, 1, 200.00);
-

@@ -6,6 +6,8 @@ import { ManagerTopPanel } from '../componente/manager-top-panel/manager-top-pan
 import { CustomersHome } from './components/customers-home/customers-home';
 import { CustomerService } from '../../services/customer.service';
 import { Customer } from '../../models/customer.model';
+import { Status } from '../../models/status-enum.model';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-home-gerente',
@@ -16,7 +18,7 @@ import { Customer } from '../../models/customer.model';
 export class HomeGerente implements OnInit {
   customers: Customer[] = [];
 
-  constructor(private customerService: CustomerService) {}
+  constructor(private customerService: CustomerService, private snackBar: MatSnackBar) { }
 
   ngOnInit(): void {
     this.carregarPendentes();
@@ -29,7 +31,17 @@ export class HomeGerente implements OnInit {
       },
       error: (err) => {
         console.error('Erro ao carregar clientes pendentes', err);
+        this.showMessage('Erro ao carregar clientes pendentes');
       }
+    });
+  }
+
+  private showMessage(message: string) {
+    this.snackBar.open(message, 'Fechar', {
+      duration: 3000,
+      horizontalPosition: 'right',
+      verticalPosition: 'bottom',
+      panelClass: ['text-white', 'rounded-3xl']
     });
   }
 }

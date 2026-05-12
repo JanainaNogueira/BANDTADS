@@ -52,7 +52,27 @@ export class CustomerService {
   }
 
   obterClientesPendentes(): Observable<Customer[]> {
-    return this.http.get<Customer[]>(`${this.clientesApiUrl}/status/PENDENTE`);
+    return this.http
+      .get<any[]>(`${this.clientesApiUrl}/status/PENDENTE`)
+      .pipe(
+        map(clientes =>
+          clientes.map(c => ({
+            id: c.id,
+            idCliente: String(c.id),
+            cpf: c.cpf,
+            name: c.nome,
+            email: c.email,
+            salary: c.salario,
+            numberAccount: 0,
+            balance: 0,
+            limit: 0,
+            city: '',
+            state: '',
+            manager: { cpf: '', name: '' },
+            status: c.status
+          }))
+        )
+      );
   }
 
   aprovarCliente(id: number): Observable<any> {

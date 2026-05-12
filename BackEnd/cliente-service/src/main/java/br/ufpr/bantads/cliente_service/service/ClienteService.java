@@ -24,6 +24,9 @@ public class ClienteService {
     @Autowired
     private EnderecoRepository enderecoRepository;
 
+    @Autowired
+    private EmailService emailService;
+
     public Cliente salvarCliente(AutocadastroDTO clienteDTO) {
 
         Optional<Cliente> existeOpt = clienteRepository.findByCpf(clienteDTO.cpf());
@@ -52,12 +55,16 @@ public class ClienteService {
                     clienteExiste.setTelefone(clienteDTO.telefone());
                     clienteExiste.setEmail(clienteDTO.email());
                     clienteExiste.setEndereco(endereco);
+                    clienteExiste.setStatus(StatusEnum.PENDENTE);
+
 
                     clienteExiste.setStatus(StatusEnum.PENDENTE);
                     clienteExiste.setMotivoReprovacao(null);
                     clienteExiste.setDataReprovacao(null);
 
-                    return clienteRepository.save(clienteExiste);
+                    Cliente salvo = clienteRepository.save(clienteExiste);
+                    enviarEmailConfirmacao(salvo);
+                    return salvo;
             }
         }
 
@@ -79,7 +86,18 @@ public class ClienteService {
         cliente.setEndereco(endereco);
         cliente.setStatus(StatusEnum.PENDENTE);
 
-        return clienteRepository.save(cliente);
+        Cliente salvo = clienteRepository.save(cliente);
+        enviarEmailConfirmacao(salvo);
+        return salvo;
+    }
+
+    private void enviarEmailConfirmacao(Cliente cliente) {
+        String subject = "BANTADS - Cadastro Recebido";
+        String text = "Olá " + cliente.getNome() + ",\n\n" +
+                "Seu autocadastro foi realizado com sucesso e agora está em análise.\n" +
+                "Em breve você receberá um novo e-mail com o resultado da sua solicitação.\n\n" +
+                "Atenciosamente,\nEquipe BANTADS";
+        emailService.enviarEmail(cliente.getEmail(), subject, text);
     }
 
     public void deletarCliente(Integer id) {
@@ -141,10 +159,18 @@ public class ClienteService {
 
         cliente.setStatus(StatusEnum.APROVADO);
         // integrar com a criação de conta
-        Cliente clienteSalvo = clienteRepository.save(cliente);
-        // publisher.publicarClienteAprovado(clienteSalvo.getId());
+        
+        Cliente salvo = clienteRepository.save(cliente);
+        
+        String subject = "BANTADS - Cadastro Aprovado!";
+        String text = "Olá " + cliente.getNome() + ",\n\n" +
+                "Parabéns! Seu cadastro no BANTADS foi aprovado.\n" +
+                "Você já pode acessar sua conta utilizando seu e-mail e CPF como senha inicial (apenas números).\n" +
+                "Recomendamos a alteração da senha no seu primeiro acesso.\n\n" +
+                "Atenciosamente,\nEquipe BANTADS";
+        emailService.enviarEmail(cliente.getEmail(), subject, text);
 
-        return clienteSalvo;
+        return salvo;
     }
 
     public Cliente rejeitarCliente(Integer id, String motivo) {
@@ -153,7 +179,16 @@ public class ClienteService {
         cliente.setMotivoReprovacao(motivo);
         cliente.setDataReprovacao(LocalDateTime.now());
 
-        return clienteRepository.save(cliente);
+        Cliente salvo = clienteRepository.save(cliente);
+        
+        String subject = "BANTADS - Cadastro Reprovado";
+        String text = "Olá " + cliente.getNome() + ",\n\n" +
+                "Lamentamos informar que seu cadastro no BANTADS foi reprovado após análise.\n" +
+                "Você pode tentar realizar um novo cadastro corrigindo suas informações.\n\n" +
+                "Atenciosamente,\nEquipe BANTADS";
+        emailService.enviarEmail(cliente.getEmail(), subject, text);
+
+        return salvo;
     }
 
 }

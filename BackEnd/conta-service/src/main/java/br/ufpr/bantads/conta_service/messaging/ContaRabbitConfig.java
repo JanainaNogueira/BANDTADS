@@ -51,9 +51,33 @@ public class ContaRabbitConfig {
     }
 
     @Bean
+    public Queue contaSyncQueue() {
+        return QueueBuilder.durable(RabbitMQConstants.CONTA_SYNC_QUEUE).build();
+    }
+
+    @Bean
+    public Queue movimentacaoSyncQueue() {
+        return QueueBuilder.durable(RabbitMQConstants.MOVIMENTACAO_SYNC_QUEUE).build();
+    }
+
+    @Bean
     public Binding contaCriarBinding(Queue contaCriarQueue, DirectExchange bantadsExchange) {
         return BindingBuilder.bind(contaCriarQueue)
                 .to(bantadsExchange)
                 .with(RabbitMQConstants.CONTA_CRIAR_ROUTING_KEY);
+    }
+
+    @Bean
+    public Binding contaSyncBinding(Queue contaSyncQueue, DirectExchange bantadsExchange) {
+        return BindingBuilder.bind(contaSyncQueue)
+                .to(bantadsExchange)
+                .with(RabbitMQConstants.CONTA_SYNC_ROUTING_KEY);
+    }
+
+    @Bean
+    public Binding movimentacaoSyncBinding(Queue movimentacaoSyncQueue, DirectExchange bantadsExchange) {
+        return BindingBuilder.bind(movimentacaoSyncQueue)
+                .to(bantadsExchange)
+                .with(RabbitMQConstants.MOVIMENTACAO_SYNC_ROUTING_KEY);
     }
 }

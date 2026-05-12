@@ -103,7 +103,10 @@ export class CustomersHome {
            this.customers = this.customers.filter(c => c.cpf !== cpf);
            this.fecharModal();
         },
-        error: (err) => console.error("Erro ao recusar cliente", err)
+        error: (err) => {
+          console.error("Erro ao recusar cliente", err);
+          this.showMessage('Erro ao recusar cliente');
+        }
       });
     } else {
       console.warn("Cliente sem ID para recusar via API");
@@ -127,7 +130,10 @@ export class CustomersHome {
           this.enviarEmail(email, senhaGerada);
           this.exibirSnackbarParaAprovacao();
         },
-        error: (err) => console.error("Erro ao aprovar cliente", err)
+        error: (err) => {
+          console.error("Erro ao aprovar cliente", err);
+          this.showMessage('Erro ao aprovar cliente');
+        }
       });
     } else {
       console.warn("Cliente sem ID para aprovar via API");
@@ -169,5 +175,14 @@ export class CustomersHome {
     console.log(`Sua conta foi criada!`);
     console.log(`Login: ${email}`);
     console.log(`Senha: ${senha}`);
+  }
+
+  private showMessage(message: string) {
+    this.snackBar.open(message, 'Fechar', {
+      duration: 3000,
+      horizontalPosition: 'right',
+      verticalPosition: 'bottom',
+      panelClass: ['text-white', 'rounded-3xl']
+    });
   }
 }

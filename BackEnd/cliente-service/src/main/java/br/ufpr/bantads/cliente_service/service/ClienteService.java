@@ -1,5 +1,6 @@
 package br.ufpr.bantads.cliente_service.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -55,6 +56,11 @@ public class ClienteService {
                     clienteExiste.setEmail(clienteDTO.email());
                     clienteExiste.setEndereco(endereco);
                     clienteExiste.setStatus(StatusEnum.PENDENTE);
+
+
+                    clienteExiste.setStatus(StatusEnum.PENDENTE);
+                    clienteExiste.setMotivoReprovacao(null);
+                    clienteExiste.setDataReprovacao(null);
 
                     Cliente salvo = clienteRepository.save(clienteExiste);
                     enviarEmailConfirmacao(salvo);
@@ -167,9 +173,11 @@ public class ClienteService {
         return salvo;
     }
 
-    public Cliente rejeitarCliente(Integer id) {
+    public Cliente rejeitarCliente(Integer id, String motivo) {
         Cliente cliente = buscarClientePorId(id);
         cliente.setStatus(StatusEnum.REPROVADO);
+        cliente.setMotivoReprovacao(motivo);
+        cliente.setDataReprovacao(LocalDateTime.now());
 
         Cliente salvo = clienteRepository.save(cliente);
         

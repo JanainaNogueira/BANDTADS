@@ -1,5 +1,7 @@
 package br.ufpr.bantads.cliente_service.model;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -37,6 +39,12 @@ public class Cliente {
 
     @Column(name = "status", nullable = false)
     private StatusEnum status = StatusEnum.PENDENTE;
+
+    @Column(name = "motivo_reprovacao")
+    private String motivoReprovacao;
+
+    @Column(name = "data_reprovacao")
+    private LocalDateTime dataReprovacao;
 
     public Cliente() {
     }
@@ -113,6 +121,22 @@ public class Cliente {
 
     public void setStatus(StatusEnum status) {
         this.status = status;
+    }
+
+    public String getMotivoReprovacao() {
+        return motivoReprovacao;
+    }
+
+    public void setMotivoReprovacao(String motivo) {
+        this.motivoReprovacao = motivo;
+    }
+
+    public LocalDateTime getDataReprovacao() {
+        return dataReprovacao;
+    }
+
+    public void setDataReprovacao(LocalDateTime dataReprovacao) {
+        this.dataReprovacao = dataReprovacao;
     }
 
 }

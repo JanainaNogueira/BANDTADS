@@ -87,8 +87,8 @@ public class ClienteController {
     }
 
     @PostMapping("/{id}/rejeitar")
-    public ResponseEntity<Cliente> rejeitarCliente(@PathVariable Integer id) {
-        Cliente clienteRejeitado = clienteService.rejeitarCliente(id);
+    public ResponseEntity<Cliente> rejeitarCliente(@PathVariable Integer id, @RequestBody String motivo) {
+        Cliente clienteRejeitado = clienteService.rejeitarCliente(id, motivo);
         return ResponseEntity.ok(clienteRejeitado);
     }
 

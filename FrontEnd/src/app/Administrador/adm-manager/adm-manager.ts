@@ -1,26 +1,30 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { FormManager } from './components/form-manager/form-manager';
-import { Menu } from '../../components/menu/menu';
-import { ManagerCreateEdit, ManagerSummary } from '../../models/manager.model';
 import { MatIconModule } from '@angular/material/icon';
-import { RemoveManager } from './components/remove-manager/remove-manager';
-import { ManagerStatus } from '../../models/manager.model';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { FormsModule } from '@angular/forms';
+
+import { FormManager } from './components/form-manager/form-manager';
+import { RemoveManager } from './components/remove-manager/remove-manager';
+import { Menu } from '../../components/menu/menu';
+import { ManagerSummary, ManagerStatus } from '../../models/manager.model';
 import { ManagerService } from './services/manager.service';
+import { MOCK_CUSTOMERS } from '../../../assets/mock/customers.mock';
 
 @Component({
   selector: 'app-adm-manager',
-  imports: [Menu, CommonModule, MatDialogModule, MatIconModule],
+  imports: [Menu, CommonModule, MatDialogModule, MatIconModule, FormsModule],
   templateUrl: './adm-manager.html',
   styleUrl: './adm-manager.css',
 })
-
 export class AdmManager implements OnInit {
   managers: ManagerSummary[] = [];
   searchTerm = '';
   selectedStatus: ManagerStatus | 'all' = 'all';
+
+  totalSaldosPositivos = 0;
+  totalSaldosNegativos = 0;
 
   constructor(
     private dialog: MatDialog,
@@ -30,16 +34,19 @@ export class AdmManager implements OnInit {
 
   ngOnInit(): void {
     this.carregarGerentes();
+    this.calcularSaldosDashboard();
+  }
+
+  private calcularSaldosDashboard(): void {
+    const saldos = MOCK_CUSTOMERS.map((cliente) => cliente.balance || 0);
+    this.totalSaldosPositivos = saldos.filter(s => s > 0).reduce((acc, s) => acc + s, 0);
+    this.totalSaldosNegativos = saldos.filter(s => s < 0).reduce((acc, s) => acc + s, 0);
   }
 
   carregarGerentes(): void {
     this.managerService.listar().subscribe({
-      next: (res) => {
-        this.managers = res;
-      },
-      error: () => {
-        this.showMessage('Erro ao carregar gerentes');
-      }
+      next: (res) => { this.managers = res; },
+      error: () => { this.showMessage('Erro ao carregar gerentes'); }
     });
   }
 
@@ -51,81 +58,56 @@ export class AdmManager implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe((res) => {
-      if (res && res.modo === 'criar') {
-
-        const dados = res.gerente;
-
-        this.managerService.criar(dados).subscribe({
+      if (res?.modo === 'criar') {
+        this.managerService.criar(res.gerente).subscribe({
           next: () => {
             this.showMessage('Gerente criado com sucesso!');
             this.carregarGerentes();
           },
-          error: () => {
-            this.showMessage('Erro ao criar gerente!');
-          }
+          error: () => this.showMessage('Erro ao criar gerente!')
         });
-
-        console.log('Gerente criado');
       }
-    })
+    });
   }
 
   abrirModalEditar(gerente: ManagerSummary): void {
     const dialogRef = this.dialog.open(FormManager, {
       width: '760px',
       maxWidth: '96vw',
-      data: {
-        modo: 'editar',
-        gerente: gerente
-      }
+      data: { modo: 'editar', gerente: gerente }
     });
 
     dialogRef.afterClosed().subscribe((res) => {
-      if (res && res.modo === 'editar') {
-
-        const dados = res.gerente;
-
-        this.managerService.atualizar(dados.id, dados).subscribe({
+      if (res?.modo === 'editar') {
+        this.managerService.atualizar(res.gerente.id, res.gerente).subscribe({
           next: () => {
             this.showMessage('Gerente editado com sucesso!');
             this.carregarGerentes();
           },
-          error: () => {
-            this.showMessage('Erro ao editar gerente!');
-          }
+          error: () => this.showMessage('Erro ao editar gerente.')
         });
-
-        console.log('Gerente editado:', dados);
       }
-    })
+    });
   }
 
   abrirModalRemover(manager: ManagerSummary): void {
     const dialogRef = this.dialog.open(RemoveManager, {
       width: '560px',
-      maxWidth: '95vw',
-      data: {
-        managerCpf: manager.cpf
-      },
+      data: { managerCpf: manager.cpf },
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      if (!result?.success) {
-        return;
+      if (result?.success) {
+        this.managerService.deletar(manager.id).subscribe({
+          next: () => {
+            this.showMessage('Gerente removido.');
+            this.carregarGerentes();
+          },
+          error: () => this.showMessage('Erro ao remover gerente.')
+        });
       }
-
-      this.managerService.deletar(manager.id).subscribe({
-        next: () => {
-          this.showMessage('Gerente removido com sucesso!');
-          this.carregarGerentes();
-        },
-        error: () => {
-          this.showMessage('Erro ao remover gerente!');
-        }
-      });
     });
   }
-
   get statusTabs(): Array<{ key: ManagerStatus | 'all'; label: string; count: number }> {
     return [
       { key: 'all', label: 'Todos', count: this.managers.length },
@@ -135,15 +117,10 @@ export class AdmManager implements OnInit {
   }
 
   get filteredManagers(): ManagerSummary[] {
-    const normalizedTerm = this.searchTerm.trim().toLowerCase();
-
-    return this.managers.filter((manager) => {
-      const matchesStatus = this.selectedStatus === 'all' || manager.status === this.selectedStatus;
-      const matchesSearch =
-        !normalizedTerm ||
-        manager.name.toLowerCase().includes(normalizedTerm) ||
-        manager.email.toLowerCase().includes(normalizedTerm);
-
+    const term = this.searchTerm.trim().toLowerCase();
+    return this.managers.filter((m) => {
+      const matchesStatus = this.selectedStatus === 'all' || m.status === this.selectedStatus;
+      const matchesSearch = !term || m.name.toLowerCase().includes(term) || m.email.toLowerCase().includes(term);
       return matchesStatus && matchesSearch;
     });
   }
@@ -154,33 +131,18 @@ export class AdmManager implements OnInit {
 
   getInitials(name: string): string {
     if (!name) return '?';
-
-    return name
-      .split(' ')
-      .map((part) => part[0])
-      .slice(0, 2)
-      .join('')
-      .toUpperCase();
+    return name.split(' ').map((n) => n[0]).slice(0, 2).join('').toUpperCase();
   }
 
   getStatusLabel(status: ManagerStatus): string {
-    if (status === 'active') {
-      return 'Ativo';
-    }
-
-    return 'Inativo';
+    return status === 'active' ? 'Ativo' : 'Inativo';
   }
 
   private getCountByStatus(status: ManagerStatus): number {
-    return this.managers.filter((manager) => manager.status === status).length;
+    return this.managers.filter((m) => m.status === status).length;
   }
 
-  private showMessage(message: string) {
-    this.snackBar.open(message, 'Fechar', {
-      duration: 3000,
-      horizontalPosition: 'right',
-      verticalPosition: 'bottom',
-      panelClass: ['text-white', 'rounded-3xl']
-    });
+  private showMessage(message: string): void {
+    this.snackBar.open(message, 'Fechar', { duration: 3000 });
   }
 }

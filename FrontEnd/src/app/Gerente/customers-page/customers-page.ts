@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Menu } from '../../components/menu/menu';
 import { CustomersList } from '../../components/customers-list/customers-list';
 import { ManagerTopPanel } from '../componente/manager-top-panel/manager-top-panel';
-import { Menu } from '../../components/menu/menu';
-import { CustomerService } from '../../services/customer.service';
-import { FormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
 import { TopClientes } from './top-clientes/top-clientes';
-import { ActivatedRoute, Router } from '@angular/router';
 import { ManagerConsultarCliente } from '../manager-consultar-cliente/manager-consultar-cliente';
+import { CustomerService } from '../../services/customer.service';
 import { Customer } from '../../models/customer.model';
 
 @Component({
@@ -24,16 +24,7 @@ export class CustomersPage implements OnInit {
   private readonly brlFormatter = new Intl.NumberFormat('pt-BR', {
     style: 'currency',
     currency: 'BRL',
-    minimumFractionDigits: 2,
   });
-
-  private normalizeText(value: string): string {
-    return value
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase()
-      .trim();
-  }
 
   constructor(
     private readonly customerService: CustomerService,
@@ -43,13 +34,12 @@ export class CustomersPage implements OnInit {
 
   ngOnInit(): void {
     this.customerService.obterTodosClientes().subscribe({
-      next: (clientes) => this.customers = clientes,
+      next: (clientes) => {
+        this.customers = clientes.sort((a, b) => a.name.localeCompare(b.name));
+      },
       error: (err) => console.error('Erro ao carregar clientes', err)
-
-//     this.customerService.obterTodosClientesApi().subscribe({
-//       next: (list) => this.customers = list,
-//       error: () => { this.customers = this.customerService.obterTodosClientes(); }
     });
+
     this.route.url.subscribe((segments) => {
       const path = segments[0]?.path;
       this.page = path === 'gerente-consultar-cliente' ? 2 : 1;
@@ -57,37 +47,29 @@ export class CustomersPage implements OnInit {
   }
 
   get filteredCustomers(): Customer[] {
-    if (!this.searchTerm.trim()) {
-      return this.customers;
-    }
+    if (!this.searchTerm.trim()) return this.customers;
 
     const searchLower = this.normalizeText(this.searchTerm);
     const searchNumbers = this.searchTerm.replace(/\D/g, '');
 
     return this.customers.filter(customer => {
-      const customerName = customer?.name ?? '';
-      const customerCpf = customer?.cpf ?? '';
-
-      const cpfNumbers = customerCpf.replace(/\D/g, '');
-      const nameMatch = this.normalizeText(customerName).includes(searchLower);
+      const nameMatch = this.normalizeText(customer.name || '').includes(searchLower);
+      const cpfNumbers = (customer.cpf || '').replace(/\D/g, '');
       const cpfMatch = searchNumbers ? cpfNumbers.includes(searchNumbers) : false;
       
       return nameMatch || cpfMatch;
     });
   }
 
-  switchPage(page:number){
+  private normalizeText(value: string): string {
+    return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+  }
+
+  switchPage(page: number): void {
     this.page = page;
     this.selectedCustomer = null;
-
-    if (page === 1) {
-      this.router.navigate(['gerente-clientes']);
-      return;
-    }
-
-    if (page === 2) {
-      this.router.navigate(['gerente-consultar-cliente']);
-    }
+    const routePath = page === 1 ? 'gerente-clientes' : 'gerente-consultar-cliente';
+    this.router.navigate([routePath]);
   }
 
   openCustomerDetails(customer: Customer): void {
@@ -100,16 +82,11 @@ export class CustomersPage implements OnInit {
 
   formatCpf(cpf: string): string {
     const digits = (cpf || '').replace(/\D/g, '').slice(0, 11);
-
-    if (digits.length !== 11) {
-      return cpf || '-';
-    }
-
+    if (digits.length !== 11) return cpf || '-';
     return `${digits.slice(0, 3)}.${digits.slice(3, 6)}.${digits.slice(6, 9)}-${digits.slice(9, 11)}`;
   }
 
   formatCurrency(value: number): string {
-    return this.brlFormatter.format(Number.isFinite(value) ? value : 0);
+    return this.brlFormatter.format(value || 0);
   }
-
 }

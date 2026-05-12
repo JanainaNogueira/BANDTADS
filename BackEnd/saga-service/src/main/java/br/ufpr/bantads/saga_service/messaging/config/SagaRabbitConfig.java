@@ -1,31 +1,38 @@
-package br.ufpr.bantads.gerente_service.messaging.config;
+package br.ufpr.bantads.saga_service.messaging.config;
+
+import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.amqp.support.converter.MessageConverter;
 
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
-import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
-import org.springframework.amqp.support.converter.MessageConverter;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class GerenteAdminRabbitConfig {
- 
-    public static final String FILA_MS = "fila-ms-gerente";
+public class SagaRabbitConfig {
+    
     public static final String FILA_SAGA = "fila-saga";
 
-    @Bean
-    public Queue filaMs() {
-        return new Queue(FILA_MS);
-    }
+    public static final String FILA_MS_GERENTE = "fila-ms-gerente";
+
+    public static final String FILA_MS_CONTA = "fila-ms-conta";
 
     @Bean
     public Queue filaSaga() {
         return new Queue(FILA_SAGA);
     }
 
+    @Bean
+    public Queue filaMsGerente() {
+        return new Queue(FILA_MS_GERENTE);
+    }
 
+    @Bean
+    public Queue filaMsConta() {
+        return new Queue(FILA_MS_CONTA);
+    }
     @Bean
     public MessageConverter jsonMessageConverter() {
         return new Jackson2JsonMessageConverter();
@@ -50,4 +57,5 @@ public class GerenteAdminRabbitConfig {
         return factory;
     }
 }
+
 

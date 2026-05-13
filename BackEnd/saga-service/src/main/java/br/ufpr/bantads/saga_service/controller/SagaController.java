@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.ufpr.bantads.saga_service.messaging.SagaProducer;
 import br.ufpr.bantads.saga_service.messaging.dto.SagaMessageDTO;
+import br.ufpr.bantads.saga_service.messaging.dto.AdicionarGerenteDTO;
 
 @RestController
 @RequestMapping("/saga")

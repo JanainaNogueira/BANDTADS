@@ -109,10 +109,14 @@ public class GerenteService {
         );
     }
 
-    public void deletar(Integer id) {
+    public void RemoverGerenteCompensacao(Integer id) {
         GerenteAdmin gerente = gerenteRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Gerente não encontrado"));
 
         gerenteRepository.delete(gerente);
+    }
+
+    public void removerGerente(Integer idGerente) {
+        gerenteRepository.deleteById(idGerente);
     }
 }

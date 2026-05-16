@@ -65,9 +65,9 @@ public class GerenteController {
         return ResponseEntity.ok(gerenteService.atualizar(id, dto));
     }
     
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable Integer id) {
-        gerenteService.deletar(id);
-        return ResponseEntity.noContent().build();
-    }
+    // @DeleteMapping("/{id}")
+    // public ResponseEntity<Void> deletar(@PathVariable Integer id) {
+    //     gerenteService.deletar(id);
+    //     return ResponseEntity.noContent().build();
+    // }
 }

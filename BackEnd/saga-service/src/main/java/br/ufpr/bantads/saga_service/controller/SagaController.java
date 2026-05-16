@@ -3,6 +3,7 @@ package br.ufpr.bantads.saga_service.controller;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,5 +38,28 @@ public class SagaController {
         producer.enviarParaGerente(mensagem);
 
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/remover-gerente/{id}")
+    public ResponseEntity<String> removerGerente(
+            @PathVariable Integer id) {
+
+        String idSaga =
+                UUID.randomUUID().toString();
+
+        SagaMessageDTO mensagem =
+                new SagaMessageDTO();
+
+        mensagem.setIdSaga(idSaga);
+
+        mensagem.setAcao("REDISTRIBUIR_CONTAS_REMOCAO");
+
+        mensagem.setDados(id);
+
+        producer.enviarParaConta(mensagem);
+
+        return ResponseEntity.ok(
+                "Saga de remoção iniciada: " + idSaga
+        );
     }
 }

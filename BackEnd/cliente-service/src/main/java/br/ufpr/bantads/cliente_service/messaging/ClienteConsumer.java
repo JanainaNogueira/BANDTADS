@@ -48,7 +48,6 @@ public class ClienteConsumer {
                 resposta.setIdSaga(dto.getIdSaga());
                 resposta.setAcao("CLIENTE_CRIADO_SUCESSO");
                 resposta.setDados(clienteSalvo.getId());
-                resposta.setServico("CLIENTE");
 
                 producer.responderSaga(resposta);
 
@@ -58,7 +57,6 @@ public class ClienteConsumer {
 
                 resposta.setIdSaga(dto.getIdSaga());
                 resposta.setAcao("CLIENTE_CRIADO_ERRO");
-                resposta.setServico("CLIENTE");
 
                 producer.responderSaga(resposta);
             }
@@ -74,14 +72,12 @@ public class ClienteConsumer {
                 SagaMessageDTO resposta = new SagaMessageDTO();
                 resposta.setIdSaga(dto.getIdSaga());
                 resposta.setAcao("CLIENTE_APROVADO_SUCESSO");
-                resposta.setServico("CLIENTE");
 
                 producer.responderSaga(resposta);
             } catch (Exception e) {
                 SagaMessageDTO resposta = new SagaMessageDTO();
                 resposta.setIdSaga(dto.getIdSaga());
                 resposta.setAcao("CLIENTE_APROVADO_ERRO");
-                resposta.setServico("CLIENTE");
                 producer.responderSaga(resposta);
             }
         }
@@ -103,7 +99,6 @@ public class ClienteConsumer {
 
                 resposta.setIdSaga(dto.getIdSaga());
                 resposta.setAcao("CLIENTE_REMOVIDO_SUCESSO");
-                resposta.setServico("CLIENTE");
 
                 producer.responderSaga(resposta);
 
@@ -113,7 +108,6 @@ public class ClienteConsumer {
 
                 resposta.setIdSaga(dto.getIdSaga());
                 resposta.setAcao("CLIENTE_REMOVIDO_ERRO");
-                resposta.setServico("CLIENTE");
 
                 producer.responderSaga(resposta);
             }

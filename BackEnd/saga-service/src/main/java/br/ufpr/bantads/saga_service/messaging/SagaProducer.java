@@ -15,6 +15,14 @@ public class SagaProducer {
         this.rabbitTemplate = rabbitTemplate;
     }
 
+    public void enviarParaCliente(SagaMessageDTO dto) {
+
+        rabbitTemplate.convertAndSend(
+                SagaRabbitConfig.FILA_MS_CLIENTE,
+                dto
+        );
+    }
+
     public void enviarParaGerente(SagaMessageDTO dto) {
 
         rabbitTemplate.convertAndSend(

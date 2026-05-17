@@ -5,7 +5,6 @@ public class SagaMessageDTO {
     private String idSaga;
     private String acao;
     private Object dados;
-    private String servico;
 
     public String getIdSaga() {
         return idSaga;
@@ -30,13 +29,4 @@ public class SagaMessageDTO {
     public void setDados(Object dados) {
         this.dados = dados;
     }
-
-    public String getServico() {
-        return servico;
-    }
-
-    public void setServico(String servico) {
-        this.servico = servico;
-    }
-
 }

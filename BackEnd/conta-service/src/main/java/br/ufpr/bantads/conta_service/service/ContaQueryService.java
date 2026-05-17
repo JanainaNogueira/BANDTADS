@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
-import br.ufpr.bantads.conta_service.model.Conta;
+import br.ufpr.bantads.conta_service.model.read.ContaRead;
 import br.ufpr.bantads.conta_service.repository.read.ContaReadRepository;
 
 @Service
@@ -16,21 +16,21 @@ public class ContaQueryService {
         this.repository = repository;
     }
 
-    public List<Conta> listarContas() {
+    public List<ContaRead> listarContas() {
         return repository.findAll();
     }
 
-    public Conta buscarContaPorId(Integer contaId) {
+    public ContaRead buscarContaPorId(Integer contaId) {
         return repository.findById(contaId)
                 .orElseThrow(() -> new RuntimeException("Conta não encontrada com o ID: " + contaId));
     }
 
-    public Conta buscarContaPorNumero(String numeroConta) {
+    public ContaRead buscarContaPorNumero(String numeroConta) {
         return repository.findByNumeroConta(numeroConta)
                 .orElseThrow(() -> new RuntimeException("Conta não encontrada com o número: " + numeroConta));
     }
 
-    public List<Conta> buscarContasPorCliente(Integer clienteId) {
+    public List<ContaRead> buscarContasPorCliente(Integer clienteId) {
         return repository.findByClienteId(clienteId);
     }
 }

@@ -79,8 +79,8 @@ public class GerenteService {
         return gerente;
     }
 
-    public LerGerenteDTO atualizar(Integer id, EditarGerenteDTO dto) {
-        GerenteAdmin gerente = gerenteRepository.findById(id)
+    public LerGerenteDTO atualizar(String cpf, EditarGerenteDTO dto) {
+        GerenteAdmin gerente = gerenteRepository.findByCpf(cpf)
             .orElseThrow(() -> new RuntimeException("Gerente não encontrado"));
 
         if (dto.nome() != null && !dto.nome().isBlank()) {
@@ -109,10 +109,14 @@ public class GerenteService {
         );
     }
 
-    public void deletar(Integer id) {
+    public void RemoverGerenteCompensacao(Integer id) {
         GerenteAdmin gerente = gerenteRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Gerente não encontrado"));
 
         gerenteRepository.delete(gerente);
+    }
+
+    public void removerGerente(Integer idGerente) {
+        gerenteRepository.deleteById(idGerente);
     }
 }

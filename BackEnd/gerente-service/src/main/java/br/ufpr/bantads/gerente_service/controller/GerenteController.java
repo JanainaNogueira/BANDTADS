@@ -14,60 +14,65 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.ufpr.bantads.gerente_service.dtos.AdicionarGerenteDTO;
 import br.ufpr.bantads.gerente_service.dtos.EditarGerenteDTO;
 import br.ufpr.bantads.gerente_service.dtos.LerGerenteDTO;
-import br.ufpr.bantads.gerente_service.model.GerenteAdmin;
-import br.ufpr.bantads.gerente_service.repository.GerenteRepository;
 import br.ufpr.bantads.gerente_service.service.GerenteService;
 
 @RestController
 @RequestMapping("/gerentes")
 public class GerenteController {
 
-    @Autowired
-    private GerenteService gerenteService;
+    private final GerenteService gerenteService;
 
-    @Autowired
-    private GerenteRepository gerenteClientesRepository;
+    public GerenteController(
+            GerenteService gerenteService) {
+
+        this.gerenteService = gerenteService;
+    }
 
     @GetMapping
-    public ResponseEntity<List<LerGerenteDTO>> listar() {
-        return ResponseEntity.ok(gerenteService.listarTodos());
+    public ResponseEntity<List<LerGerenteDTO>>
+            listar() {
+
+        return ResponseEntity.ok(
+                gerenteService.listarTodos()
+        );
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<LerGerenteDTO> buscarPorId(@PathVariable Integer id) {
-        return ResponseEntity.ok(gerenteService.buscarGerentePorId(id));
+    @GetMapping("/{cpf}")
+    public ResponseEntity<LerGerenteDTO>
+            buscarPorCpf(
+                    @PathVariable String cpf) {
+
+        return ResponseEntity.ok(
+                gerenteService.buscarGerentePorCPF(cpf)
+        );
     }
 
-    // @GetMapping("/{id}/clientes")
-    // public ResponseEntity<GerenteClientesView> buscarComClientes(@PathVariable Integer id) {
-    //     return ResponseEntity.ok(
-    //         gerenteClientesRepository.findById(id)
-    //             .orElseThrow(() -> new RuntimeException("Não encontrado"))
-    //     );
-    // }
 
     @GetMapping("/buscar")
-    public ResponseEntity<List<LerGerenteDTO>> buscarPorNome(@RequestParam String nome) {
-        return ResponseEntity.ok(gerenteService.buscarGerentePorNome(nome));
+    public ResponseEntity<List<LerGerenteDTO>>
+            buscarPorNome(
+                    @RequestParam String nome) {
+
+        return ResponseEntity.ok(
+                gerenteService
+                        .buscarGerentePorNome(nome)
+        );
     }
 
-    @PostMapping
-    public ResponseEntity<GerenteAdmin> criar(@RequestBody AdicionarGerenteDTO dto) {
-        GerenteAdmin gerente = gerenteService.criarGerente(dto);
-        return ResponseEntity.ok(gerente);
+    @PutMapping("/{cpf}")
+    public ResponseEntity<LerGerenteDTO>
+            atualizar(
+                    @PathVariable String cpf,
+
+                    @RequestBody
+                    EditarGerenteDTO dto) {
+
+        return ResponseEntity.ok(
+                gerenteService
+                        .atualizar(cpf, dto)
+        );
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<LerGerenteDTO> atualizar(@PathVariable Integer id, @RequestBody EditarGerenteDTO dto) {
-        return ResponseEntity.ok(gerenteService.atualizar(id, dto));
-    }
-    
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletar(@PathVariable Integer id) {
-        gerenteService.deletar(id);
-        return ResponseEntity.noContent().build();
-    }
 }

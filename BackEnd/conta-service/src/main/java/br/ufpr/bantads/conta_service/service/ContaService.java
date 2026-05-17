@@ -2,9 +2,13 @@ package br.ufpr.bantads.conta_service.service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -183,5 +187,112 @@ public class ContaService {
     private String gerarNumeroConta(Integer clienteId) {
         long sufixo = System.currentTimeMillis() % 100000;
         return String.format("%06d-%05d", clienteId, sufixo);
+    }
+
+    public void redistribuirConta(Integer idNovoGerente) {
+        List<Conta> contas = repository.findAll();
+
+        Map<Integer, List<Conta>> contasPorGerente =
+                contas.stream()
+                        .filter(c -> c.getGerenteId() != null)
+                        .collect(Collectors.groupingBy(
+                                Conta::getGerenteId
+                        ));
+
+        Optional<Map.Entry<Integer, List<Conta>>> gerenteOrigemOpt =
+                contasPorGerente.entrySet()
+                        .stream()
+                        .filter(e -> e.getValue().size() > 1)
+                        .max(Comparator.comparingInt(
+                                e -> e.getValue().size()
+                        ));
+
+        if(gerenteOrigemOpt.isEmpty()) {
+            return;
+        }
+
+        List<Conta> contasGerente =
+                gerenteOrigemOpt.get().getValue();
+
+
+        Optional<Conta> contaOpt =
+            contasGerente.stream()
+                .filter(c ->
+                        c.getSaldo()
+                         .compareTo(BigDecimal.ZERO) > 0
+                )
+                .min(Comparator.comparing(
+                        Conta::getSaldo
+                ));
+
+        if(contaOpt.isEmpty()) {
+            return;
+        }
+
+        Conta conta = contaOpt.get();
+
+        conta.setGerenteId(idNovoGerente);
+
+        repository.save(conta);
+    }
+
+    public void redistribuirContasRemocao(Integer idGerenteRemovido) {
+        List<Conta> contas =
+                repository.findAll();
+
+        List<Conta> contasGerenteRemovido =
+                contas.stream()
+                        .filter(c ->
+                                c.getGerenteId() != null
+                                &&
+                                c.getGerenteId().equals(idGerenteRemovido)
+                        )
+                        .toList();
+
+        if(contasGerenteRemovido.isEmpty()) {
+            return;
+        }
+
+        Map<Integer, List<Conta>> contasPorGerente =
+                contas.stream()
+                        .filter(c ->
+                                c.getGerenteId() != null
+                                &&
+                                !c.getGerenteId().equals(idGerenteRemovido)
+                        )
+                        .collect(Collectors.groupingBy(
+                                Conta::getGerenteId
+                        ));
+
+        if(contasPorGerente.isEmpty()) {
+
+            throw new RuntimeException(
+                    "Não é possível remover o último gerente"
+            );
+        }
+
+        Optional<Map.Entry<Integer, List<Conta>>> gerenteDestinoOpt =
+                contasPorGerente.entrySet()
+                        .stream()
+                        .min(Comparator.comparingInt(
+                                e -> e.getValue().size()
+                        ));
+
+        if(gerenteDestinoOpt.isEmpty()) {
+
+            throw new RuntimeException(
+                    "Nenhum gerente disponível"
+            );
+        }
+
+        Integer idNovoGerente =
+                gerenteDestinoOpt.get().getKey();
+
+        for(Conta conta : contasGerenteRemovido) {
+
+            conta.setGerenteId(idNovoGerente);
+
+            repository.save(conta);
+        }
     }
 }

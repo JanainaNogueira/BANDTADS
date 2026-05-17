@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import br.ufpr.bantads.gerente_service.dtos.AdicionarGerenteDTO;
 import br.ufpr.bantads.gerente_service.messaging.config.GerenteAdminRabbitConfig;
 import br.ufpr.bantads.gerente_service.messaging.dtos.SagaMessageDTO;
+import br.ufpr.bantads.gerente_service.model.GerenteAdmin;
 import br.ufpr.bantads.gerente_service.service.GerenteService;
 
 @Component
@@ -17,7 +18,11 @@ public class GerenteConsumer {
     private final GerenteProducer producer;
     private final ObjectMapper objectMapper;
 
-    public GerenteConsumer(GerenteService gerenteService, GerenteProducer producer, ObjectMapper objectMapper) {
+    public GerenteConsumer(
+            GerenteService gerenteService,
+            GerenteProducer producer,
+            ObjectMapper objectMapper) {
+
         this.gerenteService = gerenteService;
         this.producer = producer;
         this.objectMapper = objectMapper;
@@ -28,15 +33,21 @@ public class GerenteConsumer {
 
         if (dto.getAcao().equals("CRIAR_GERENTE")) {
 
-            AdicionarGerenteDTO gerente = objectMapper.convertValue(dto.getDados(), AdicionarGerenteDTO.class);
+            AdicionarGerenteDTO gerenteDTO = objectMapper.convertValue(
+                    dto.getDados(),
+                    AdicionarGerenteDTO.class);
 
             try {
-                gerenteService.criarGerente(gerente);
+
+                GerenteAdmin gerenteCriado = gerenteService.criarGerente(gerenteDTO);
 
                 SagaMessageDTO resposta = new SagaMessageDTO();
 
                 resposta.setIdSaga(dto.getIdSaga());
-                resposta.setAcao("SUCESSO");
+
+                resposta.setAcao("GERENTE_CRIADO");
+
+                resposta.setDados(gerenteCriado.getId());
 
                 producer.responderSaga(resposta);
 
@@ -45,10 +56,22 @@ public class GerenteConsumer {
                 SagaMessageDTO resposta = new SagaMessageDTO();
 
                 resposta.setIdSaga(dto.getIdSaga());
-                resposta.setAcao("ERRO");
+
+                resposta.setAcao("ERRO_INSERIR_GERENTE");
+
+                resposta.setDados(e.getMessage());
 
                 producer.responderSaga(resposta);
             }
+        }
+        if(dto.getAcao().equals("REMOVER_GERENTE")){
+             Integer idGerente =
+            objectMapper.convertValue(
+                    dto.getDados(),
+                    Integer.class
+            );
+
+            gerenteService.RemoverGerenteCompensacao(idGerente);
         }
     }
 }

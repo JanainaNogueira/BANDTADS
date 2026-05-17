@@ -5,11 +5,11 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import br.ufpr.bantads.conta_service.model.Movimentacao;
+import br.ufpr.bantads.conta_service.model.read.MovimentacaoRead;
 
-public interface MovimentacaoReadRepository extends JpaRepository<Movimentacao, Integer> {
+public interface MovimentacaoReadRepository extends JpaRepository<MovimentacaoRead, Integer> {
 
-    List<Movimentacao> findByContaIdOrderByDataHoraDesc(Integer contaId);
+    List<MovimentacaoRead> findByContaIdOrderByDataHoraDesc(Integer contaId);
 
-    List<Movimentacao> findByContaIdAndDataHoraBetweenOrderByDataHoraAsc(Integer contaId, LocalDateTime start, LocalDateTime end);
+    List<MovimentacaoRead> findByContaIdAndDataHoraBetweenOrderByDataHoraAsc(Integer contaId, LocalDateTime start, LocalDateTime end);
 }

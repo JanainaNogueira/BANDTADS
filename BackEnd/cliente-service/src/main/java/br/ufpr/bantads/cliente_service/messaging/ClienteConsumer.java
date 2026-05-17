@@ -7,7 +7,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import br.ufpr.bantads.cliente_service.dtos.AutocadastroDTO;
 import br.ufpr.bantads.cliente_service.messaging.config.ClienteRabbitConfig;
-import br.ufpr.bantads.cliente_service.messaging.dtos.ReprovacaoClienteDTO;
 import br.ufpr.bantads.cliente_service.messaging.dtos.SagaMessageDTO;
 import br.ufpr.bantads.cliente_service.model.Cliente;
 import br.ufpr.bantads.cliente_service.service.ClienteService;
@@ -65,46 +64,29 @@ public class ClienteConsumer {
             }
         }
 
-        if (dto.getAcao().equals("REPROVAR_CLIENTE")) {
+        if (dto.getAcao().equals("APROVAR_CLIENTE")) {
 
-            Integer clienteId
-                    = objectMapper.convertValue(
-                            dto.getDados(),
-                            Integer.class
-                    );
+            Integer clienteId = objectMapper.convertValue(dto.getDados(), Integer.class);
 
             try {
-
-                ReprovacaoClienteDTO dados
-                        = objectMapper.convertValue(
-                                dto.getDados(),
-                                ReprovacaoClienteDTO.class
-                        );
-
-                clienteService.rejeitarCliente(
-                        dados.getClienteId(),
-                        dados.getMotivo()
-                );
+                clienteService.aprovarCliente(clienteId);
 
                 SagaMessageDTO resposta = new SagaMessageDTO();
-
                 resposta.setIdSaga(dto.getIdSaga());
-                resposta.setAcao("CLIENTE_REPROVADO_SUCESSO");
+                resposta.setAcao("CLIENTE_APROVADO_SUCESSO");
                 resposta.setServico("CLIENTE");
 
                 producer.responderSaga(resposta);
-
             } catch (Exception e) {
-
                 SagaMessageDTO resposta = new SagaMessageDTO();
-
                 resposta.setIdSaga(dto.getIdSaga());
-                resposta.setAcao("CLIENTE_REPROVADO_ERRO");
+                resposta.setAcao("CLIENTE_APROVADO_ERRO");
                 resposta.setServico("CLIENTE");
                 producer.responderSaga(resposta);
             }
         }
 
+        //roolback
         if (dto.getAcao().equals("REMOVER_CLIENTE")) {
 
             Integer clienteId

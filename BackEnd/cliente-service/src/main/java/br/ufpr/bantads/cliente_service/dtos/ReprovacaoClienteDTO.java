@@ -1,4 +1,4 @@
-package br.ufpr.bantads.cliente_service.messaging.dtos;
+package br.ufpr.bantads.cliente_service.dtos;
 
 public class ReprovacaoClienteDTO {
 

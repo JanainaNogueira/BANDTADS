@@ -11,7 +11,53 @@
 			</button>
 		</section>
 
-		<section class="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+		<div *ngIf="carregando" class="text-center py-12">
+			<div class="inline-block animate-spin">
+				<mat-icon class="text-4xl text-indigo-600">refresh</mat-icon>
+			</div>
+			<p class="text-gray-600 mt-3">Carregando dashboard...</p>
+		</div>
+
+		<section *ngIf="!carregando" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+			<div class="bg-white rounded-2xl border border-[#E5EAF4] p-6 shadow-sm">
+				<div class="flex items-center justify-between">
+					<div>
+						<p class="text-sm text-gray-600 mb-1">Total Saldos Positivos</p>
+						<p class="text-2xl font-bold text-green-600">{{ formatarValor(totalSaldosPositivos) }}</p>
+					</div>
+					<div class="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center">
+						<mat-icon class="text-green-600">trending_up</mat-icon>
+					</div>
+				</div>
+			</div>
+
+			<div class="bg-white rounded-2xl border border-[#E5EAF4] p-6 shadow-sm">
+				<div class="flex items-center justify-between">
+					<div>
+						<p class="text-sm text-gray-600 mb-1">Total Saldos Negativos</p>
+						<p class="text-2xl font-bold text-red-600">{{ formatarValor(totalSaldosNegativos) }}</p>
+					</div>
+					<div class="w-12 h-12 rounded-lg bg-red-100 flex items-center justify-center">
+						<mat-icon class="text-red-600">trending_down</mat-icon>
+					</div>
+				</div>
+			</div>
+
+			<div class="bg-white rounded-2xl border border-[#E5EAF4] p-6 shadow-sm">
+				<div class="flex items-center justify-between">
+					<div>
+						<p class="text-sm text-gray-600 mb-1">Total de Gerentes</p>
+						<p class="text-2xl font-bold text-indigo-600">{{ managers.length }}</p>
+					</div>
+					<div class="w-12 h-12 rounded-lg bg-indigo-100 flex items-center justify-center">
+						<mat-icon class="text-indigo-600">people</mat-icon>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- Filtros -->
+		<section *ngIf="!carregando" class="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
 			<div class="inline-flex w-full flex-wrap gap-2 rounded-xl border border-[#E5E7EB] bg-white p-2 lg:w-auto">
 				<button *ngFor="let tab of statusTabs" type="button"
 					class="inline-flex cursor-pointer items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors"
@@ -31,7 +77,8 @@
 			</div>
 		</section>
 
-		<section class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+		<!-- Cards -->
+		<section *ngIf="!carregando" class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
 			<article class="flex flex-col gap-4 rounded-2xl border border-[#E5EAF4] bg-white p-4 shadow-sm"
 				*ngFor="let manager of filteredManagers">
 				<header class="flex items-center gap-3">
@@ -52,11 +99,27 @@
 				</header>
 
 				<div class="space-y-2 text-sm text-[#64748B]">
-					<p class="truncate">✉ {{ manager.email }}</p>
-					<p>☎ {{ manager.phone }}</p>
+					<p class="truncate"> {{ manager.email }}</p>
+					<p>{{ manager.phone }}</p>
 				</div>
 
-				<footer class="mt-auto flex items-center justify-between gap-2 border-t border-[#E9EDF5] pt-3">
+				<!-- Métricas -->
+				<div class="space-y-2 border-t border-[#E9EDF5] pt-3 mt-auto">
+					<div class="flex justify-between items-center text-sm">
+						<span class="text-gray-600">Clientes</span>
+						<span class="font-semibold text-indigo-600">{{ manager.clientCount }}</span>
+					</div>
+					<div class="flex justify-between items-center text-sm">
+						<span class="text-gray-600">Saldo Positivo</span>
+						<span class="font-semibold text-green-600">{{ formatarValor(manager.positiveSaldo) }}</span>
+					</div>
+					<div class="flex justify-between items-center text-sm">
+						<span class="text-gray-600">Saldo Negativo</span>
+						<span class="font-semibold text-red-600">{{ formatarValor(manager.negativeSaldo) }}</span>
+					</div>
+				</div>
+
+				<footer class="flex items-center justify-between gap-2 border-t border-[#E9EDF5] pt-3">
 					<button type="button"
 						class="w-full cursor-pointer rounded-lg px-3 py-1.5 text-xs font-semibold text-[#64748B] transition hover:bg-[#F8FAFC]"
 						(click)="abrirModalEditar(manager)">

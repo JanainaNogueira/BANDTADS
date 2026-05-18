@@ -16,7 +16,7 @@ public interface ClienteRepository extends JpaRepository<Cliente, Integer> {
 
     Optional<Cliente> findByCpf(String cpf);
 
-    Optional<Cliente> findByName(String nome);
+    Optional<Cliente> findByNome(String nome);
 
     List<Cliente> findByStatus(StatusEnum status);
 

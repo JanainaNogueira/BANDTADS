@@ -85,6 +85,11 @@ services:
     build: ./backend/cliente-service
     ports:
       - "8082:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db-cliente:5432/cliente_db
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_RABBITMQ_HOST: rabbitmq
     depends_on:
       - db-cliente
       - rabbitmq

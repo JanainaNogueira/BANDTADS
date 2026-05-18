@@ -134,7 +134,7 @@ public class ClienteService {
     }
 
     public Cliente buscarClientePorNome(String nome) {
-        Cliente cliente = clienteRepository.findByName(nome).orElseThrow(
+        Cliente cliente = clienteRepository.findByNome(nome).orElseThrow(
                 () -> new RuntimeException("Cliente não encontrado com o nome: " + nome)
         );
 

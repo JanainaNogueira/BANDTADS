@@ -19,8 +19,9 @@ import { Customer } from '../../models/customer.model';
 export class CustomersPage implements OnInit {
   customers: Customer[] = [];
   searchTerm: string = '';
-  page:number=1;
+  page: number = 1;
   selectedCustomer: Customer | null = null;
+  carregando = true;
   private readonly brlFormatter = new Intl.NumberFormat('pt-BR', {
     style: 'currency',
     currency: 'BRL',
@@ -33,16 +34,27 @@ export class CustomersPage implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.customerService.obterTodosClientes().subscribe({
-      next: (clientes) => {
-        this.customers = clientes.sort((a, b) => a.name.localeCompare(b.name));
-      },
-      error: (err) => console.error('Erro ao carregar clientes', err)
-    });
+    this.carregarClientes();
 
     this.route.url.subscribe((segments) => {
       const path = segments[0]?.path;
       this.page = path === 'gerente-consultar-cliente' ? 2 : 1;
+    });
+  }
+
+  private carregarClientes(): void {
+    this.carregando = true;
+    this.customerService.obterTodosClientes().subscribe({
+      next: (clientes) => {
+        this.customers = clientes.sort((a, b) => 
+          (a.name ?? '').localeCompare(b.name ?? '')
+        );
+        this.carregando = false;
+      },
+      error: (err) => {
+        console.error('Erro ao carregar clientes', err);
+        this.carregando = false;
+      }
     });
   }
 

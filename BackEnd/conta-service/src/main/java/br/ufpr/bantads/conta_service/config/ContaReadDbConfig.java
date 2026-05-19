@@ -42,7 +42,7 @@ public class ContaReadDbConfig {
             @Qualifier("readDataSource") DataSource dataSource) {
         LocalContainerEntityManagerFactoryBean entityManagerFactory = new LocalContainerEntityManagerFactoryBean();
         entityManagerFactory.setDataSource(dataSource);
-        entityManagerFactory.setPackagesToScan("br.ufpr.bantads.conta_service.model");
+        entityManagerFactory.setPackagesToScan("br.ufpr.bantads.conta_service.model.read");
         entityManagerFactory.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
 
         Map<String, Object> properties = new HashMap<>();

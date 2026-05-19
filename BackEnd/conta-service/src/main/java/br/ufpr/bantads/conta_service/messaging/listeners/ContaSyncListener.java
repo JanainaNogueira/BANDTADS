@@ -7,8 +7,8 @@ import org.springframework.transaction.annotation.Transactional;
 import br.ufpr.bantads.conta_service.messaging.RabbitMQConstants;
 import br.ufpr.bantads.conta_service.messaging.events.ContaSyncEvent;
 import br.ufpr.bantads.conta_service.messaging.events.MovimentacaoSyncEvent;
-import br.ufpr.bantads.conta_service.model.Conta;
-import br.ufpr.bantads.conta_service.model.Movimentacao;
+import br.ufpr.bantads.conta_service.model.read.ContaRead;
+import br.ufpr.bantads.conta_service.model.read.MovimentacaoRead;
 import br.ufpr.bantads.conta_service.repository.read.ContaReadRepository;
 import br.ufpr.bantads.conta_service.repository.read.MovimentacaoReadRepository;
 
@@ -30,14 +30,12 @@ public class ContaSyncListener {
             contaReadRepository.deleteById(event.contaId());
             return;
         }
-
-        Conta conta = contaReadRepository.findById(event.contaId()).orElseGet(Conta::new);
+        ContaRead conta = contaReadRepository.findById(event.contaId()).orElseGet(ContaRead::new);
         conta.setContaId(event.contaId());
         conta.setClienteId(event.clienteId());
         conta.setNumeroConta(event.numeroConta());
         conta.setDataCriacao(event.dataCriacao());
         conta.setSaldo(event.saldo());
-        conta.setLimite(event.limite());
         conta.setGerenteId(event.gerenteId());
         contaReadRepository.save(conta);
     }
@@ -49,14 +47,11 @@ public class ContaSyncListener {
             movimentacaoReadRepository.deleteById(event.movimentacaoId());
             return;
         }
-
-        Movimentacao movimentacao = movimentacaoReadRepository.findById(event.movimentacaoId()).orElseGet(Movimentacao::new);
+        MovimentacaoRead movimentacao = movimentacaoReadRepository.findById(event.movimentacaoId()).orElseGet(MovimentacaoRead::new);
         movimentacao.setId(event.movimentacaoId());
         movimentacao.setContaId(event.contaId());
         movimentacao.setDataHora(event.dataHora());
         movimentacao.setTipo(event.tipo());
-        movimentacao.setClienteOrigemId(event.clienteOrigemId());
-        movimentacao.setClienteDestinoId(event.clienteDestinoId());
         movimentacao.setValor(event.valor());
         movimentacaoReadRepository.save(movimentacao);
     }

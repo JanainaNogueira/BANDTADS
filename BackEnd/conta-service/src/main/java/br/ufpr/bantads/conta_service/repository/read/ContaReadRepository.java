@@ -5,11 +5,11 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import br.ufpr.bantads.conta_service.model.Conta;
+import br.ufpr.bantads.conta_service.model.read.ContaRead;
 
-public interface ContaReadRepository extends JpaRepository<Conta, Integer> {
+public interface ContaReadRepository extends JpaRepository<ContaRead, Integer> {
 
-    Optional<Conta> findByNumeroConta(String numeroConta);
+    Optional<ContaRead> findByNumeroConta(String numeroConta);
 
-    List<Conta> findByClienteId(Integer clienteId);
+    List<ContaRead> findByClienteId(Integer clienteId);
 }

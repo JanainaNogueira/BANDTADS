@@ -1,10 +1,8 @@
-FROM maven:3.9-eclipse-temurin-21 AS build
+FROM node:20
 WORKDIR /app
+COPY package*.json ./
+RUN npm install
 COPY . .
-RUN mvn clean package -DskipTests
-
-FROM eclipse-temurin:21-jdk-alpine
-WORKDIR /app
-COPY --from=build /app/target/*.jar app.jar
-
-ENTRYPOINT ["java", "-jar", "app.jar"]
+RUN npm run build
+EXPOSE 8080
+CMD ["npm", "start"]

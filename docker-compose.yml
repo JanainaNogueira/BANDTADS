@@ -1,17 +1,20 @@
-version: "3.9"
-
 services:
 
-########## Databases #############
+  ########## Databases #############
 
   mongo-auth:
     image: mongo:6
     ports:
-      - "27018:27017"
+      - "27017:27017"
     volumes:
-      - mongo-auth-data:/data/db 
+      - mongo-auth-data:/data/db
     networks:
       - bantads-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   db-cliente:
     image: postgres:15
@@ -23,7 +26,12 @@ services:
       - db-cliente-data:/var/lib/postgresql/data
     networks:
       - bantads-network
-  
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U root -d cliente_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   db-conta:
     image: postgres:15
     environment:
@@ -34,6 +42,11 @@ services:
       - db-conta-data:/var/lib/postgresql/data
     networks:
       - bantads-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U root -d conta_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   mongo-conta:
     image: mongo:6
@@ -43,6 +56,11 @@ services:
       - mongo-conta-data:/data/db
     networks:
       - bantads-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   db-gerente:
     image: postgres:15
@@ -54,33 +72,37 @@ services:
       - db-gerente-data:/var/lib/postgresql/data
     networks:
       - bantads-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U root -d gerente_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-####################################
-  frontend:
-    build: ./FrontEnd
+  rabbitmq:
+    image: rabbitmq:3-management
     ports:
-      - "4200:80"
-    depends_on:
-      - gateway
+      - "5672:5672"
+      - "15672:15672"
     networks:
       - bantads-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  gateway:
-    build: ./gateway
-    ports:
-      - "8080:8080"
-    networks:
-      - bantads-network
+  ########## Services #############
 
   auth-service:
     build: ./BackEnd/auth-service
     ports:
       - "8081:8080"
     depends_on:
-      - mongo-auth
+      mongo-auth:
+        condition: service_healthy
     networks:
       - bantads-network
-      
+
   cliente-service:
     build: ./BackEnd/cliente-service
     ports:
@@ -91,8 +113,10 @@ services:
       SPRING_DATASOURCE_PASSWORD: root
       SPRING_RABBITMQ_HOST: rabbitmq
     depends_on:
-      - db-cliente
-      - rabbitmq
+      db-cliente:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     networks:
       - bantads-network
   
@@ -106,14 +130,18 @@ services:
       - rabbitmq
     networks:
       - bantads-network
-  
+
   gerente-service:
     build: ./BackEnd/gerente-service
     ports:
       - "8084:8080"
+    environment:
+      SPRING_RABBITMQ_HOST: rabbitmq
     depends_on:
-      - db-gerente
-      - rabbitmq
+      db-gerente:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     networks:
       - bantads-network
 
@@ -121,18 +149,37 @@ services:
     build: ./BackEnd/saga-service
     ports:
       - "8090:8080"
+    environment:
+      SPRING_RABBITMQ_HOST: rabbitmq
     depends_on:
-      - rabbitmq
-      - cliente-service
-      - conta-service
+      rabbitmq:
+        condition: service_healthy
+      cliente-service:
+        condition: service_started
+      conta-service:
+        condition: service_started
     networks:
       - bantads-network
 
-  rabbitmq:
-    image: rabbitmq:3-management
+  gateway:
+    build: ./gateway
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "8080:8080"
+    depends_on:
+      - auth-service
+      - cliente-service
+      - conta-service
+      - gerente-service
+      - saga-service
+    networks:
+      - bantads-network
+
+  frontend:
+    build: ./FrontEnd
+    ports:
+      - "4200:80"
+    depends_on:
+      - gateway
     networks:
       - bantads-network
 
@@ -146,3 +193,4 @@ volumes:
 networks:
   bantads-network:
     driver: bridge
+  

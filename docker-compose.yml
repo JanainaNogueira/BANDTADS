@@ -57,7 +57,7 @@ services:
 
 ####################################
   frontend:
-    build: ./frontend
+    build: ./FrontEnd
     ports:
       - "4200:80"
     depends_on:
@@ -73,7 +73,7 @@ services:
       - bantads-network
 
   auth-service:
-    build: ./backend/auth-service
+    build: ./BackEnd/auth-service
     ports:
       - "8081:8080"
     depends_on:
@@ -82,7 +82,7 @@ services:
       - bantads-network
       
   cliente-service:
-    build: ./backend/cliente-service
+    build: ./BackEnd/cliente-service
     ports:
       - "8082:8080"
     environment:
@@ -97,7 +97,7 @@ services:
       - bantads-network
   
   conta-service:
-    build: ./backend/conta-service
+    build: ./BackEnd/conta-service
     ports:
       - "8083:8080"
     depends_on:
@@ -108,7 +108,7 @@ services:
       - bantads-network
   
   gerente-service:
-    build: ./backend/gerente-service
+    build: ./BackEnd/gerente-service
     ports:
       - "8084:8080"
     depends_on:
@@ -118,7 +118,7 @@ services:
       - bantads-network
 
   saga-service:
-    build: ./backend/saga-service
+    build: ./BackEnd/saga-service
     ports:
       - "8090:8080"
     depends_on:

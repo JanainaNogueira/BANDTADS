@@ -22,7 +22,7 @@ public class SagaConsumer {
         this.objectMapper = objectMapper;
     }
 
-     @RabbitListener(queues = SagaRabbitConfig.FILA_SAGA)
+        @RabbitListener(queues = SagaRabbitConfig.FILA_SAGA)
     public void consumir(SagaMessageDTO dto) {
 
         switch (dto.getAcao()) {

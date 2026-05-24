@@ -1,9 +1,9 @@
-create database bantads_gerenteadmin;
-
-create table gerenteadmin (
-    id SERIAL PRIMARY KEY,
-    cpf varchar(11) UNIQUE not null,
-    nome varchar(100) not null,
-    email varchar(150) not null,
-    tipo varchar(55) not null
+CREATE TABLE IF NOT EXISTS GerenteAdmin (
+    id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    cpf VARCHAR(11) UNIQUE NOT NULL,
+    telefone VARCHAR(11) NOT NULL,
+    email VARCHAR(150) NOT NULL,
+    senha VARCHAR(15) NOT NULL,
+    tipo VARCHAR(10) NOT NULL
 );

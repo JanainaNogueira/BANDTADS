@@ -1,6 +1,5 @@
 package br.ufpr.bantads.saga_service.messaging.config;
 
-import br.ufpr.bantads.saga_service.messaging.RabbitMQConstants;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.DirectExchange;
@@ -14,8 +13,31 @@ import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import br.ufpr.bantads.saga_service.messaging.RabbitMQConstants;
+
 @Configuration
 public class SagaRabbitConfig {
+        
+   public static final String FILA_SAGA = "fila-saga";
+
+    public static final String FILA_MS_GERENTE = "fila-ms-gerente";
+
+    public static final String FILA_MS_CONTA = "fila-ms-conta";
+
+    @Bean
+    public Queue filaSaga() {
+        return new Queue(FILA_SAGA);
+    }
+
+    @Bean
+    public Queue filaMsGerente() {
+        return new Queue(FILA_MS_GERENTE);
+    }
+
+    @Bean
+    public Queue filaMsConta() {
+        return new Queue(FILA_MS_CONTA);
+    }
 
     @Bean
     public MessageConverter jsonMessageConverter() {

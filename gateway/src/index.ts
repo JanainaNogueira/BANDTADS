@@ -6,25 +6,21 @@ import sagaRoutes from './routes/saga.routes';
 import compositionRoutes from './routes/composition.routes';
 
 const app = express();
-
 const port = 8080;
 
 app.use(cors());
 
-app.use(express.json());
-
 app.use((req, res, next) => {
-
   console.log(`[${req.method}] ${req.originalUrl}`);
-
   next();
-
 });
 
+// proxy.routes NÃO usa express.json() — repassa o body inteiro
 app.use(proxyRoutes);
 
+// sagaRoutes e compositionRoutes precisam do express.json()
+app.use(express.json());
 app.use(sagaRoutes);
-
 app.use(compositionRoutes);
 
 app.get('/health', (req, res) => {

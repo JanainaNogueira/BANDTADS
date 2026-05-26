@@ -22,10 +22,10 @@ export class FormRegister {
   endereco: FormGroup;
 
   constructor(
-    private form: FormBuilder, 
-    private router: Router, 
-    private customerService: CustomerService, 
-    private cepService: CepService, 
+    private form: FormBuilder,
+    private router: Router,
+    private customerService: CustomerService,
+    private cepService: CepService,
     private snackBar: MatSnackBar
   ) {
 

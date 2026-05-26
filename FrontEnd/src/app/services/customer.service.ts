@@ -143,7 +143,7 @@ export class CustomerService {
                   city: c.endereco?.cidade ?? '',
                   state: c.endereco?.estado ?? '',
                   manager: { cpf: '', name: '' },
-                  status: c.status ?? 'PENDENTE',
+                  status: c.status ?? Status.PENDENTE,
                 })
               )
             );

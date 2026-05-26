@@ -15,9 +15,11 @@ interface ViaCepResponse {
 
 export class CepService {
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   buscarCep(cep: string): Observable<ViaCepResponse> {
-    return this.http.get<ViaCepResponse>(`https://viacep.com.br/ws/${cep}/json`);
+    const cepLimpo = cep.replace(/\D/g, '');
+
+    return this.http.get<ViaCepResponse>(`https://viacep.com.br/ws/${cepLimpo}/json`);
   }
 }

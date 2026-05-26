@@ -28,7 +28,8 @@ public class AuthController {
             UsuarioResponseDTO usuarioDTO = new UsuarioResponseDTO(
                     authenticatedUser.getId(),
                     authenticatedUser.getLogin(),
-                    authenticatedUser.getTipo()
+                    authenticatedUser.getTipo(),
+                    authenticatedUser.getCpf()
             );
 
             LoginResponseDTO response = new LoginResponseDTO(

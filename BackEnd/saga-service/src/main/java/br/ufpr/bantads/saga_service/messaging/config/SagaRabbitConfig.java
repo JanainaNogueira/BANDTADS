@@ -24,6 +24,8 @@ public class SagaRabbitConfig {
 
     public static final String FILA_MS_CONTA = "fila-ms-conta";
 
+    public static final String FILA_MS_CLIENTE = "fila-ms-cliente";
+
     @Bean
     public Queue filaSaga() {
         return new Queue(FILA_SAGA);
@@ -37,6 +39,11 @@ public class SagaRabbitConfig {
     @Bean
     public Queue filaMsConta() {
         return new Queue(FILA_MS_CONTA);
+    }
+
+    @Bean
+    public Queue filaMsCliente() {
+        return new Queue(FILA_MS_CLIENTE);
     }
 
     @Bean

@@ -101,10 +101,10 @@ public class GerenteService {
 
         gerente = gerenteRepository.save(gerente);
 
-        return new LerGerenteDTO(
+      return new LerGerenteDTO(
             gerente.getNome(),
-            gerente.getEmail(),
-            gerente.getCpf(),
+            gerente.getCpf(),   
+            gerente.getEmail(),  
             gerente.getTelefone()
         );
     }

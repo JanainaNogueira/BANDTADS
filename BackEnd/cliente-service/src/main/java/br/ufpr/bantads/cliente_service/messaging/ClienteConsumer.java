@@ -1,5 +1,7 @@
 package br.ufpr.bantads.cliente_service.messaging;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
@@ -13,6 +15,8 @@ import br.ufpr.bantads.cliente_service.service.ClienteService;
 
 @Component
 public class ClienteConsumer {
+
+    private static final Logger log = LoggerFactory.getLogger(ClienteProducer.class);
 
     private ClienteService clienteService;
     private ClienteProducer producer;
@@ -82,7 +86,7 @@ public class ClienteConsumer {
             }
         }
 
-        //roolback
+        // rollback
         if (dto.getAcao().equals("REMOVER_CLIENTE")) {
 
             Integer clienteId
@@ -103,6 +107,12 @@ public class ClienteConsumer {
                 producer.responderSaga(resposta);
 
             } catch (Exception e) {
+
+                log.error(
+                        "Erro ao criar cliente saga={} ",
+                        dto.getIdSaga(),
+                        e
+                );
 
                 SagaMessageDTO resposta = new SagaMessageDTO();
 

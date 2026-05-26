@@ -7,6 +7,4 @@ public record EnderecoDTO(
         String complemento,
         String cidade,
         String estado
-        ) {
-
-}
+) {}

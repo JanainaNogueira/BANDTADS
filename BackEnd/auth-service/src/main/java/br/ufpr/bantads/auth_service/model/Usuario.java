@@ -22,6 +22,9 @@ public class Usuario {
         this.cpf = cpf;
     }
 
+    public Usuario() {
+    }
+
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
 

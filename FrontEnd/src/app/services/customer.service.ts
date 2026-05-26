@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, forkJoin, of } from 'rxjs';
 import { map, catchError, switchMap } from 'rxjs/operators';
 import { Customer } from '../models/customer.model';
+import { Status } from '../models/status-enum.model';
 
 interface BackendCliente {
   id: number;
@@ -12,6 +13,7 @@ interface BackendCliente {
   telefone?: string;
   salario?: number;
   endereco?: { cidade?: string; estado?: string };
+  status:Status;
 }
 
 interface LerContaDTO {
@@ -28,7 +30,6 @@ interface LerContaDTO {
   providedIn: 'root',
 })
 export class CustomerService {
-  private readonly API_URL = '/api/clientes';
   private readonly clientesApiUrl = '/api/clientes';
   private readonly contasApiUrl = '/api/contas';
 
@@ -63,7 +64,7 @@ export class CustomerService {
             name: c.nome,
             email: c.email,
             salary: c.salario,
-            numberAccount: 0,
+            numberAccount: '',
             balance: 0,
             limit: 0,
             city: '',
@@ -79,8 +80,8 @@ export class CustomerService {
     return this.http.post<any>(`${this.clientesApiUrl}/${id}/aprovar`, {});
   }
 
-  rejeitarCliente(id: number): Observable<any> {
-    return this.http.post<any>(`${this.clientesApiUrl}/${id}/rejeitar`, {});
+  rejeitarCliente(id: number,  motivo: string): Observable<any> {
+    return this.http.post<any>(`${this.clientesApiUrl}/${id}/rejeitar`, motivo);
   }
 
   setClienteLogado(cpf: string): void {
@@ -97,7 +98,7 @@ export class CustomerService {
   }
 
   atualizarCliente(cliente: Customer): Observable<Customer> {
-    return this.http.put<Customer>(`${this.API_URL}/${cliente.id}`, cliente);
+    return this.http.put<Customer>(`${this.clientesApiUrl}/${cliente.id}`, cliente);
   }
 
   obterTodosClientesApi(): Observable<Customer[]> {
@@ -118,13 +119,13 @@ export class CustomerService {
                   name: c.nome,
                   email: c.email,
                   salary: c.salario ?? 0,
-                  numberAccount: conta ? Number(conta.numeroConta) : 0,
+                  numberAccount: conta?.numeroConta ?? '',
                   balance: conta ? conta.saldo : 0,
                   limit: conta ? conta.limite : 0,
                   city: c.endereco?.cidade ?? '',
                   state: c.endereco?.estado ?? '',
                   manager: { cpf: '', name: '' },
-                  status: null as any,
+                  status: c.status ?? 'PENDENTE'
                 };
 
                 return customer;
@@ -136,13 +137,13 @@ export class CustomerService {
                   name: c.nome,
                   email: c.email,
                   salary: c.salario ?? 0,
-                  numberAccount: 0,
+                  numberAccount: '',
                   balance: 0,
                   limit: 0,
                   city: c.endereco?.cidade ?? '',
                   state: c.endereco?.estado ?? '',
                   manager: { cpf: '', name: '' },
-                  status: null as any,
+                  status: c.status ?? 'PENDENTE',
                 })
               )
             );

@@ -3,6 +3,7 @@ package br.ufpr.bantads.conta_service.messaging.listeners;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 
 import br.ufpr.bantads.conta_service.messaging.RabbitMQConstants;
 import br.ufpr.bantads.conta_service.messaging.events.ContaSyncEvent;
@@ -17,14 +18,16 @@ public class ContaSyncListener {
 
     private final ContaReadRepository contaReadRepository;
     private final MovimentacaoReadRepository movimentacaoReadRepository;
+    private final br.ufpr.bantads.conta_service.service.ReadTransactionService readTransactionService;
 
-    public ContaSyncListener(ContaReadRepository contaReadRepository, MovimentacaoReadRepository movimentacaoReadRepository) {
+    public ContaSyncListener(ContaReadRepository contaReadRepository, MovimentacaoReadRepository movimentacaoReadRepository, br.ufpr.bantads.conta_service.service.ReadTransactionService readTransactionService) {
         this.contaReadRepository = contaReadRepository;
         this.movimentacaoReadRepository = movimentacaoReadRepository;
+        this.readTransactionService = readTransactionService;
     }
 
     @RabbitListener(queues = RabbitMQConstants.CONTA_SYNC_QUEUE)
-    @Transactional
+    @Transactional("readTransactionManager")
     public void sincronizarConta(ContaSyncEvent event) {
         if ("DELETE".equalsIgnoreCase(event.operacao())) {
             contaReadRepository.deleteById(event.contaId());
@@ -41,7 +44,7 @@ public class ContaSyncListener {
     }
 
     @RabbitListener(queues = RabbitMQConstants.MOVIMENTACAO_SYNC_QUEUE)
-    @Transactional
+    @Transactional("readTransactionManager")
     public void sincronizarMovimentacao(MovimentacaoSyncEvent event) {
         if ("DELETE".equalsIgnoreCase(event.operacao())) {
             movimentacaoReadRepository.deleteById(event.movimentacaoId());
@@ -53,6 +56,11 @@ public class ContaSyncListener {
         movimentacao.setDataHora(event.dataHora());
         movimentacao.setTipo(event.tipo());
         movimentacao.setValor(event.valor());
-        movimentacaoReadRepository.save(movimentacao);
+        try {
+            readTransactionService.saveMovimentacao(movimentacao);
+        } catch (ObjectOptimisticLockingFailureException ex) {
+            // já processado por outra transação/concorrência — ignorar para manter idempotência
+            System.out.println("Warning: optimistic locking on MovimentacaoRead id=" + event.movimentacaoId() + ", ignoring update.");
+        }
     }
 }

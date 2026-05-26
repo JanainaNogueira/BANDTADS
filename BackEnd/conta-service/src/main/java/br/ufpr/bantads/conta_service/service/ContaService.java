@@ -43,9 +43,14 @@ public class ContaService {
 
     @Transactional
     public Conta salvarConta(Conta conta) {
+        return salvarConta(conta, UUID.randomUUID().toString());
+        }
+
+        @Transactional
+        public Conta salvarConta(Conta conta, String sagaId) {
         Conta salva = repository.save(conta);
         contaEventPublisher.publicarContaCriada(new ContaCriadaEvent(
-                UUID.randomUUID().toString(),
+            sagaId,
                 salva.getClienteId(),
                 salva.getContaId(),
                 salva.getNumeroConta()));
@@ -168,9 +173,20 @@ public class ContaService {
 
     @Transactional
     public Conta criarContaParaCliente(Integer clienteId) {
+        return criarContaParaCliente(clienteId, UUID.randomUUID().toString());
+        }
+
+        @Transactional
+        public Conta criarContaParaCliente(Integer clienteId, String sagaId) {
         List<Conta> contasExistentes = repository.findByClienteId(clienteId);
         if (!contasExistentes.isEmpty()) {
-            return contasExistentes.get(0);
+            Conta contaExistente = contasExistentes.get(0);
+            contaEventPublisher.publicarContaCriada(new ContaCriadaEvent(
+                sagaId,
+                contaExistente.getClienteId(),
+                contaExistente.getContaId(),
+                contaExistente.getNumeroConta()));
+            return contaExistente;
         }
 
         Conta conta = new Conta();
@@ -181,7 +197,7 @@ public class ContaService {
         conta.setLimite(BigDecimal.ZERO);
         conta.setGerenteId(null);
 
-        return salvarConta(conta);
+        return salvarConta(conta, sagaId);
     }
 
     private String gerarNumeroConta(Integer clienteId) {

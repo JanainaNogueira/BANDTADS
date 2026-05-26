@@ -5,14 +5,16 @@ public class UsuarioResponseDTO {
     private String id;
     private String login;
     private String tipo;
+    private String cpf;
 
     public UsuarioResponseDTO() {
     }
 
-    public UsuarioResponseDTO(String id, String login, String tipo) {
+    public UsuarioResponseDTO(String id, String login, String tipo, String cpf) {
         this.id = id;
         this.login = login;
         this.tipo = tipo;
+        this.cpf = cpf;
     }
 
     public String getId() {
@@ -37,5 +39,13 @@ public class UsuarioResponseDTO {
 
     public void setTipo(String tipo) {
         this.tipo = tipo;
+    }
+
+    public String getCpf() {
+        return cpf;
+    }
+
+    public void setCpf(String cpf) {
+        this.cpf = cpf;
     }
 }

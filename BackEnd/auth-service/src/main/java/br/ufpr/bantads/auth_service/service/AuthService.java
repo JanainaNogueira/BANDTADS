@@ -49,7 +49,8 @@ public class AuthService {
                 usuario.getId(),
                 usuario.getLogin(),
                 usuario.getTipo(),
-                token
+                token,
+                usuario.getCpf()
         );
     }
 

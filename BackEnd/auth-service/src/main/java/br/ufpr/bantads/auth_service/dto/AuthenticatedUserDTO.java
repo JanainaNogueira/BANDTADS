@@ -5,15 +5,17 @@ public class AuthenticatedUserDTO {
     private String id;
     private String login;
     private String tipo;
+    private String cpf;
     private String accessToken;
 
     public AuthenticatedUserDTO() {
     }
 
-    public AuthenticatedUserDTO(String id, String login, String tipo, String accessToken) {
+    public AuthenticatedUserDTO(String id, String login, String tipo, String cpf, String accessToken) {
         this.id = id;
         this.login = login;
         this.tipo = tipo;
+        this.cpf = cpf;
         this.accessToken = accessToken;
     }
 
@@ -39,6 +41,14 @@ public class AuthenticatedUserDTO {
 
     public void setTipo(String tipo) {
         this.tipo = tipo;
+    }
+
+    public String getCpf() {
+        return cpf;
+    }
+
+    public void setCpf(String cpf) {
+        this.cpf = cpf;
     }
 
     public String getAccessToken() {

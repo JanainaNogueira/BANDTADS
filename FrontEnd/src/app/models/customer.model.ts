@@ -11,7 +11,7 @@ export interface Customer {
   email: string;
   senha?: string;
   salary: number;
-  numberAccount: number;
+  numberAccount: string;
   balance: number;
   limit: number;
   city?: string;

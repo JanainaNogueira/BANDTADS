@@ -91,5 +91,4 @@ public class ClienteController {
         Cliente clienteRejeitado = clienteService.rejeitarCliente(id, motivo);
         return ResponseEntity.ok(clienteRejeitado);
     }
-
 }

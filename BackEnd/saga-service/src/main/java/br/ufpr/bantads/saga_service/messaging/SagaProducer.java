@@ -30,4 +30,12 @@ public class SagaProducer {
                 dto
         );
     }
+
+    public void enviarParaCliente(SagaMessageDTO dto) {
+
+        rabbitTemplate.convertAndSend(
+                SagaRabbitConfig.FILA_MS_CLIENTE,
+                dto
+        );
+    }
 }

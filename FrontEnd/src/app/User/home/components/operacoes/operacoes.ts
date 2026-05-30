@@ -23,10 +23,10 @@ export class Operacoes {
   limiteTotal = 0;
   limiteAtual = 0;
 
-  contaLogada = 0;
+  contaLogada = "0";
   valor = 0;
   valorFormatado = '';
-  contaDestino = 0;
+  contaDestino = "0";
   erro = '';
   sucesso = '';
 
@@ -62,7 +62,7 @@ export class Operacoes {
 
   get valorValido(): boolean {
     if (this.tabAtiva === 0) {
-      return this.valor > 0 && this.contaDestino > 0;
+      return this.valor > 0 && this.contaDestino.length > 0;
     }
     return this.valor > 0;
   }
@@ -160,7 +160,7 @@ export class Operacoes {
   private resetCampos() {
     this.valor = 0;
     this.valorFormatado = '';
-    this.contaDestino = 0;
+    this.contaDestino = "0";
   }
 
   selecionarTab(index: number) {
@@ -171,7 +171,7 @@ export class Operacoes {
   resetForm() {
     this.valor = 0;
     this.valorFormatado = '';
-    this.contaDestino = 0;
+    this.contaDestino = "0";
     this.erro = '';
     this.sucesso = '';
   }

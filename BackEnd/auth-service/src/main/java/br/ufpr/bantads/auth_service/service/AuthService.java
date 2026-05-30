@@ -1,5 +1,14 @@
 package br.ufpr.bantads.auth_service.service;
 
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
+import java.security.MessageDigest;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
 import br.ufpr.bantads.auth_service.dto.AuthDTO;
 import br.ufpr.bantads.auth_service.dto.AuthenticatedUserDTO;
 import br.ufpr.bantads.auth_service.model.Usuario;
@@ -7,14 +16,6 @@ import br.ufpr.bantads.auth_service.repository.UsuarioRepository;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.Key;
-import java.util.Optional;
 
 @Service
 public class AuthService {
@@ -49,8 +50,8 @@ public class AuthService {
                 usuario.getId(),
                 usuario.getLogin(),
                 usuario.getTipo(),
-                token,
-                usuario.getCpf()
+                usuario.getCpf(),
+                token
         );
     }
 

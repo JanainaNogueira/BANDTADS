@@ -22,21 +22,21 @@ export class TransactionService {
 
   constructor(private http: HttpClient) {}
 
-  depositar(contaId: number, valor: number): Observable<void> {
+  depositar(contaId: string, valor: number): Observable<void> {
     return this.http.post<void>(`${this.API_URL}/${contaId}/deposito`, {
       contaIdLogada: contaId,
       valor: valor
     });
   }
 
-  sacar(contaId: number, valor: number): Observable<void> {
+  sacar(contaId: string, valor: number): Observable<void> {
     return this.http.post<void>(`${this.API_URL}/${contaId}/saque`, {
       contaIdLogada: contaId,
       valor: valor
     });
   }
 
-  transferir(contaId: number, numeroContaDestino: string, valor: number): Observable<void> {
+  transferir(contaId: string, numeroContaDestino: string, valor: number): Observable<void> {
     return this.http.post<void>(`${this.API_URL}/${contaId}/transferencia`, {
       contaIdLogada: contaId,
       numeroContaDestino: numeroContaDestino,
@@ -44,7 +44,7 @@ export class TransactionService {
     });
   }
 
-  consultarExtrato(contaId: number, inicio: Date, fim: Date): Observable<Transacao[]> {
+  consultarExtrato(contaId: string, inicio: Date, fim: Date): Observable<Transacao[]> {
     const dataInicioYMD = inicio.toISOString().split('T')[0];
     const dataFimYMD = fim.toISOString().split('T')[0];
     

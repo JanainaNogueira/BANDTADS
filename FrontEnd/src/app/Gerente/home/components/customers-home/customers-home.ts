@@ -98,7 +98,7 @@ export class CustomersHome {
     if (!customer) return;
 
     if (customer.id) {
-      this.customerService.rejeitarCliente(customer.id).subscribe({
+      this.customerService.rejeitarCliente(customer.id, "").subscribe({
         next: () => {
            this.customers = this.customers.filter(c => c.cpf !== cpf);
            this.fecharModal();

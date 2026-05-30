@@ -11,3 +11,5 @@ INSERT INTO cliente (cpf, nome, email, telefone, salario, endereco_id, status) V
 ('85733854057', 'Catianna',   'cli3@bantads.com.br', '41978599999',  3000.00, 3, 'PENDENTE'),
 ('58872160006', 'Cutardo',    'cli4@bantads.com.br', '41991234599',   500.00, 4, 'PENDENTE'),
 ('76179646090', 'Coândrya',   'cli5@bantads.com.br', '41999699979',  1500.00, 5, 'PENDENTE');
+
+ON CONFLICT DO NOTHING;

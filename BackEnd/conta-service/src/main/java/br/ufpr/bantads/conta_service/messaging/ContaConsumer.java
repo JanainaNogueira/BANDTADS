@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import br.ufpr.bantads.conta_service.messaging.config.ContaRabbitConfig;
+import br.ufpr.bantads.conta_service.messaging.dto.ContaCriarCommand;
 import br.ufpr.bantads.conta_service.messaging.dto.SagaMessageDTO;
 import br.ufpr.bantads.conta_service.service.ContaService;
 
@@ -24,6 +25,11 @@ public class ContaConsumer {
         this.contaService = contaService;
         this.producer = producer;
         this.objectMapper = objectMapper;
+    }
+
+    @RabbitListener(queues = br.ufpr.bantads.conta_service.messaging.RabbitMQConstants.CONTA_CRIAR_QUEUE)
+    public void criarConta(ContaCriarCommand command) {
+        contaService.criarContaParaCliente(command.getClienteId(), command.getSagaId());
     }
 
     @RabbitListener(queues = ContaRabbitConfig.FILA_MS)

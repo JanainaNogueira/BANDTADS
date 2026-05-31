@@ -21,7 +21,7 @@ public class MovimentacaoService {
         this.contaSyncPublisher = contaSyncPublisher;
     }
 
-    @Transactional
+    @Transactional(transactionManager = "writeTransactionManager")
     public Movimentacao registrarMovimentacao(Movimentacao movimentacao) {
         if (movimentacao.getDataHora() == null) {
             movimentacao.setDataHora(LocalDateTime.now());

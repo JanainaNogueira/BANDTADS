@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../enviroment';
 
 export interface LoginResponse {
   access_token: string;
@@ -11,7 +12,7 @@ export interface LoginResponse {
 
 @Injectable({ providedIn: 'root' })
 export class LoginService {
-  private readonly authApiUrl = '/api/auth';
+  private readonly authApiUrl = `${environment.apiUrl}/login`;
 
   constructor(private http: HttpClient) {}
 

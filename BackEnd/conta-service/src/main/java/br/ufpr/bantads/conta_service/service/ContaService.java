@@ -23,6 +23,7 @@ import br.ufpr.bantads.conta_service.model.TipoMovimentacao;
 import br.ufpr.bantads.conta_service.repository.write.ContaWriteRepository;
 
 @Service
+@Transactional(transactionManager = "writeTransactionManager")
 public class ContaService {
 
     private final ContaWriteRepository repository;
@@ -41,12 +42,12 @@ public class ContaService {
         this.contaSyncPublisher = contaSyncPublisher;
     }
 
-    @Transactional
+    @Transactional(transactionManager = "writeTransactionManager")
     public Conta salvarConta(Conta conta) {
         return salvarConta(conta, UUID.randomUUID().toString());
         }
 
-        @Transactional
+        @Transactional(transactionManager = "writeTransactionManager")
         public Conta salvarConta(Conta conta, String sagaId) {
         Conta salva = repository.save(conta);
         contaEventPublisher.publicarContaCriada(new ContaCriadaEvent(
@@ -58,21 +59,21 @@ public class ContaService {
         return salva;
     }
 
-    @Transactional
+    @Transactional(transactionManager = "writeTransactionManager")
     public Conta atualizarConta(Conta conta) {
         Conta salva = repository.save(conta);
         contaSyncPublisher.publicarContaSync(ContaSyncEvent.fromConta("UPSERT", salva));
         return salva;
     }
 
-    @Transactional
+    @Transactional(transactionManager = "writeTransactionManager")
     public void deletarConta(Integer contaId) {
         Conta conta = buscarContaPorId(contaId);
         repository.delete(conta);
         contaSyncPublisher.publicarContaSync(ContaSyncEvent.deletada(contaId));
     }
 
-    @Transactional
+    @Transactional(transactionManager = "writeTransactionManager")
     public Conta depositar(Integer contaId, BigDecimal valor) {
         Conta conta = buscarContaPorId(contaId);
         conta.setSaldo(conta.getSaldo().add(valor));
@@ -89,7 +90,7 @@ public class ContaService {
         return salva;
     }
 
-    @Transactional
+    @Transactional(transactionManager = "writeTransactionManager")
     public Conta sacar(Integer contaId, BigDecimal valor) {
         Conta conta = buscarContaPorId(contaId);
         BigDecimal saldoDisponivelTotal = conta.getSaldo().add(conta.getLimite());
@@ -111,7 +112,7 @@ public class ContaService {
         return salva;
     }
 
-    @Transactional
+    @Transactional(transactionManager = "writeTransactionManager")
     public Conta transferir(Integer contaId, String numeroContaDestino, BigDecimal valor) {
         Conta contaOrigem = buscarContaPorId(contaId);
         if (Objects.equals(contaOrigem.getNumeroConta(), numeroContaDestino)) {
@@ -154,29 +155,29 @@ public class ContaService {
         return origemSalva;
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, transactionManager = "readTransactionManager")
     public Conta buscarContaPorId(Integer contaId) {
         return repository.findById(contaId)
                 .orElseThrow(() -> new RuntimeException("Conta não encontrada com o ID: " + contaId));
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, transactionManager = "readTransactionManager")
     public Conta buscarContaPorNumero(String numeroConta) {
         return repository.findByNumeroConta(numeroConta)
                 .orElseThrow(() -> new RuntimeException("Conta não encontrada com o número: " + numeroConta));
     }
 
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, transactionManager = "readTransactionManager")
     public List<Conta> buscarContasPorCliente(Integer clienteId) {
         return repository.findByClienteId(clienteId);
     }
 
-    @Transactional
+    @Transactional(transactionManager = "writeTransactionManager")
     public Conta criarContaParaCliente(Integer clienteId) {
         return criarContaParaCliente(clienteId, UUID.randomUUID().toString());
         }
 
-        @Transactional
+        @Transactional(transactionManager = "writeTransactionManager")
         public Conta criarContaParaCliente(Integer clienteId, String sagaId) {
         List<Conta> contasExistentes = repository.findByClienteId(clienteId);
         if (!contasExistentes.isEmpty()) {

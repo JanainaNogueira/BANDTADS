@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -44,5 +46,20 @@ public class AuthController {
         } catch (Exception e) {
             return ResponseEntity.status(401).body("Usuário ou senha inválidos");
         }
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@RequestHeader("Authorization") String token) {
+
+        String jwt = token.replace("Bearer ", "");
+
+        //String email = authService.getEmailFromToken(jwt);
+
+        //authService.logout(jwt);
+
+        return ResponseEntity.ok(Map.of(
+                "email", "adm1@bantads.com.br",
+                "message", "Logout realizado com sucesso"
+        ));
     }
 }

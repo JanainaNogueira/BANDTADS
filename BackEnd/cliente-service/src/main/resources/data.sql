@@ -1,3 +1,5 @@
+TRUNCATE TABLE cliente RESTART IDENTITY CASCADE;
+TRUNCATE TABLE endereco RESTART IDENTITY CASCADE;
 INSERT INTO endereco (cep, rua, numero, complemento, cidade, estado) VALUES
 ('80000000', 'Rua das Flores',       '100', NULL,      'Curitiba', 'PR'),
 ('80010000', 'Av. Sete de Setembro', '250', 'Apto 12', 'Curitiba', 'PR'),

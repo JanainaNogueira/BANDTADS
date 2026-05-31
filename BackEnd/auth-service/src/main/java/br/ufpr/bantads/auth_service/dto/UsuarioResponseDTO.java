@@ -1,4 +1,5 @@
 package br.ufpr.bantads.auth_service.dto;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class UsuarioResponseDTO {
 
@@ -25,6 +26,7 @@ public class UsuarioResponseDTO {
         this.id = id;
     }
 
+    @JsonProperty("email")
     public String getLogin() {
         return login;
     }

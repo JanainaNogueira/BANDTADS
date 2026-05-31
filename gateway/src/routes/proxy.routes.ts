@@ -21,13 +21,18 @@ router.use('/login', createProxyMiddleware({
 }));
 
 router.use('/logout', createProxyMiddleware({
-  target: 'http://auth-service:5000', // corrigido: era 8080
+  target: 'http://auth-service:5000',
   changeOrigin: true,
   pathRewrite: () => '/auth/logout',
   logger: console,
-  proxyTimeout: 30000,  
-  timeout: 30000,
-}));
+
+  onProxyReq: (proxyReq: any, req: any) => {
+    const auth = req.headers.authorization;
+    if (auth) {
+      proxyReq.setHeader('Authorization', auth);
+    }
+  }
+} as any));
 
 router.post('/clientes', createProxyMiddleware({ // adicionado: POST para saga-service
   target: 'http://saga-service:8080',
@@ -50,12 +55,17 @@ router.get('/clientes/:id', createProxyMiddleware({
   logger: console,
 }));
 
-router.use('/gerentes', createProxyMiddleware({
-  target: 'http://gerente-service:8080',
-  changeOrigin: true,
-  pathRewrite: rewriteWithPrefix('/gerentes'),
-  logger: console,
-}));
+router.use(
+  '/gerentes',
+  createProxyMiddleware({
+    target: 'http://gerente-service:8080',
+    changeOrigin: true,
+    pathRewrite: (path) => {
+      return path === '/' ? '/gerentes' : `/gerentes${path}`;
+    },
+    logger: console,
+  })
+);
 
 router.use('/contas', createProxyMiddleware({
   target: 'http://conta-service:8080',

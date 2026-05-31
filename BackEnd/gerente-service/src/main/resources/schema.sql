@@ -7,3 +7,12 @@ CREATE TABLE IF NOT EXISTS gerente_admin (
     senha VARCHAR(15) NOT NULL,
     tipo VARCHAR(10) NOT NULL
 );
+
+TRUNCATE TABLE gerente_admin RESTART IDENTITY CASCADE;
+
+INSERT INTO gerente_admin
+(nome,cpf,telefone,email,senha,tipo)
+VALUES
+('Geniéve','98574307084','41991087031','ger1@bantads.com.br','tads','GERENTE'),
+('Godophredo','64065268052','41991087031','ger2@bantads.com.br','tads','GERENTE'),
+('Gyândula','23862179060','41991087031','ger3@bantads.com.br','tads','GERENTE');

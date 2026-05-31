@@ -44,7 +44,9 @@ router.post('/clientes', createProxyMiddleware({ // adicionado: POST para saga-s
 router.get('/clientes', createProxyMiddleware({
   target: 'http://cliente-service:8080',
   changeOrigin: true,
-  pathRewrite: rewriteWithPrefix('/clientes'),
+  pathRewrite: {
+    '^/clientes': '/clientes'
+  },
   logger: console,
 }));
 

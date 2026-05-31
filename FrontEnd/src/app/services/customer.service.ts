@@ -4,6 +4,7 @@ import { Observable, forkJoin, of } from 'rxjs';
 import { map, catchError, switchMap } from 'rxjs/operators';
 import { Customer } from '../models/customer.model';
 import { Status } from '../models/status-enum.model';
+import { environment } from '../../enviroment';
 
 interface BackendCliente {
   id: number;
@@ -30,8 +31,8 @@ interface LerContaDTO {
   providedIn: 'root',
 })
 export class CustomerService {
-  private readonly clientesApiUrl = '/api/clientes';
-  private readonly contasApiUrl = '/api/contas';
+  private readonly clientesApiUrl = `${environment.apiUrl}/clientes`;
+  private readonly contasApiUrl = `${environment.apiUrl}/contas`;
 
   constructor(private http: HttpClient) { }
 

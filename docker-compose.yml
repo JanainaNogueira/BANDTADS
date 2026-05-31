@@ -101,6 +101,12 @@ services:
     ports:
       - "8083:8080"
     environment:
+      APP_DATASOURCE_WRITE_URL: jdbc:postgresql://db-conta:5432/conta_db
+      APP_DATASOURCE_WRITE_USERNAME: root
+      APP_DATASOURCE_WRITE_PASSWORD: root
+      APP_DATASOURCE_READ_URL: jdbc:postgresql://db-conta:5432/conta_db
+      APP_DATASOURCE_READ_USERNAME: root
+      APP_DATASOURCE_READ_PASSWORD: root
       SPRING_RABBITMQ_HOST: rabbitmq
     depends_on:
       - db-conta
@@ -123,6 +129,8 @@ services:
     build: ./BackEnd/saga-service
     ports:
       - "8090:8080"
+    environment:
+      SPRING_RABBITMQ_HOST: rabbitmq
     depends_on:
       - rabbitmq
       - cliente-service

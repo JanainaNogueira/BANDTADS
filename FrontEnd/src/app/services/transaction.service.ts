@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../enviroment';
 
 export interface Transacao {
   id?: number;
@@ -18,7 +19,7 @@ export interface Transacao {
   providedIn: 'root',
 })
 export class TransactionService {
-  private readonly API_URL = '/api/contas';
+  private readonly API_URL = `${environment.apiUrl}/contas`;
 
   constructor(private http: HttpClient) {}
 

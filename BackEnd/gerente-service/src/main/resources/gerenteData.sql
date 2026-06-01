@@ -1,4 +1,4 @@
--- Tabela: gerente_admin
+﻿-- Tabela: gerente_admin
 -- Gerentes: IDs 1, 2, 3 | Admin: ID 4
 
 CREATE TABLE IF NOT EXISTS gerente_admin (

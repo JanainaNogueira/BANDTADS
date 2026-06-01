@@ -10,6 +10,11 @@ export interface LoginResponse {
   usuario: any;
 }
 
+export interface LogoutResponse {
+  email: string;
+  message: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class LoginService {
   private readonly authApiUrl = `${environment.apiUrl}/login`;
@@ -20,7 +25,11 @@ export class LoginService {
     return this.http.post<LoginResponse>(`${this.authApiUrl}/login`, { login, senha });
   }
 
-  logout(): void {
+  logout(): Observable<LogoutResponse> {
+    return this.http.post<LogoutResponse>(`${environment.apiUrl}/logout`, {});
+  }
+
+  logoutLocal(): void {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('token');
       localStorage.removeItem('tipoUsuario');

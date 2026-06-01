@@ -61,7 +61,17 @@ export class Menu implements OnInit{
 
   logout(event: Event) {
     event.stopPropagation();
-    this.auth.logout();
-    this.router.navigate(['/login']);
+    this.auth.logout().subscribe({
+      next: (resposta) => {
+        console.log('Logout realizado para:', resposta.email);
+        this.auth.logoutLocal();
+        this.router.navigate(['/login']);
+      },
+      error: (erro) => {
+        console.error('Falha no logout:', erro);
+        this.auth.logoutLocal();
+        this.router.navigate(['/login']);
+      },
+    });
   }
 }

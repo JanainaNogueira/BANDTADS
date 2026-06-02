@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import br.ufpr.bantads.cliente_service.config.ClienteRepository;
@@ -106,7 +107,7 @@ public class ClienteService {
     }
 
     public List<Cliente> listarClientes() {
-        return clienteRepository.findAll();
+        return clienteRepository.findAll(Sort.by(Sort.Direction.ASC, "nome"));
     }
 
     public Cliente buscarClientePorId(Integer id) {

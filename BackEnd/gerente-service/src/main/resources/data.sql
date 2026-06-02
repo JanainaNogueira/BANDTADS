@@ -1,4 +1,6 @@
-CREATE TABLE IF NOT EXISTS gerente_admin (
+DROP TABLE IF EXISTS gerente_admin;
+
+CREATE TABLE gerente_admin (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     nome VARCHAR(100) NOT NULL,
     cpf VARCHAR(11) UNIQUE NOT NULL,
@@ -8,11 +10,9 @@ CREATE TABLE IF NOT EXISTS gerente_admin (
     tipo VARCHAR(10) NOT NULL
 );
 
-TRUNCATE TABLE gerente_admin RESTART IDENTITY CASCADE;
-
 INSERT INTO gerente_admin
-(nome,cpf,telefone,email,senha,tipo)
+(nome, cpf, telefone, email, senha, tipo)
 VALUES
-('Geniéve','98574307084','41991087031','ger1@bantads.com.br','tads','GERENTE'),
+('Genieve','98574307084','41991087031','ger1@bantads.com.br','tads','GERENTE'),
 ('Godophredo','64065268052','41991087031','ger2@bantads.com.br','tads','GERENTE'),
-('Gyândula','23862179060','41991087031','ger3@bantads.com.br','tads','GERENTE');
+('Gyandula','23862179060','41991087031','ger3@bantads.com.br','tads','GERENTE');

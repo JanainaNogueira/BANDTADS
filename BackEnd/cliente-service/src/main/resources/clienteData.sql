@@ -1,4 +1,4 @@
-﻿-- Tabelas: endereco, cliente
+-- Tabelas: endereco, cliente
 -- endereco IDs: 1..5 | cliente IDs: 1..5
 
 TRUNCATE TABLE cliente  RESTART IDENTITY CASCADE;

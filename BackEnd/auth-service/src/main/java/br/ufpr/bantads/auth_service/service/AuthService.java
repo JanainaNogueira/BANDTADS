@@ -1,9 +1,10 @@
 package br.ufpr.bantads.auth_service.service;
 
 import java.nio.charset.StandardCharsets;
-import java.security.Key;
 import java.security.MessageDigest;
 import java.util.Optional;
+
+import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -56,16 +57,43 @@ public class AuthService {
     }
 
     private String gerarToken(String login, String tipo) {
-        Key key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+        SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
 
         long now = System.currentTimeMillis();
 
         return Jwts.builder()
                 .setSubject(login)
+                .claim("email", login)
                 .claim("tipo", tipo)
                 .setIssuedAt(new java.util.Date(now))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
+    }
+
+    public String getEmailFromToken(String jwt) {
+        SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+
+        String email = Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(jwt)
+                .getPayload()
+                .get("email", String.class);
+
+        if (email != null && !email.isBlank()) {
+            return email;
+        }
+
+        return Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(jwt)
+                .getPayload()
+                .getSubject();
+    }
+
+    public String logout(String jwt) {
+        return getEmailFromToken(jwt);
     }
 
     public String gerarSHA256(String senha, String salt) {

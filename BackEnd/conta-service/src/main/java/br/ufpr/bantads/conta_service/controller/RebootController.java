@@ -1,55 +1,54 @@
 package br.ufpr.bantads.conta_service.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import br.ufpr.bantads.conta_service.model.Conta;
+import br.ufpr.bantads.conta_service.repository.write.ContaWriteRepository;
 
 @RestController
 public class RebootController {
 
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private final ContaWriteRepository repo;
 
-    @PostMapping("/reboot")
-    public ResponseEntity<?> reboot() {
-        try {
-            jdbcTemplate.execute("TRUNCATE TABLE movimentacao RESTART IDENTITY CASCADE");
-            jdbcTemplate.execute("TRUNCATE TABLE conta RESTART IDENTITY CASCADE");
+    public RebootController(ContaWriteRepository repo) {
+        this.repo = repo;
+    }
 
-            jdbcTemplate.execute("""
-                INSERT INTO conta (cliente_id, numero_conta, data_criacao, saldo, limite, gerente_id) VALUES
-                (1, '1291', TIMESTAMP '2000-01-01 00:00:00',     800.00,  5000.00, 1),
-                (2, '0950', TIMESTAMP '1990-10-10 00:00:00', -10000.00, 10000.00, 2),
-                (3, '8573', TIMESTAMP '2012-12-12 00:00:00',  -1000.00,  1500.00, 3),
-                (4, '5887', TIMESTAMP '2022-02-22 00:00:00', 150000.00,     0.00, 1),
-                (5, '7617', TIMESTAMP '2025-01-01 00:00:00',   1500.00,     0.00, 2)
-            """);
+    @GetMapping("/reboot")
+    public ResponseEntity<Void> reboot() {
 
-            jdbcTemplate.execute("""
-                INSERT INTO movimentacao (conta_id, data_hora, tipo, cliente_origem_id, cliente_destino_id, valor) VALUES
-                (1, TIMESTAMP '2020-01-01 10:00:00', 'DEPOSITO',      1, 1,    1000.00),
-                (1, TIMESTAMP '2020-01-01 11:00:00', 'DEPOSITO',      1, 1,     900.00),
-                (1, TIMESTAMP '2020-01-01 12:00:00', 'SAQUE',         1, 1,     550.00),
-                (1, TIMESTAMP '2020-01-01 13:00:00', 'SAQUE',         1, 1,     350.00),
-                (1, TIMESTAMP '2020-01-10 15:00:00', 'DEPOSITO',      1, 1,    2000.00),
-                (1, TIMESTAMP '2020-01-15 08:00:00', 'SAQUE',         1, 1,     500.00),
-                (1, TIMESTAMP '2020-01-20 12:00:00', 'TRANSFERENCIA', 1, 2,    1700.00),
-                (2, TIMESTAMP '2025-01-01 12:00:00', 'DEPOSITO',      2, 2,    1000.00),
-                (2, TIMESTAMP '2025-01-02 10:00:00', 'DEPOSITO',      2, 2,    5000.00),
-                (2, TIMESTAMP '2025-01-10 10:00:00', 'SAQUE',         2, 2,     200.00),
-                (2, TIMESTAMP '2025-02-05 10:00:00', 'DEPOSITO',      2, 2,    7000.00),
-                (3, TIMESTAMP '2025-05-05 00:00:00', 'DEPOSITO',      3, 3,    1000.00),
-                (3, TIMESTAMP '2025-05-06 00:00:00', 'SAQUE',         3, 3,    2000.00),
-                (4, TIMESTAMP '2025-06-01 00:00:00', 'DEPOSITO',      4, 4,  150000.00),
-                (5, TIMESTAMP '2025-07-01 00:00:00', 'DEPOSITO',      5, 5,    1500.00)
-            """);
+        repo.deleteAll();
 
-            return ResponseEntity.ok().build();
+        Conta c1 = criarConta(1, "1291", "12912861012");
+        Conta c2 = criarConta(2, "0950", "09506382000");
+        Conta c3 = criarConta(3, "8573", "85733854057");
+        Conta c4 = criarConta(4, "5887", "58872160006");
+        Conta c5 = criarConta(5, "7617", "76179646090");
 
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("Erro no reboot: " + e.getMessage());
-        }
+        repo.saveAll(List.of(c1, c2, c3, c4, c5));
+
+        return ResponseEntity.ok().build();
+    }
+
+    private Conta criarConta(Integer clienteId, String numeroConta, String cpfCliente) {
+
+        Conta c = new Conta();
+
+        c.setClienteId(clienteId);
+        c.setNumeroConta(numeroConta);
+        c.setDataCriacao(LocalDateTime.now());
+
+        c.setSaldo(BigDecimal.ZERO);
+        c.setLimite(BigDecimal.ZERO); // importante: teste começa e calcula depois
+
+        c.setGerenteId(null); // ou setado depois pelo sistema
+
+        return c;
     }
 }

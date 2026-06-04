@@ -1,45 +1,81 @@
 package br.ufpr.bantads.cliente_service.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import br.ufpr.bantads.cliente_service.config.ClienteRepository;
+import br.ufpr.bantads.cliente_service.config.EnderecoRepository;
+import br.ufpr.bantads.cliente_service.model.Cliente;
+import br.ufpr.bantads.cliente_service.model.Endereco;
+import br.ufpr.bantads.cliente_service.model.StatusEnum;
 
 @RestController
 public class RebootController {
 
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private final ClienteRepository clienteRepo;
+    private final EnderecoRepository enderecoRepo;
 
-    @PostMapping("/reboot")
-    public ResponseEntity<?> reboot() {
-        try {
-            jdbcTemplate.execute("TRUNCATE TABLE cliente RESTART IDENTITY CASCADE");
-            jdbcTemplate.execute("TRUNCATE TABLE endereco RESTART IDENTITY CASCADE");
+    public RebootController(ClienteRepository clienteRepo,
+                            EnderecoRepository enderecoRepo) {
+        this.clienteRepo = clienteRepo;
+        this.enderecoRepo = enderecoRepo;
+    }
 
-            jdbcTemplate.execute("""
-                INSERT INTO endereco (cep, rua, numero, complemento, cidade, estado) VALUES
-                ('80000000', 'Rua das Flores',       '100', NULL,      'Curitiba', 'PR'),
-                ('80010000', 'Av. Sete de Setembro', '250', 'Apto 12', 'Curitiba', 'PR'),
-                ('80020000', 'Rua XV de Novembro',   '320', NULL,      'Curitiba', 'PR'),
-                ('80030000', 'Rua Marechal Deodoro', '450', 'Casa',    'Curitiba', 'PR'),
-                ('80040000', 'Av. Silva Jardim',     '890', NULL,      'Curitiba', 'PR')
-            """);
+    @GetMapping("/reboot")
+    public ResponseEntity<Void> reboot() {
 
-            jdbcTemplate.execute("""
-                INSERT INTO cliente (cpf, nome, email, telefone, salario, endereco_id, status) VALUES
-                ('12912861012', 'Catharyna',  'cli1@bantads.com.br', '41999999999', 10000.00, 1, 'APROVADO'),
-                ('09506382000', 'Cleuddônio', 'cli2@bantads.com.br', '41999999988', 20000.00, 2, 'APROVADO'),
-                ('85733854057', 'Catianna',   'cli3@bantads.com.br', '41978599999',  3000.00, 3, 'APROVADO'),
-                ('58872160006', 'Cutardo',    'cli4@bantads.com.br', '41991234599',   500.00, 4, 'APROVADO'),
-                ('76179646090', 'Coândrya',   'cli5@bantads.com.br', '41999699979',  1500.00, 5, 'APROVADO')
-            """);
+        // 1. limpa tudo
+        clienteRepo.deleteAll();
+        enderecoRepo.deleteAll();
 
-            return ResponseEntity.ok().build();
+        // 2. recria endereços fixos
+        Endereco e1 = criarEndereco("80050-490", "Rua das Palmeiras", "100", "Apto 1", "Curitiba", "PR");
+        Endereco e2 = criarEndereco("80060-000", "Rua XV de Novembro", "200", "Casa", "Curitiba", "PR");
+        Endereco e3 = criarEndereco("80010-000", "Rua Marechal Deodoro", "300", "Sala 3", "Curitiba", "PR");
+        Endereco e4 = criarEndereco("80530-000", "Rua Cândido Hartmann", "400", "Bloco B", "Curitiba", "PR");
+        Endereco e5 = criarEndereco("80215-000", "Avenida Batel", "500", "Cobertura", "Curitiba", "PR");
 
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("Erro no reboot: " + e.getMessage());
-        }
+        enderecoRepo.saveAll(List.of(e1, e2, e3, e4, e5));
+
+        // 3. recria clientes (EXATAMENTE os do teste)
+        Cliente c1 = criarCliente("Catharyna", "cli1@bantads.com.br", "12912861012", 5000.0, e1);
+        Cliente c2 = criarCliente("Cleuddônio", "cli2@bantads.com.br", "09506382000", 20000.0, e2);
+        Cliente c3 = criarCliente("Catianna", "cli3@bantads.com.br", "85733854057", 3000.0, e3);
+        Cliente c4 = criarCliente("Cutardo", "cli4@bantads.com.br", "58872160006", 500.0, e4);
+        Cliente c5 = criarCliente("Coândrya", "cli5@bantads.com.br", "76179646090", 1500.0, e5);
+
+        clienteRepo.saveAll(List.of(c1, c2, c3, c4, c5));
+
+        return ResponseEntity.ok().build();
+    }
+
+    // helper endereço
+    private Endereco criarEndereco(String cep, String rua, String numero,
+                                   String complemento, String cidade, String estado) {
+        Endereco e = new Endereco();
+        e.setCep(cep);
+        e.setRua(rua);
+        e.setNumero(numero);
+        e.setComplemento(complemento);
+        e.setCidade(cidade);
+        e.setEstado(estado);
+        return e;
+    }
+
+    // helper cliente
+    private Cliente criarCliente(String nome, String email, String cpf,
+                                 Double salario, Endereco endereco) {
+        Cliente c = new Cliente();
+        c.setNome(nome);
+        c.setEmail(email);
+        c.setCpf(cpf);
+        c.setTelefone("(41) 99999-9999");
+        c.setSalario(salario);
+        c.setEndereco(endereco);
+        c.setStatus(StatusEnum.PENDENTE);
+        return c;
     }
 }

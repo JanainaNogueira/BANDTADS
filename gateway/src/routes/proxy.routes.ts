@@ -12,7 +12,7 @@ const rewriteWithPrefix = (prefix: string) => (path: string) => {
 };
 
 router.use('/login', createProxyMiddleware({
-  target: 'http://auth-service:5000', // corrigido: era 8080
+  target: 'http://auth-service:8080', // corrigido: era 8080
   changeOrigin: true,
   pathRewrite: () => '/auth/login',
   logger: console,
@@ -21,7 +21,7 @@ router.use('/login', createProxyMiddleware({
 }));
 
 router.use('/logout', createProxyMiddleware({
-  target: 'http://auth-service:5000',
+  target: 'http://auth-service:8080',
   changeOrigin: true,
   pathRewrite: () => '/auth/logout',
   logger: console,

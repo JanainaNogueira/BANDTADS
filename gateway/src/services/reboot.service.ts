@@ -1,17 +1,15 @@
-import axios from 'axios';
+import axios from "axios";
 
-export async function executarReboot() {
+const AUTH_URL = process.env.AUTH_URL || "http://auth-service:8080/auth";
+const CLIENTE_URL = process.env.CLIENTE_URL || "http://cliente-service:8080";
+const CONTA_URL = process.env.CONTA_URL || "http://conta-service:8080";
+const GERENTE_URL = process.env.GERENTE_URL || "http://gerente-service:8080";
 
-  await axios.post('http://gerente-service:8080/reboot');
-
-  // Limpa e popula o cliente-service
-  await axios.post('http://cliente-service:8080/reboot');
-
-  // Limpa e popula o conta-service
-  await axios.post('http://conta-service:8080/reboot');
-
-  // Limpa e popula o auth-service
-  await axios.post('http://auth-service:5000/auth/reboot');
-
-  return { status: 'ok' };
+export async function rebootAllServices() {
+  await Promise.all([
+    axios.get(`${AUTH_URL}/reboot`),
+    axios.get(`${CLIENTE_URL}/reboot`),
+    axios.get(`${CONTA_URL}/reboot`),
+    axios.get(`${GERENTE_URL}/reboot`)
+  ]);
 }

@@ -49,7 +49,6 @@ public class AuthController {
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            System.out.println(">>> ERRO: " + e.getClass().getName() + " - " + e.getMessage());
             return ResponseEntity.status(401).body("Usuário ou senha inválidos");
         }
     }

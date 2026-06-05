@@ -1,16 +1,22 @@
 package br.ufpr.bantads.auth_service.controller;
 
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import br.ufpr.bantads.auth_service.dto.AuthDTO;
 import br.ufpr.bantads.auth_service.dto.AuthenticatedUserDTO;
 import br.ufpr.bantads.auth_service.dto.LoginResponseDTO;
 import br.ufpr.bantads.auth_service.dto.UsuarioResponseDTO;
 import br.ufpr.bantads.auth_service.service.AuthService;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -43,6 +49,7 @@ public class AuthController {
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
+            System.out.println(">>> ERRO: " + e.getClass().getName() + " - " + e.getMessage());
             return ResponseEntity.status(401).body("Usuário ou senha inválidos");
         }
     }

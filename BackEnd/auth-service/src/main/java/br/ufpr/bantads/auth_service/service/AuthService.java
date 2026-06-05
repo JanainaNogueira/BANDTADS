@@ -31,15 +31,18 @@ public class AuthService {
 
     public AuthenticatedUserDTO autenticar(AuthDTO dto) {
 
+        System.out.println(">>> LOGIN: " + dto.getLogin());
         Optional<Usuario> usuarioOpt = usuarioRepository.findByLogin(dto.getLogin());
+        System.out.println(">>> ENCONTROU: " + usuarioOpt.isPresent());
 
         if (usuarioOpt.isEmpty()) {
             throw new RuntimeException("Usuário ou senha inválidos");
         }
 
         Usuario usuario = usuarioOpt.get();
-
         String senhaCriptografada = gerarSHA256(dto.getSenha(), SALT);
+        System.out.println(">>> HASH RECEBIDO: " + senhaCriptografada);
+        System.out.println(">>> HASH BANCO:    " + usuario.getSenha());
 
         if (!senhaCriptografada.equals(usuario.getSenha())) {
             throw new RuntimeException("Usuário ou senha inválidos");
@@ -57,17 +60,23 @@ public class AuthService {
     }
 
     private String gerarToken(String login, String tipo) {
-        SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
-
-        long now = System.currentTimeMillis();
-
-        return Jwts.builder()
-                .setSubject(login)
-                .claim("email", login)
-                .claim("tipo", tipo)
-                .setIssuedAt(new java.util.Date(now))
-                .signWith(key, SignatureAlgorithm.HS256)
-                .compact();
+        try {
+            System.out.println(">>> JWT SECRET: " + jwtSecret);
+            SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+            long now = System.currentTimeMillis();
+            String token = Jwts.builder()
+                    .setSubject(login)
+                    .claim("email", login)
+                    .claim("tipo", tipo)
+                    .setIssuedAt(new java.util.Date(now))
+                    .signWith(key, SignatureAlgorithm.HS256)
+                    .compact();
+            System.out.println(">>> TOKEN OK: " + token.substring(0, 20));
+            return token;
+        } catch (Exception e) {
+            System.out.println(">>> ERRO GERAR TOKEN: " + e.getClass().getName() + " - " + e.getMessage());
+            throw e;
+        }
     }
 
     public String getEmailFromToken(String jwt) {

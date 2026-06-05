@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.ufpr.bantads.cliente_service.dtos.AutocadastroDTO;
@@ -38,9 +40,20 @@ public class ClienteController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Cliente>> listarClientes() {
-        List<Cliente> clientes = clienteService.listarClientes();
-        return ResponseEntity.ok(clientes);
+    public ResponseEntity<?> listarClientes(
+            @RequestParam(required = false) String filtro,
+            @RequestHeader(value = "X-User-Tipo", required = false) String tipo) {
+
+        if ("adm_relatorio_clientes".equals(filtro)) {
+
+            if (!"ADMINISTRADOR".equals(tipo)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+
+            return ResponseEntity.ok(clienteService.listarClientes());
+        }
+
+        return ResponseEntity.ok(clienteService.listarClientes());
     }
 
     @GetMapping("/{id}")

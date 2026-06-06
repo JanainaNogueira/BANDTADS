@@ -1,5 +1,7 @@
 package br.ufpr.bantads.saga_service.messaging;
 
+import java.util.Map;
+
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
@@ -22,20 +24,20 @@ public class SagaConsumer {
         this.objectMapper = objectMapper;
     }
 
-@RabbitListener(queues = SagaRabbitConfig.FILA_SAGA)
+    @RabbitListener(queues = SagaRabbitConfig.FILA_SAGA)
     public void consumir(SagaMessageDTO dto) {
 
         switch (dto.getAcao()) {
             case "GERENTE_CRIADO": {
 
-                Integer idGerente =
-                        objectMapper.convertValue(
+                Integer idGerente
+                        = objectMapper.convertValue(
                                 dto.getDados(),
                                 Integer.class
                         );
 
-                SagaMessageDTO redistribuir =
-                        new SagaMessageDTO();
+                SagaMessageDTO redistribuir
+                        = new SagaMessageDTO();
 
                 redistribuir.setIdSaga(dto.getIdSaga());
 
@@ -52,7 +54,7 @@ public class SagaConsumer {
 
             case "CONTAS_REDISTRIBUIDAS": {
 
-               SagaMessageDTO resposta = new SagaMessageDTO();
+                SagaMessageDTO resposta = new SagaMessageDTO();
 
                 resposta.setIdSaga(dto.getIdSaga());
                 resposta.setAcao("FINALIZAR_CRIACAO_GERENTE");
@@ -64,14 +66,14 @@ public class SagaConsumer {
 
             case "ERRO_INSERIR_GERENTE": {
 
-                Integer idGerenteCompensacao =
-                        objectMapper.convertValue(
+                Integer idGerenteCompensacao
+                        = objectMapper.convertValue(
                                 dto.getDados(),
                                 Integer.class
                         );
 
-                SagaMessageDTO remover =
-                        new SagaMessageDTO();
+                SagaMessageDTO remover
+                        = new SagaMessageDTO();
 
                 remover.setIdSaga(dto.getIdSaga());
 
@@ -89,30 +91,29 @@ public class SagaConsumer {
             }
 
             case "CONTAS_REDISTRIBUIDAS_DELECAO_GERENTE": {
-
-                String cpf =
-                        objectMapper.convertValue(
-                                dto.getDados(),
-                                String.class
-                        );
-
-                SagaMessageDTO removerGerente =
-                        new SagaMessageDTO();
-
-                removerGerente.setIdSaga(
-                        dto.getIdSaga()
+                String cpf = objectMapper.convertValue(
+                        dto.getDados(),
+                        String.class
                 );
 
-                removerGerente.setAcao(
-                        "REMOVER_GERENTE"
-                );
-
+                SagaMessageDTO removerGerente = new SagaMessageDTO();
+                removerGerente.setIdSaga(dto.getIdSaga());
+                removerGerente.setAcao("REMOVER_GERENTE");
                 removerGerente.setDados(cpf);
 
-                producer.enviarParaGerente(
-                        removerGerente
-                );
+                producer.enviarParaGerente(removerGerente);
+                break;
+            }
 
+            case "DELETAR_GERENTE": {
+                Map<String, Object> dados = objectMapper.convertValue(dto.getDados(), Map.class);
+
+                SagaMessageDTO redistribuir = new SagaMessageDTO();
+                redistribuir.setIdSaga(dto.getIdSaga());
+                redistribuir.setAcao("REDISTRIBUIR_CONTA_DELECAO_GERENTE");
+                redistribuir.setDados(dados);
+
+                producer.enviarParaConta(redistribuir);
                 break;
             }
 

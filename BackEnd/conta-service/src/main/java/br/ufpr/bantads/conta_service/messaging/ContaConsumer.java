@@ -1,5 +1,7 @@
 package br.ufpr.bantads.conta_service.messaging;
 
+import java.util.Map;
+
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
@@ -69,6 +71,22 @@ public class ContaConsumer {
 
                 producer.responderSaga(resposta);
             }
+        }
+
+        if (dto.getAcao().equals("REDISTRIBUIR_CONTA_DELECAO_GERENTE")) {
+            Map<String, Object> dados = objectMapper.convertValue(dto.getDados(), Map.class);
+            
+            Integer idGerente = (Integer) dados.get("id");
+            String cpf = (String) dados.get("cpf");
+
+            contaService.redistribuirContasRemocao(idGerente);
+
+            SagaMessageDTO resposta = new SagaMessageDTO();
+            resposta.setIdSaga(dto.getIdSaga());
+            resposta.setAcao("CONTAS_REDISTRIBUIDAS_DELECAO_GERENTE");
+            resposta.setDados(cpf); // passa só o cpf para o gerente deletar
+
+            producer.responderSaga(resposta);
         }
     }
 }

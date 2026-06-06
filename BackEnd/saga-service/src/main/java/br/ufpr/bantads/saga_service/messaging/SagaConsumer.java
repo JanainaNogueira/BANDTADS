@@ -22,7 +22,7 @@ public class SagaConsumer {
         this.objectMapper = objectMapper;
     }
 
-        @RabbitListener(queues = SagaRabbitConfig.FILA_SAGA)
+@RabbitListener(queues = SagaRabbitConfig.FILA_SAGA)
     public void consumir(SagaMessageDTO dto) {
 
         switch (dto.getAcao()) {
@@ -50,11 +50,14 @@ public class SagaConsumer {
                 break;
             }
 
-            case "CONTA_REDISTRIBUIDA": {
+            case "CONTAS_REDISTRIBUIDAS": {
 
-                System.out.println(
-                        "Saga de criação finalizada"
-                );
+               SagaMessageDTO resposta = new SagaMessageDTO();
+
+                resposta.setIdSaga(dto.getIdSaga());
+                resposta.setAcao("FINALIZAR_CRIACAO_GERENTE");
+
+                producer.enviarParaGerente(resposta);
 
                 break;
             }
@@ -85,7 +88,7 @@ public class SagaConsumer {
                 break;
             }
 
-            case "CONTAS_REDISTRIBUIDAS": {
+            case "CONTAS_REDISTRIBUIDAS_DELECAO_GERENTE": {
 
                 String cpf =
                         objectMapper.convertValue(

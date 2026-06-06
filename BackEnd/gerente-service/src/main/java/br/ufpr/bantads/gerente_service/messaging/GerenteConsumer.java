@@ -1,6 +1,7 @@
 package br.ufpr.bantads.gerente_service.messaging;
 
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,10 +11,14 @@ import br.ufpr.bantads.gerente_service.messaging.config.GerenteAdminRabbitConfig
 import br.ufpr.bantads.gerente_service.messaging.dtos.SagaMessageDTO;
 import br.ufpr.bantads.gerente_service.model.GerenteAdmin;
 import br.ufpr.bantads.gerente_service.service.GerenteService;
+import br.ufpr.bantads.gerente_service.service.SagaSyncService;
 
 @Component
 public class GerenteConsumer {
 
+    @Autowired
+    private SagaSyncService sagaSyncService;
+    
     private final GerenteService gerenteService;
     private final GerenteProducer producer;
     private final ObjectMapper objectMapper;
@@ -39,7 +44,7 @@ public class GerenteConsumer {
 
             try {
 
-                GerenteAdmin gerenteCriado = gerenteService.criarGerente(gerenteDTO);
+                GerenteAdmin gerenteCriado = gerenteService.criarGerenteInterno(gerenteDTO);
 
                 SagaMessageDTO resposta = new SagaMessageDTO();
 
@@ -64,6 +69,13 @@ public class GerenteConsumer {
                 producer.responderSaga(resposta);
             }
         }
+        if(dto.getAcao().equals("FINALIZAR_CRIACAO_GERENTE")) {
+
+            sagaSyncService.concluirSaga(
+                    dto.getIdSaga()
+            );
+        }
+
         if(dto.getAcao().equals("REMOVER_GERENTE")){
              Integer idGerente =
             objectMapper.convertValue(
@@ -73,5 +85,6 @@ public class GerenteConsumer {
 
             gerenteService.RemoverGerenteCompensacao(idGerente);
         }
+
     }
 }

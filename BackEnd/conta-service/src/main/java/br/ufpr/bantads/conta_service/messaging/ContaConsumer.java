@@ -52,7 +52,7 @@ public class ContaConsumer {
 
                 resposta.setIdSaga(dto.getIdSaga());
 
-                resposta.setAcao("CONTA_REDISTRIBUIDA");
+                resposta.setAcao("CONTAS_REDISTRIBUIDAS");
 
                 producer.responderSaga(resposta);
 

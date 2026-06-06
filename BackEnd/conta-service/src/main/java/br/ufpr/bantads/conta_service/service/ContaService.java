@@ -236,7 +236,7 @@ public class ContaService {
             contasGerente.stream()
                 .filter(c ->
                         c.getSaldo()
-                         .compareTo(BigDecimal.ZERO) > 0
+                         .compareTo(BigDecimal.ZERO) >= 0
                 )
                 .min(Comparator.comparing(
                         Conta::getSaldo

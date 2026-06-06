@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.ufpr.bantads.cliente_service.dtos.AutocadastroDTO;
+import br.ufpr.bantads.cliente_service.dtos.ClienteComContaDTO;
 import br.ufpr.bantads.cliente_service.model.Cliente;
 import br.ufpr.bantads.cliente_service.service.ClienteService;
 
@@ -56,21 +57,19 @@ public class ClienteController {
         return ResponseEntity.ok(clienteService.listarClientes());
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Cliente> buscarClientePorId(@PathVariable Integer id) {
-        Cliente cliente = clienteService.buscarClientePorId(id);
-        return ResponseEntity.ok(cliente);
+    @GetMapping("/{identificador}")
+    public ResponseEntity<?> buscarCliente(@PathVariable String identificador) {
+        try {
+            ClienteComContaDTO dto = clienteService.buscarClienteComConta(identificador);
+            return ResponseEntity.ok(dto);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @GetMapping("/email/{email}")
     public ResponseEntity<Cliente> buscarClientePorEmail(@PathVariable String email) {
         Cliente cliente = clienteService.buscarClientePorEmail(email);
-        return ResponseEntity.ok(cliente);
-    }
-
-    @GetMapping("/cpf/{cpf}")
-    public ResponseEntity<Cliente> buscarClientePorCpf(@PathVariable String cpf) {
-        Cliente cliente = clienteService.buscarClientePorCpf(cpf);
         return ResponseEntity.ok(cliente);
     }
 

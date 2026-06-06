@@ -1,12 +1,10 @@
 package br.ufpr.bantads.auth_service.dto;
 
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
 public class AuthDTO {
 
     @NotBlank(message = "Login é obrigatório")
-    @Email(message = "Insira um e-mail válido")
     private String login;
 
     @NotBlank(message = "Senha é obrigatória")

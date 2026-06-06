@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { createProxyMiddleware } from 'http-proxy-middleware';
+import { buscarDashboardGerentes } from '../services/composition.service';
 
 const router = Router();
 
@@ -56,6 +57,19 @@ router.get('/clientes/:id', createProxyMiddleware({
   pathRewrite: rewriteWithPrefix('/clientes'),
   logger: console,
 }));
+
+router.get('/gerentes', async (req, res, next) => {
+  if (req.query.filtro === 'dashboard') {
+    try {
+      const resultado = await buscarDashboardGerentes();
+      return res.json(resultado);
+    } catch (error: any) {
+      console.error(error.message);
+      return res.status(500).json({ error: 'Erro ao compor dashboard' });
+    }
+  }
+  next(); // sem filtro, passa pro proxy do gerente-service
+});
 
 router.use(
   '/gerentes',

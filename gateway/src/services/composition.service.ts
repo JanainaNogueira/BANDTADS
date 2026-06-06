@@ -41,3 +41,20 @@ export async function buscarClienteCompleto(id: string) {
   };
 
 }
+
+export async function buscarDashboardGerentes() {
+  const gerentes = await axios.get(
+    'http://gerente-service:8080/gerentes'
+  );
+
+  const contas = await axios.get(
+    'http://conta-service:8080/contas'
+  );
+
+  return gerentes.data.map((gerente: any) => ({
+    gerente,
+    clientes: contas.data.filter(
+      (conta: any) => conta.gerenteId === gerente.id
+    )
+  }));
+}

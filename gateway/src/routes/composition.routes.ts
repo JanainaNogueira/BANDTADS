@@ -1,7 +1,8 @@
 import { Router } from 'express';
 
 import {
-  buscarClienteCompleto
+  buscarClienteCompleto,
+  buscarDashboardGerentes
 } from '../services/composition.service';
 
 const router = Router();
@@ -27,6 +28,17 @@ router.get('/clientes/:id', async (req, res) => {
 
     });
 
+  }
+
+});
+
+router.get('/gerentes', async (req, res) => {
+
+  if (req.query.filtro === 'dashboard') {
+
+      const resultado = await buscarDashboardGerentes();
+
+      return res.json(resultado);
   }
 
 });

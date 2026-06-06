@@ -1,6 +1,7 @@
 package br.ufpr.bantads.gerente_service.service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -30,7 +31,7 @@ public class GerenteService {
     @Autowired
     private SagaSyncService sagaSyncService;
 
-    public GerenteService(GerenteRepository gerenteRepository,GerenteProducer producer){
+    public GerenteService(GerenteRepository gerenteRepository, GerenteProducer producer) {
         this.gerenteRepository = gerenteRepository;
         this.producer = producer;
     }
@@ -79,7 +80,10 @@ public class GerenteService {
 
     public LerGerenteDTO buscarGerentePorCPF(String cpf) {
         GerenteAdmin gerente = gerenteRepository.findByCpf(cpf)
-                .orElseThrow(() -> new RuntimeException("Gerente com cpf: " + cpf + " não encontrado"));
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, 
+                        "Gerente com cpf: " + cpf + " não encontrado"
+                ));
 
         return new LerGerenteDTO(
                 gerente.getId(),
@@ -90,7 +94,6 @@ public class GerenteService {
                 gerente.getTelefone()
         );
     }
-
     public LerGerenteDTO criarGerente(AdicionarGerenteDTO gerenteDto) {
 
         if (gerenteRepository.findByCpf(gerenteDto.cpf()).isPresent()) {
@@ -107,8 +110,8 @@ public class GerenteService {
         gerente = gerenteRepository.save(gerente);
         String idSaga = java.util.UUID.randomUUID().toString();
 
-        CompletableFuture<Void> future =
-                sagaSyncService.criarSaga(idSaga);
+        CompletableFuture<Void> future
+                = sagaSyncService.criarSaga(idSaga);
 
         SagaMessageDTO mensagem = new SagaMessageDTO();
 
@@ -130,12 +133,12 @@ public class GerenteService {
         }
 
         return new LerGerenteDTO(
-            gerente.getId(),
-            gerente.getNome(),
-            gerente.getCpf(),
-            gerente.getEmail(),
-            gerente.getTipoUsuario().name(),
-            gerente.getTelefone()
+                gerente.getId(),
+                gerente.getNome(),
+                gerente.getCpf(),
+                gerente.getEmail(),
+                gerente.getTipoUsuario().name(),
+                gerente.getTelefone()
         );
     }
 
@@ -151,9 +154,9 @@ public class GerenteService {
         gerente.setEmail(gerenteDto.email());
         gerente.setSenha(gerenteDto.senha());
         gerente.setTipoUsuario(TipoUsuario.GERENTE);
-        if(gerenteDto.telefone().isEmpty()){
+        if (gerenteDto.telefone().isEmpty()) {
             gerente.setTelefone("");
-        }else{
+        } else {
             gerente.setTelefone(gerenteDto.telefone());
         }
 
@@ -183,23 +186,57 @@ public class GerenteService {
         gerente = gerenteRepository.save(gerente);
 
         return new LerGerenteDTO(
-            gerente.getId(),
-            gerente.getNome(),
-            gerente.getCpf(),
-            gerente.getEmail(),
-            gerente.getTipoUsuario().name(),
-            gerente.getTelefone()
+                gerente.getId(),
+                gerente.getNome(),
+                gerente.getCpf(),
+                gerente.getEmail(),
+                gerente.getTipoUsuario().name(),
+                gerente.getTelefone()
         );
     }
 
-    public void RemoverGerenteCompensacao(Integer id) {
-        GerenteAdmin gerente = gerenteRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Gerente não encontrado"));
+    public LerGerenteDTO deletar(String cpf) {
+        GerenteAdmin gerente = gerenteRepository.findByCpf(cpf)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Gerente não encontrado"));
 
-        gerenteRepository.delete(gerente);
+        String idSaga = java.util.UUID.randomUUID().toString();
+
+        CompletableFuture<Void> future = sagaSyncService.criarSaga(idSaga);
+
+
+        Map<String, Object> dados = new java.util.HashMap<>();
+        dados.put("cpf", gerente.getCpf());
+        dados.put("id", gerente.getId());
+
+        SagaMessageDTO mensagem = new SagaMessageDTO();
+        mensagem.setIdSaga(idSaga);
+        mensagem.setAcao("DELETAR_GERENTE");
+        mensagem.setDados(dados);
+
+        producer.responderSaga(mensagem);
+
+        try {
+            future.get(30, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            throw new ResponseStatusException(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Falha na remoção"
+            );
+        }
+
+        return new LerGerenteDTO(
+                gerente.getId(),
+                gerente.getNome(),
+                gerente.getCpf(),
+                gerente.getEmail(),
+                gerente.getTipoUsuario().name(),
+                gerente.getTelefone()
+        );
     }
 
-    public void removerGerente(Integer idGerente) {
-        gerenteRepository.deleteById(idGerente);
+    public void removerGerentePorCpf(String cpf) {
+        GerenteAdmin gerente = gerenteRepository.findByCpf(cpf)
+                .orElseThrow(() -> new RuntimeException("Gerente não encontrado"));
+        gerenteRepository.delete(gerente);
     }
 }

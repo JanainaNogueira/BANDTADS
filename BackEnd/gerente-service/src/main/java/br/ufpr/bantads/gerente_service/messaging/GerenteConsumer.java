@@ -75,15 +75,15 @@ public class GerenteConsumer {
                     dto.getIdSaga()
             );
         }
-
-        if(dto.getAcao().equals("REMOVER_GERENTE")){
-             Integer idGerente =
-            objectMapper.convertValue(
+        
+        if (dto.getAcao().equals("REMOVER_GERENTE")) {
+            String cpf = objectMapper.convertValue(
                     dto.getDados(),
-                    Integer.class
+                    String.class
             );
 
-            gerenteService.RemoverGerenteCompensacao(idGerente);
+            gerenteService.removerGerentePorCpf(cpf);
+            sagaSyncService.concluirSaga(dto.getIdSaga());
         }
 
     }

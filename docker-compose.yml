@@ -132,9 +132,12 @@ services:
     environment:
       SPRING_RABBITMQ_HOST: rabbitmq
     depends_on:
-      - rabbitmq
-      - cliente-service
-      - conta-service
+      rabbitmq:
+        condition: service_healthy
+      cliente-service:
+        condition: service_started
+      conta-service:
+        condition: service_started
     networks:
       - bantads-network
 
@@ -145,6 +148,11 @@ services:
       - "15672:15672"
     networks:
       - bantads-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   mongo-auth-data:

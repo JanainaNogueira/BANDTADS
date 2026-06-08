@@ -3,17 +3,14 @@ package br.ufpr.bantads.gerente_service.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.ufpr.bantads.gerente_service.dtos.AdicionarGerenteDTO;
 import br.ufpr.bantads.gerente_service.dtos.EditarGerenteDTO;
 import br.ufpr.bantads.gerente_service.dtos.LerGerenteDTO;
 import br.ufpr.bantads.gerente_service.service.GerenteService;
@@ -28,13 +25,6 @@ public class GerenteController {
             GerenteService gerenteService) {
 
         this.gerenteService = gerenteService;
-    }
-
-    @PostMapping
-    public ResponseEntity<LerGerenteDTO> criar(@RequestBody AdicionarGerenteDTO dto) {
-        return ResponseEntity.status(201).body(
-                gerenteService.criarGerente(dto)
-        );
     }
 
     @GetMapping
@@ -79,12 +69,4 @@ public class GerenteController {
                         .atualizar(cpf, dto)
         );
     }
-
-    @DeleteMapping("/{cpf}")
-    public ResponseEntity<LerGerenteDTO> deletar(@PathVariable String cpf) {
-        return ResponseEntity.ok(
-                gerenteService.deletar(cpf)
-        );
-    }
-
 }

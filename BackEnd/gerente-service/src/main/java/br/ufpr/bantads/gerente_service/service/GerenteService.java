@@ -1,9 +1,6 @@
 package br.ufpr.bantads.gerente_service.service;
 
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,7 +11,6 @@ import br.ufpr.bantads.gerente_service.dtos.AdicionarGerenteDTO;
 import br.ufpr.bantads.gerente_service.dtos.EditarGerenteDTO;
 import br.ufpr.bantads.gerente_service.dtos.LerGerenteDTO;
 import br.ufpr.bantads.gerente_service.messaging.GerenteProducer;
-import br.ufpr.bantads.gerente_service.messaging.dtos.SagaMessageDTO;
 import br.ufpr.bantads.gerente_service.model.GerenteAdmin;
 import br.ufpr.bantads.gerente_service.model.TipoUsuario;
 import br.ufpr.bantads.gerente_service.repository.GerenteRepository;
@@ -28,8 +24,6 @@ public class GerenteService {
     @Autowired
     private GerenteProducer producer;
 
-    @Autowired
-    private SagaSyncService sagaSyncService;
 
     public GerenteService(GerenteRepository gerenteRepository, GerenteProducer producer) {
         this.gerenteRepository = gerenteRepository;
@@ -94,53 +88,6 @@ public class GerenteService {
                 gerente.getTelefone()
         );
     }
-    public LerGerenteDTO criarGerente(AdicionarGerenteDTO gerenteDto) {
-
-        if (gerenteRepository.findByCpf(gerenteDto.cpf()).isPresent()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "CPF já cadastrado");
-        }
-
-        GerenteAdmin gerente = new GerenteAdmin();
-        gerente.setNome(gerenteDto.nome());
-        gerente.setCpf(gerenteDto.cpf());
-        gerente.setEmail(gerenteDto.email());
-        gerente.setSenha(gerenteDto.senha());
-        gerente.setTipoUsuario(TipoUsuario.GERENTE);
-
-        gerente = gerenteRepository.save(gerente);
-        String idSaga = java.util.UUID.randomUUID().toString();
-
-        CompletableFuture<Void> future
-                = sagaSyncService.criarSaga(idSaga);
-
-        SagaMessageDTO mensagem = new SagaMessageDTO();
-
-        mensagem.setIdSaga(idSaga);
-        mensagem.setAcao("GERENTE_CRIADO");
-        mensagem.setDados(gerente.getId());
-
-        producer.responderSaga(mensagem);
-
-        try {
-            future.get(10, TimeUnit.SECONDS);
-
-        } catch (Exception e) {
-
-            throw new ResponseStatusException(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Falha na redistribuição"
-            );
-        }
-
-        return new LerGerenteDTO(
-                gerente.getId(),
-                gerente.getNome(),
-                gerente.getCpf(),
-                gerente.getEmail(),
-                gerente.getTipoUsuario().name(),
-                gerente.getTelefone()
-        );
-    }
 
     public GerenteAdmin criarGerenteInterno(AdicionarGerenteDTO gerenteDto) {
 
@@ -154,7 +101,8 @@ public class GerenteService {
         gerente.setEmail(gerenteDto.email());
         gerente.setSenha(gerenteDto.senha());
         gerente.setTipoUsuario(TipoUsuario.GERENTE);
-        if (gerenteDto.telefone().isEmpty()) {
+        
+        if (gerenteDto.telefone() == null || gerenteDto.telefone().isEmpty()) {
             gerente.setTelefone("");
         } else {
             gerente.setTelefone(gerenteDto.telefone());
@@ -184,45 +132,6 @@ public class GerenteService {
         }
 
         gerente = gerenteRepository.save(gerente);
-
-        return new LerGerenteDTO(
-                gerente.getId(),
-                gerente.getNome(),
-                gerente.getCpf(),
-                gerente.getEmail(),
-                gerente.getTipoUsuario().name(),
-                gerente.getTelefone()
-        );
-    }
-
-    public LerGerenteDTO deletar(String cpf) {
-        GerenteAdmin gerente = gerenteRepository.findByCpf(cpf)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Gerente não encontrado"));
-
-        String idSaga = java.util.UUID.randomUUID().toString();
-
-        CompletableFuture<Void> future = sagaSyncService.criarSaga(idSaga);
-
-
-        Map<String, Object> dados = new java.util.HashMap<>();
-        dados.put("cpf", gerente.getCpf());
-        dados.put("id", gerente.getId());
-
-        SagaMessageDTO mensagem = new SagaMessageDTO();
-        mensagem.setIdSaga(idSaga);
-        mensagem.setAcao("DELETAR_GERENTE");
-        mensagem.setDados(dados);
-
-        producer.responderSaga(mensagem);
-
-        try {
-            future.get(30, TimeUnit.SECONDS);
-        } catch (Exception e) {
-            throw new ResponseStatusException(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    "Falha na remoção"
-            );
-        }
 
         return new LerGerenteDTO(
                 gerente.getId(),

@@ -9,64 +9,65 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import br.ufpr.bantads.saga_service.messaging.config.SagaRabbitConfig;
 import br.ufpr.bantads.saga_service.messaging.dto.SagaMessageDTO;
+import br.ufpr.bantads.saga_service.service.SagaSyncService;
 
 @Component
 public class SagaConsumer {
 
     private final SagaProducer producer;
     private final ObjectMapper objectMapper;
+    private final SagaSyncService sagaSyncService;
 
     public SagaConsumer(
             SagaProducer producer,
-            ObjectMapper objectMapper) {
+            ObjectMapper objectMapper,
+            SagaSyncService sagaSyncService
+        ) {
 
         this.producer = producer;
         this.objectMapper = objectMapper;
+        this.sagaSyncService = sagaSyncService;
     }
 
     @RabbitListener(queues = SagaRabbitConfig.FILA_SAGA)
     public void consumir(SagaMessageDTO dto) {
 
+        System.out.println("SAGA RECEBEU: " + dto.getAcao());
+
         switch (dto.getAcao()) {
             case "GERENTE_CRIADO": {
 
-                Integer idGerente
-                        = objectMapper.convertValue(
-                                dto.getDados(),
-                                Integer.class
-                        );
-
-                SagaMessageDTO redistribuir
+                SagaMessageDTO auth
                         = new SagaMessageDTO();
 
-                redistribuir.setIdSaga(dto.getIdSaga());
+                auth.setIdSaga(dto.getIdSaga());
 
-                redistribuir.setAcao(
-                        "REDISTRIBUIR_CONTA"
+                auth.setAcao(
+                        "CRIAR_USUARIO_AUTH"
                 );
 
-                redistribuir.setDados(idGerente);
+                auth.setDados(dto.getDados());
 
+                producer.enviarParaAuth(auth);
+
+                break;
+            }
+
+            case "USUARIO_AUTH_CRIADO": {
+                Map<String, Object> dadosGerente = objectMapper.convertValue(
+                        dto.getDados(), Map.class);
+                Integer idGerente = (Integer) dadosGerente.get("id");
+
+                SagaMessageDTO redistribuir = new SagaMessageDTO();
+                redistribuir.setIdSaga(dto.getIdSaga());
+                redistribuir.setAcao("REDISTRIBUIR_CONTA");
+                redistribuir.setDados(dto.getDados()); // repassa o objeto completo
                 producer.enviarParaConta(redistribuir);
-
                 break;
             }
 
-            case "CONTAS_REDISTRIBUIDAS": {
-
-                SagaMessageDTO resposta = new SagaMessageDTO();
-
-                resposta.setIdSaga(dto.getIdSaga());
-                resposta.setAcao("FINALIZAR_CRIACAO_GERENTE");
-
-                producer.enviarParaGerente(resposta);
-
-                break;
-            }
-
-            case "ERRO_INSERIR_GERENTE": {
-
-                Integer idGerenteCompensacao
+            case "ERRO_CRIAR_USUARIO_AUTH": {
+                Integer idGerente
                         = objectMapper.convertValue(
                                 dto.getDados(),
                                 Integer.class
@@ -77,16 +78,29 @@ public class SagaConsumer {
 
                 remover.setIdSaga(dto.getIdSaga());
 
-                remover.setAcao(
-                        "REMOVER_GERENTE"
-                );
+                remover.setAcao("REMOVER_GERENTE");
 
-                remover.setDados(
-                        idGerenteCompensacao
-                );
+                remover.setDados(idGerente);
 
                 producer.enviarParaGerente(remover);
 
+                break;
+            }
+
+            case "CONTAS_REDISTRIBUIDAS": {
+
+                sagaSyncService.concluirSaga(dto.getIdSaga(), dto.getDados());
+                break;
+            }
+
+            case "ERRO_REDISTRIBUIR_CONTA": {
+
+                // compensação
+                break;
+            }
+            
+            case "ERRO_INSERIR_GERENTE": {
+                sagaSyncService.falharSaga(dto.getIdSaga(), (String) dto.getDados());
                 break;
             }
 
@@ -118,11 +132,7 @@ public class SagaConsumer {
             }
 
             case "GERENTE_REMOVIDO": {
-
-                System.out.println(
-                        "Saga de remoção finalizada"
-                );
-
+                sagaSyncService.concluirSaga(dto.getIdSaga(), dto.getDados());
                 break;
             }
 
@@ -131,6 +141,29 @@ public class SagaConsumer {
                 System.out.println(
                         "Erro na remoção do gerente"
                 );
+
+                break;
+            }
+
+            case "GERENTE_ENCONTRADO": {
+
+                Map<String, Object> dados
+                        = objectMapper.convertValue(
+                                dto.getDados(),
+                                Map.class
+                        );
+
+                SagaMessageDTO redistribuir
+                        = new SagaMessageDTO();
+
+                redistribuir.setIdSaga(dto.getIdSaga());
+                redistribuir.setAcao(
+                        "REDISTRIBUIR_CONTA_DELECAO_GERENTE"
+                );
+
+                redistribuir.setDados(dados);
+
+                producer.enviarParaConta(redistribuir);
 
                 break;
             }

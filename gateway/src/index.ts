@@ -17,14 +17,10 @@ app.use((req, res, next) => {
 });
 
 app.use(rebootRoutes);
-
-// proxy.routes NÃO usa express.json() — repassa o body inteiro
-app.use(proxyRoutes);
-
-// sagaRoutes e compositionRoutes precisam do express.json()
-app.use(express.json());
-app.use(sagaRoutes);
+app.use(sagaRoutes);        // saga primeiro
 app.use(compositionRoutes);
+app.use(proxyRoutes);       // proxy depois
+app.use(express.json());
 
 app.get('/health', (req, res) => {
 

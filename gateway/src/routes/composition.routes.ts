@@ -32,7 +32,7 @@ router.get('/clientes/:id', async (req, res) => {
 
 });
 
-router.get('/gerentes', async (req, res) => {
+router.get('/gerentes', async (req, res, next) => {
 
   if (req.query.filtro === 'dashboard') {
 
@@ -40,7 +40,7 @@ router.get('/gerentes', async (req, res) => {
 
       return res.json(resultado);
   }
-
+  next(); 
 });
 
 export default router;

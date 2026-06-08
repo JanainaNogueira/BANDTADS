@@ -42,6 +42,20 @@ router.post('/clientes', createProxyMiddleware({ // adicionado: POST para saga-s
   logger: console,
 }));
 
+// router.post('/gerentes', createProxyMiddleware({
+//   target: 'http://saga-service:8080',
+//   changeOrigin: true,
+//   pathRewrite: rewriteWithPrefix('/gerentes'),
+//   logger: console,
+// }));
+
+// router.delete('/gerentes/:cpf', createProxyMiddleware({
+//   target: 'http://saga-service:8080',
+//   changeOrigin: true,
+//   pathRewrite: rewriteWithPrefix('/gerentes'),
+//   logger: console,
+// }));
+
 router.get('/clientes', createProxyMiddleware({
   target: 'http://cliente-service:8080',
   changeOrigin: true,
@@ -68,20 +82,15 @@ router.get('/gerentes', async (req, res, next) => {
       return res.status(500).json({ error: 'Erro ao compor dashboard' });
     }
   }
-  next(); // sem filtro, passa pro proxy do gerente-service
+  next();
 });
 
-router.use(
-  '/gerentes',
-  createProxyMiddleware({
-    target: 'http://gerente-service:8080',
-    changeOrigin: true,
-    pathRewrite: (path) => {
-      return path === '/' ? '/gerentes' : `/gerentes${path}`;
-    },
-    logger: console,
-  })
-);
+router.use('/gerentes', createProxyMiddleware({
+  target: 'http://gerente-service:8080',
+  changeOrigin: true,
+  pathRewrite: rewriteWithPrefix('/gerentes'),
+  logger: console,
+}));
 
 router.use('/contas', createProxyMiddleware({
   target: 'http://conta-service:8080',

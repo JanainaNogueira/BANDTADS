@@ -26,6 +26,8 @@ public class SagaRabbitConfig {
 
     public static final String FILA_MS_CLIENTE = "fila-ms-cliente";
 
+    public static final String FILA_MS_AUTH = "fila-auth";
+
     @Bean
     public Queue filaSaga() {
         return new Queue(FILA_SAGA);
@@ -44,6 +46,11 @@ public class SagaRabbitConfig {
     @Bean
     public Queue filaMsCliente() {
         return new Queue(FILA_MS_CLIENTE);
+    }
+
+    @Bean
+    public Queue filaMsAuth() {
+        return new Queue(FILA_MS_AUTH);
     }
 
     @Bean

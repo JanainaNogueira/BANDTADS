@@ -27,14 +27,16 @@ router.put('/clientes/:id', (0, http_proxy_middleware_1.createProxyMiddleware)({
     changeOrigin: true,
     logger: console,
 }));
+
 // criar gerente
 router.post('/gerentes', (0, http_proxy_middleware_1.createProxyMiddleware)({
     target: 'http://saga-service:8080',
     changeOrigin: true,
     logger: console,
 }));
+
 // remover gerente
-router.delete('/gerentes/:id', (0, http_proxy_middleware_1.createProxyMiddleware)({
+router.delete('/gerentes/:cpf', (0, http_proxy_middleware_1.createProxyMiddleware)({
     target: 'http://saga-service:8080',
     changeOrigin: true,
     logger: console,

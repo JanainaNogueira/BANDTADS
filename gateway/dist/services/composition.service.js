@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.buscarClienteCompleto = buscarClienteCompleto;
 const axios_1 = __importDefault(require("axios"));
+
 async function buscarClienteCompleto(id) {
     const clienteResponse = await axios_1.default.get(`http://cliente-service:8080/clientes/${id}`);
     const cliente = clienteResponse.data;

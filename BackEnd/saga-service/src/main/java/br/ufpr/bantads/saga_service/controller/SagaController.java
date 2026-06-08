@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
 
 import br.ufpr.bantads.saga_service.messaging.SagaProducer;
 import br.ufpr.bantads.saga_service.messaging.dto.SagaMessageDTO;
@@ -26,7 +27,7 @@ public class SagaController {
     }
 
     @PostMapping("/clientes")
-    public ResponseEntity<Void> autocadastrarCliente(@RequestBody Object dto) {
+    public ResponseEntity<Object> autocadastrarCliente(@RequestBody Object dto) {
 
         SagaMessageDTO mensagem = new SagaMessageDTO();
 
@@ -38,7 +39,8 @@ public class SagaController {
 
         producer.enviarParaCliente(mensagem);
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(dto);
     }
 
     @PutMapping("/clientes/{id}/aprovar")

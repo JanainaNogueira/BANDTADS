@@ -107,4 +107,14 @@ public class ClienteController {
         Cliente clienteRejeitado = clienteService.rejeitarCliente(id, motivo);
         return ResponseEntity.ok(clienteRejeitado);
     }
+
+    @GetMapping("/existe/{cpf}")
+    public ResponseEntity<Boolean> verificarExistencia(@PathVariable String cpf) {
+        try {
+            clienteService.buscarClientePorCpf(cpf);
+            return ResponseEntity.ok(true);
+        } catch (RuntimeException e) {
+            return ResponseEntity.ok(false);
+        }
+    }
 }

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 import br.ufpr.bantads.saga_service.messaging.SagaProducer;
 import br.ufpr.bantads.saga_service.messaging.dto.AdicionarGerenteDTO;
@@ -24,6 +25,7 @@ import br.ufpr.bantads.saga_service.messaging.dto.SagaMessageDTO;
 public class SagaController {
 
     private final SagaProducer producer;
+    private final RestTemplate restTemplate = new RestTemplate();
 
     public SagaController(SagaProducer producer) {
         this.producer = producer;
@@ -31,6 +33,19 @@ public class SagaController {
 
     @PostMapping("/clientes")
     public ResponseEntity<Object> autocadastrarCliente(@RequestBody AutocadastroDTO dto) {
+
+        try {
+            ResponseEntity<Boolean> check = restTemplate.getForEntity(
+                    "http://cliente-service:8080/clientes/existe/" + dto.getCpf(),
+                    Boolean.class
+            );
+            if (Boolean.TRUE.equals(check.getBody())) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            }
+        } catch (Exception e) {
+
+        }
+
         System.out.println(">>> DTO RECEBIDO: cpf=" + dto.getCpf() + " cep=" + dto.getCEP() + " endereco=" + dto.getEndereco());
 
         Map<String, Object> dados = new HashMap<>();

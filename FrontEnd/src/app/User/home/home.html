@@ -6,7 +6,7 @@
     <!-- HEADER -->
     <header class="w-[95%] h-[6%] mt-4">
       <h1 class="font-medium text-xl mb-1.5">
-        Bem vindo, {{login?.name}}
+        Bem vindo, {{login?.name || '...'}}
       </h1>
       <p class="text-[#4B5563] text-xs">
         Como está seu dinheiro hoje
@@ -14,7 +14,7 @@
     </header>
 
     <!-- SALDO -->
-    <div class="flex flex-col justify-center items-center rounded-2xl h-[35%] w-[95%] bg-linear-to-br from-[#6366F1] via-[#4F46E5] to-[#4F46E5]">
+    <div *ngIf="login" class="flex flex-col justify-center items-center rounded-2xl h-[35%] w-[95%] bg-linear-to-br from-[#6366F1] via-[#4F46E5] to-[#4F46E5]">
       <div class="h-[40%] w-[95%]">
         <span class="text-[#C7D2FE]">Saldo Atual</span>
         <p class="text-3xl font-semibold" [ngClass]="balanceClass">
@@ -35,6 +35,11 @@
           <p class="text-[#FFFFFF]">{{login?.numberAccount}}</p>
         </div>
       </div>
+    </div>
+
+    <!-- LOADING STATE -->
+    <div *ngIf="!login" class="flex flex-col justify-center items-center rounded-2xl h-[35%] w-[95%] bg-linear-to-br from-[#6366F1] via-[#4F46E5] to-[#4F46E5]">
+      <p class="text-[#C7D2FE]">Carregando dados...</p>
     </div>
 
     <!-- AÇÕES -->

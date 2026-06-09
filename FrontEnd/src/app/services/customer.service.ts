@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, forkJoin, of } from 'rxjs';
-import { map, catchError, switchMap } from 'rxjs/operators';
+import { Observable, forkJoin, of, throwError } from 'rxjs';
+import { map, catchError, switchMap, tap } from 'rxjs/operators';
 import { Customer } from '../models/customer.model';
 import { Status } from '../models/status-enum.model';
 import { environment } from '../../enviroment';
@@ -46,7 +46,60 @@ export class CustomerService {
   }
 
   buscarClientePorEmail(email: string): Observable<Customer> {
-    return this.http.get<Customer>(`${this.clientesApiUrl}/email/${email}`);
+    return this.http.get<any>(`${this.clientesApiUrl}/email/${email}`).pipe(
+      tap(cliente => console.log('GET /clientes/email - Response:', cliente)),
+      switchMap(cliente =>
+        this.http.get<any[]>(`${this.contasApiUrl}/cliente/${cliente.id}`).pipe(
+          tap(contas => console.log('GET /contas/cliente - Response:', contas)),
+          map(contas => {
+            const primeiraConta = contas.length > 0 ? contas[0] : null;
+            const mapeado = {
+              id: cliente.id,
+              idCliente: String(cliente.id),
+              cpf: cliente.cpf,
+              name: cliente.nome || '',
+              email: cliente.email,
+              salary: cliente.salario || 0,
+              numberAccount: primeiraConta?.numeroConta || '',
+              balance: primeiraConta?.saldo || 0,
+              limit: primeiraConta?.limite || 0,
+              city: cliente.endereco?.cidade || '',
+              state: cliente.endereco?.estado || '',
+              telephone: cliente.telefone || '',
+              manager: { cpf: '', name: '' },
+              status: cliente.status,
+              accounts: contas
+            };
+            console.log('FINAL MAPPED CUSTOMER:', mapeado);
+            return mapeado;
+          }),
+          catchError(err => {
+            console.error('❌ Erro ao buscar contas:', err);
+            return of({
+              id: cliente.id,
+              idCliente: String(cliente.id),
+              cpf: cliente.cpf,
+              name: cliente.nome || '',
+              email: cliente.email,
+              salary: cliente.salario || 0,
+              numberAccount: '',
+              balance: 0,
+              limit: 0,
+              city: cliente.endereco?.cidade || '',
+              state: cliente.endereco?.estado || '',
+              telephone: cliente.telefone || '',
+              manager: { cpf: '', name: '' },
+              status: cliente.status,
+              accounts: []
+            });
+          })
+        )
+      ),
+      catchError(err => {
+        console.error('❌ Erro ao buscar cliente:', err);
+        return throwError(err);
+      })
+    );
   }
 
   obterTodosClientes(): Observable<Customer[]> {

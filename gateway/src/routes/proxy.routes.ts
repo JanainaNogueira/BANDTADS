@@ -51,15 +51,6 @@ router.use('/logout', createProxyMiddleware({
   }
 } as any));
 
-router.post('/clientes', createProxyMiddleware({ // adicionado: POST para saga-service
-  target: 'http://saga-service:8080',
-  changeOrigin: true,
-  pathRewrite: {
-    '^/clientes': '/clientes'
-  },
-  logger: console,
-}));
-
 router.get('/clientes/:id', createProxyMiddleware({
   target: 'http://cliente-service:8080',
   changeOrigin: true,
@@ -68,6 +59,15 @@ router.get('/clientes/:id', createProxyMiddleware({
   on: {
     proxyReq: injectUserType
   }
+}));
+
+router.post('/clientes', createProxyMiddleware({ // adicionado: POST para saga-service
+  target: 'http://saga-service:8080',
+  changeOrigin: true,
+  pathRewrite: {
+    '^/clientes': '/clientes'
+  },
+  logger: console,
 }));
 
 router.get('/clientes', createProxyMiddleware({

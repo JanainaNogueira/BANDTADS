@@ -2,6 +2,7 @@ package br.ufpr.bantads.cliente_service.controller;
 
 import java.util.List;
 
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.amqp.rabbit.annotation.RabbitListener;
 
 import br.ufpr.bantads.cliente_service.dtos.AutocadastroDTO;
 import br.ufpr.bantads.cliente_service.dtos.ClienteComContaDTO;
@@ -30,10 +30,10 @@ public class ClienteController {
     private ClienteService clienteService;
 
     @RabbitListener(queues = "cliente.criar")
-        public Cliente criarCliente(AutocadastroDTO dto) {
+    public Cliente criarCliente(AutocadastroDTO dto) {
 
-            return clienteService.salvarCliente(dto);
-        }
+        return clienteService.salvarCliente(dto);
+    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletarCliente(@PathVariable Integer id) {
@@ -62,6 +62,9 @@ public class ClienteController {
     public ResponseEntity<?> buscarCliente(@PathVariable String identificador) {
         try {
             ClienteComContaDTO dto = clienteService.buscarClienteComConta(identificador);
+            if ("REPROVADO".equals(dto.getStatus())) {
+                return ResponseEntity.notFound().build();
+            }
             return ResponseEntity.ok(dto);
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();

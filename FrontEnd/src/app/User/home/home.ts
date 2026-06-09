@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Menu } from '../../components/menu/menu';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
@@ -24,7 +24,8 @@ export class Home implements OnInit {
     private dialog: MatDialog,
     private router: Router,
     private customerService: CustomerService,
-    private transactionService: TransactionService
+    private transactionService: TransactionService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -36,7 +37,9 @@ export class Home implements OnInit {
     if (email) {
       this.customerService.buscarClientePorEmail(email).subscribe({
         next: (cliente) => {
+          console.log('Cliente carregado no home:', cliente);
           this.login = cliente;
+          this.cdr.markForCheck();
           this.carregarUltimasTransacoes();
         },
         error: (err) => console.error('Erro ao carregar dados do cliente', err)
@@ -45,14 +48,29 @@ export class Home implements OnInit {
   }
 
   carregarUltimasTransacoes() {
-    if (!this.login || !this.login.numberAccount) return;
+    if (!this.login) {
+      console.warn('Login não carregado');
+      return;
+    }
+
+    // Se não tiver numberAccount, tentar buscar da primeira conta
+    let contaNumeroConta = this.login.numberAccount;
+    if (!contaNumeroConta && this.login.accounts && this.login.accounts.length > 0) {
+      contaNumeroConta = this.login.accounts[0].numeroConta;
+      console.log('numeroConta obtido de accounts:', contaNumeroConta);
+    }
+
+    if (!contaNumeroConta) {
+      console.warn('Nenhuma conta encontrada para carregar transações');
+      return;
+    }
 
     const hoje = new Date();
     const inicio = new Date();
     inicio.setDate(hoje.getDate() - 30);
 
     forkJoin({
-      extrato: this.transactionService.consultarExtrato(this.login.numberAccount, inicio, hoje),
+      extrato: this.transactionService.consultarExtrato(contaNumeroConta, inicio, hoje),
       clientes: this.customerService.obterTodosClientes()
     }).subscribe({
       next: (resp) => {
@@ -77,7 +95,8 @@ export class Home implements OnInit {
               operacao: t.tipo
             };
           });
-      }
+      },
+      error: (err) => console.error('Erro ao carregar transações:', err)
     });
   }
 

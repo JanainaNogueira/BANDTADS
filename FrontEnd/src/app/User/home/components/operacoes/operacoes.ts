@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
@@ -14,7 +14,7 @@ import { CustomerService } from '../../../../services/customer.service';
   templateUrl: './operacoes.html',
   styleUrl: './operacoes.css',
 })
-export class Operacoes {
+export class Operacoes implements OnInit {
 
   tabAtiva = 0;
   cliente!: Customer;
@@ -23,10 +23,10 @@ export class Operacoes {
   limiteTotal = 0;
   limiteAtual = 0;
 
-  contaLogada = "0";
+  contaLogada = 0;  // Mudado para number (contaId, não numberAccount)
   valor = 0;
   valorFormatado = '';
-  contaDestino = "0";
+  contaDestino = "";
   erro = '';
   sucesso = '';
 
@@ -55,9 +55,23 @@ export class Operacoes {
     this.limiteTotal = this.cliente.limit;
     this.limiteAtual = this.cliente.limit;
 
-    this.contaLogada = this.cliente.numberAccount;
     this.nomeCliente = this.cliente.name;
     this.emailCliente = this.cliente.email;
+  }
+
+  ngOnInit() {
+    // Buscar o ID da conta (não o número da conta)
+    if (this.cliente.id) {
+      this.customerService.obterClientesPendentes().subscribe({
+        next: (clientes) => {
+          const clienteData = clientes.find(c => c.id === this.cliente.id);
+          if (clienteData) {
+            // contaLogada já deve estar no cliente
+            console.log('Cliente:', clienteData);
+          }
+        }
+      });
+    }
   }
 
   get valorValido(): boolean {
@@ -106,21 +120,30 @@ export class Operacoes {
       return;
     }
 
+    // Se contaLogada ainda não foi carregada, usar o id do cliente
+    const idConta = this.contaLogada > 0 ? this.contaLogada : this.cliente.id || 0;
+
+    if (idConta <= 0) {
+      this.erro = 'Erro: Conta não identificada. Tente fazer login novamente.';
+      return;
+    }
+
     switch (this.tabAtiva) {
       case 0: // transferência
         if (!this.contaDestino) {
           this.erro = 'Informe a conta destino.';
           return;
         }
-        if (this.contaDestino === this.contaLogada) {
+        if (this.contaDestino === idConta.toString()) {
           this.erro = 'Não pode transferir para si mesmo.';
           return;
         }
 
-        this.transactionService.transferir(this.contaLogada, this.contaDestino.toString(), this.valor).subscribe({
+        this.transactionService.transferir(idConta, this.contaDestino, this.valor).subscribe({
           next: () => {
             this.sucesso = 'Transferência realizada com sucesso!';
             this.resetCampos();
+            setTimeout(() => this.dialogRef.close(), 2000);
           },
           error: (err) => {
             this.erro = 'Erro ao realizar transferência. Verifique o saldo ou a conta destino.';
@@ -130,10 +153,11 @@ export class Operacoes {
         break;
 
       case 1: // saque
-        this.transactionService.sacar(this.contaLogada, this.valor).subscribe({
+        this.transactionService.sacar(idConta, this.valor).subscribe({
           next: () => {
             this.sucesso = 'Saque realizado com sucesso!';
             this.resetCampos();
+            setTimeout(() => this.dialogRef.close(), 2000);
           },
           error: (err) => {
             this.erro = 'Erro ao realizar saque.';
@@ -143,10 +167,11 @@ export class Operacoes {
         break;
 
       case 2: // deposito
-        this.transactionService.depositar(this.contaLogada, this.valor).subscribe({
+        this.transactionService.depositar(idConta, this.valor).subscribe({
           next: () => {
             this.sucesso = 'Depósito realizado com sucesso!';
             this.resetCampos();
+            setTimeout(() => this.dialogRef.close(), 2000);
           },
           error: (err) => {
             this.erro = 'Erro ao realizar depósito.';
@@ -160,7 +185,7 @@ export class Operacoes {
   private resetCampos() {
     this.valor = 0;
     this.valorFormatado = '';
-    this.contaDestino = "0";
+    this.contaDestino = "";
   }
 
   selecionarTab(index: number) {
@@ -171,7 +196,7 @@ export class Operacoes {
   resetForm() {
     this.valor = 0;
     this.valorFormatado = '';
-    this.contaDestino = "0";
+    this.contaDestino = "";
     this.erro = '';
     this.sucesso = '';
   }

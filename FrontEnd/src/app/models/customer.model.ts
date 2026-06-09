@@ -19,4 +19,5 @@ export interface Customer {
   manager: Manager;
   status: Status;
   password?: string;
+  accounts?: any[];
 }

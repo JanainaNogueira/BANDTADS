@@ -23,23 +23,26 @@ export class TransactionService {
 
   constructor(private http: HttpClient) {}
 
-  depositar(contaId: string, valor: number): Observable<void> {
-    return this.http.post<void>(`${this.API_URL}/${contaId}/deposito`, {
-      contaIdLogada: contaId,
+  depositar(contaId: number | string, valor: number): Observable<void> {
+    const numContaId = typeof contaId === 'string' ? parseInt(contaId, 10) : contaId;
+    return this.http.post<void>(`${this.API_URL}/${numContaId}/deposito`, {
+      contaIdLogada: numContaId,
       valor: valor
     });
   }
 
-  sacar(contaId: string, valor: number): Observable<void> {
-    return this.http.post<void>(`${this.API_URL}/${contaId}/saque`, {
-      contaIdLogada: contaId,
+  sacar(contaId: number | string, valor: number): Observable<void> {
+    const numContaId = typeof contaId === 'string' ? parseInt(contaId, 10) : contaId;
+    return this.http.post<void>(`${this.API_URL}/${numContaId}/saque`, {
+      contaIdLogada: numContaId,
       valor: valor
     });
   }
 
-  transferir(contaId: string, numeroContaDestino: string, valor: number): Observable<void> {
-    return this.http.post<void>(`${this.API_URL}/${contaId}/transferencia`, {
-      contaIdLogada: contaId,
+  transferir(contaId: number | string, numeroContaDestino: string, valor: number): Observable<void> {
+    const numContaId = typeof contaId === 'string' ? parseInt(contaId, 10) : contaId;
+    return this.http.post<void>(`${this.API_URL}/${numContaId}/transferencia`, {
+      contaIdLogada: numContaId,
       numeroContaDestino: numeroContaDestino,
       valor: valor
     });

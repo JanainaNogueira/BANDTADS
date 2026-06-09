@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 
 import br.ufpr.bantads.cliente_service.dtos.AutocadastroDTO;
 import br.ufpr.bantads.cliente_service.dtos.ClienteComContaDTO;
@@ -28,11 +29,11 @@ public class ClienteController {
     @Autowired
     private ClienteService clienteService;
 
-    @PostMapping
-    public ResponseEntity<Cliente> autocadastro(@RequestBody AutocadastroDTO cliente) {
-        Cliente clienteSalvo = clienteService.salvarCliente(cliente);
-        return ResponseEntity.status(HttpStatus.CREATED).body(clienteSalvo);
-    }
+    @RabbitListener(queues = "cliente.criar")
+        public Cliente criarCliente(AutocadastroDTO dto) {
+
+            return clienteService.salvarCliente(dto);
+        }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletarCliente(@PathVariable Integer id) {

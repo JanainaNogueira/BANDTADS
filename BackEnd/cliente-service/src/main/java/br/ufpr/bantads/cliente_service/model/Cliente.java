@@ -49,6 +49,32 @@ public class Cliente {
     @Column(name = "data_reprovacao")
     private LocalDateTime dataReprovacao;
 
+    //r10, por ora*
+    @Column(name = "limite")
+
+    private Double limite;
+
+    @Column(name = "conta")
+
+    private String conta;
+
+    public Double getLimite() { return limite; }
+
+    public void setLimite(Double limite) { this.limite = limite; }
+
+    public String getConta() { return conta; }
+
+    public void setConta(String conta) { this.conta = conta; }
+    //r10*
+    // o que será alterado:
+    // implementar SAGA de aprovação de cliente
+    // fluxo certo:
+    // 1. cliente-service: mudar status para APROVADO e publicar evento "cliente.aprovado" no RabbitMQ
+    // 2. saga-service: receber evento e orquestrar:
+    //    - conta-service: criar conta com numero aleatório 4 dígitos e limite = salario/2 (se salario >= 2000)
+    //    - auth-service: criar credencial com senha aleatória e enviar por e-mail
+    // 3. composition no gateway: GET /clientes/{cpf} agrega cliente-service + conta-service
+
     public Cliente() {
     }
 

@@ -19,6 +19,7 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 
 import br.ufpr.bantads.cliente_service.dtos.AutocadastroDTO;
 import br.ufpr.bantads.cliente_service.model.Cliente;
+import br.ufpr.bantads.cliente_service.model.StatusEnum;
 import br.ufpr.bantads.cliente_service.service.ClienteService;
 
 @RestController
@@ -69,11 +70,6 @@ public class ClienteController {
         return ResponseEntity.ok(cliente);
     }
 
-    @GetMapping("/cpf/{cpf}")
-    public ResponseEntity<Cliente> buscarClientePorCpf(@PathVariable String cpf) {
-        Cliente cliente = clienteService.buscarClientePorCpf(cpf);
-        return ResponseEntity.ok(cliente);
-    }
 
     @GetMapping("/nome/{nome}")
     public ResponseEntity<Cliente> buscarClientePorNome(@PathVariable String nome) {
@@ -94,15 +90,31 @@ public class ClienteController {
         return ResponseEntity.ok(atualizado);
     }
 
-    @PostMapping("/{id}/aprovar")
-    public ResponseEntity<Cliente> aprovarCliente(@PathVariable Integer id) {
-        Cliente clienteAprovado = clienteService.aprovarCliente(id);
-        return ResponseEntity.ok(clienteAprovado);
+    @PostMapping("/{cpf}/aprovar")
+    public ResponseEntity<?> aprovarCliente(
+            @PathVariable String cpf,
+            @RequestHeader(value = "X-User-Tipo", required = false) String tipo) {
+        if (!"GERENTE".equals(tipo)) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        return ResponseEntity.ok(clienteService.aprovarCliente(cpf));
     }
 
-    @PostMapping("/{id}/rejeitar")
-    public ResponseEntity<Cliente> rejeitarCliente(@PathVariable Integer id, @RequestBody String motivo) {
-        Cliente clienteRejeitado = clienteService.rejeitarCliente(id, motivo);
-        return ResponseEntity.ok(clienteRejeitado);
+    @PostMapping("/{cpf}/rejeitar")
+    public ResponseEntity<?> rejeitarCliente(
+            @PathVariable String cpf,
+            @RequestBody java.util.Map<String, String> body,
+            @RequestHeader(value = "X-User-Tipo", required = false) String tipo) {
+        if (!"GERENTE".equals(tipo)) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        return ResponseEntity.ok(clienteService.rejeitarCliente(cpf, body.get("motivo")));
+    }
+
+    @GetMapping("/{cpf}")
+    public ResponseEntity<?> buscarClientePorCpf(@PathVariable String cpf) {
+        try {
+            Cliente cliente = clienteService.buscarClientePorCpf(cpf);
+            if (cliente.getStatus() == StatusEnum.REPROVADO) return ResponseEntity.notFound().build();
+            return ResponseEntity.ok(cliente);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

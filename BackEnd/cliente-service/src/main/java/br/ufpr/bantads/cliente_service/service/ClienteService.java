@@ -153,26 +153,33 @@ public class ClienteService {
         return clienteRepository.save(cliente);
     }
 
-    public Cliente aprovarCliente(Integer id) {
-        Cliente cliente = buscarClientePorId(id);
+
+    //será revisado para implementação de saga por ora serve para simular a aprovação do cliente
+    public Cliente aprovarCliente(String cpf) {
+        Cliente cliente = buscarClientePorCpf(cpf);
+
+        String numeroConta = String.format("%04d", new java.util.Random().nextInt(10000));
+        String senhaAleatoria = String.format("%04d", new java.util.Random().nextInt(10000));
 
         cliente.setStatus(StatusEnum.APROVADO);
+        cliente.setLimite(cliente.getSalario() >= 2000.0 ? cliente.getSalario() / 2 : 0.0);
+        cliente.setConta(numeroConta);
 
         Cliente salvo = clienteRepository.save(cliente);
 
         String subject = "BANTADS - Cadastro Aprovado!";
         String text = "Olá " + cliente.getNome() + ",\n\n"
-                + "Parabéns! Seu cadastro no BANTADS foi aprovado.\n"
-                + "Você já pode acessar sua conta utilizando seu e-mail e CPF como senha inicial (apenas números).\n"
-                + "Recomendamos a alteração da senha no seu primeiro acesso.\n\n"
+                + "Seu cadastro foi aprovado!\n"
+                + "Sua senha de acesso é: " + senhaAleatoria + "\n\n"
+                + "Para maior segurança, sugerimos que altere sua senha logo no primeiro acesso.\n\n"
                 + "Atenciosamente,\nEquipe BANTADS";
         emailService.enviarEmail(cliente.getEmail(), subject, text);
 
         return salvo;
     }
-
-    public Cliente rejeitarCliente(Integer id, String motivo) {
-        Cliente cliente = buscarClientePorId(id);
+    //será revisado para implementação de saga por ora serve para simular a reprovação do cliente
+    public Cliente rejeitarCliente(String cpf, String motivo) {
+        Cliente cliente = buscarClientePorCpf(cpf);
         cliente.setStatus(StatusEnum.REPROVADO);
         cliente.setMotivoReprovacao(motivo);
         cliente.setDataReprovacao(LocalDateTime.now());
@@ -181,12 +188,12 @@ public class ClienteService {
 
         String subject = "BANTADS - Cadastro Reprovado";
         String text = "Olá " + cliente.getNome() + ",\n\n"
-                + "Lamentamos informar que seu cadastro no BANTADS foi reprovado após análise.\n"
-                + "Você pode tentar realizar um novo cadastro corrigindo suas informações.\n\n"
+                + "Seu cadastro foi reprovado.\nMotivo: " + motivo + "\n\n"
+                + "Você pode tentar realizar um novo cadastro, corrigindo suas informações.\n\n"
                 + "Atenciosamente,\nEquipe BANTADS";
         emailService.enviarEmail(cliente.getEmail(), subject, text);
 
         return salvo;
     }
-
+    // revisar código acima
 }

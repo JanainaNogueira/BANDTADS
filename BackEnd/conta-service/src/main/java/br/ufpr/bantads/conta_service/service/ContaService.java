@@ -74,13 +74,14 @@ public class ContaService {
     }
 
     @Transactional(transactionManager = "writeTransactionManager")
-    public Conta depositar(Integer contaId, BigDecimal valor) {
-        Conta conta = buscarContaPorId(contaId);
+    public Conta depositar(String numeroConta, BigDecimal valor) {
+
+        Conta conta = buscarContaPorNumero(numeroConta);
         conta.setSaldo(conta.getSaldo().add(valor));
         Conta salva = repository.save(conta);
 
         Movimentacao movimentacao = new Movimentacao();
-        movimentacao.setContaId(contaId);
+        movimentacao.setContaId(conta.getContaId());
         movimentacao.setTipo(TipoMovimentacao.DEPOSITO);
         movimentacao.setValor(valor);
         movimentacao.setDataHora(LocalDateTime.now());
@@ -91,8 +92,8 @@ public class ContaService {
     }
 
     @Transactional(transactionManager = "writeTransactionManager")
-    public Conta sacar(Integer contaId, BigDecimal valor) {
-        Conta conta = buscarContaPorId(contaId);
+    public Conta sacar(String numeroConta, BigDecimal valor) {
+        Conta conta = buscarContaPorNumero(numeroConta);
         BigDecimal saldoDisponivelTotal = conta.getSaldo().add(conta.getLimite());
         if (saldoDisponivelTotal.compareTo(valor) < 0) {
             throw new IllegalArgumentException("Saldo insuficiente");
@@ -102,7 +103,7 @@ public class ContaService {
         Conta salva = repository.save(conta);
 
         Movimentacao movimentacao = new Movimentacao();
-        movimentacao.setContaId(contaId);
+        movimentacao.setContaId(conta.getContaId());
         movimentacao.setTipo(TipoMovimentacao.SAQUE);
         movimentacao.setValor(valor);
         movimentacao.setDataHora(LocalDateTime.now());
@@ -113,8 +114,8 @@ public class ContaService {
     }
 
     @Transactional(transactionManager = "writeTransactionManager")
-    public Conta transferir(Integer contaId, String numeroContaDestino, BigDecimal valor) {
-        Conta contaOrigem = buscarContaPorId(contaId);
+    public Conta transferir(String numeroConta, String numeroContaDestino, BigDecimal valor) {
+        Conta contaOrigem = buscarContaPorNumero(numeroConta);
         if (Objects.equals(contaOrigem.getNumeroConta(), numeroContaDestino)) {
             throw new IllegalArgumentException("Não pode transferir para a mesma conta");
         }

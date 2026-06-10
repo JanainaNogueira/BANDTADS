@@ -7,11 +7,10 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record TransferenciaDTO(
-    @NotNull(message = "Id da conta logada é obrigatório")
-    Integer contaIdLogada,
+    String contaLogada,
     
     @NotBlank(message = "Conta destino é obrigatória")
-    String numeroContaDestino,
+    String destino,
     
     @NotNull(message = "Valor é obrigatório")
     @DecimalMin(value = "0.01", message = "Valor deve ser maior que zero")

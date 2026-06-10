@@ -72,18 +72,16 @@ router.get('/clientes', createProxyMiddleware({
   }
 }));
 
-router.get('/clientes/:id', createProxyMiddleware({
-  target: 'http://cliente-service:8080',
-  changeOrigin: true,
-  pathRewrite: {
-    '^/clientes': '/clientes'
-  },
-  logger: console,
-}));
+// router.get('/clientes/:id', createProxyMiddleware({
+//   target: 'http://cliente-service:8080',
+//   changeOrigin: true,
+//   pathRewrite: {
+//     '^/clientes': '/clientes'
+//   },
+//   logger: console,
+// }));
 
-router.use(
-  '/gerentes',
-  createProxyMiddleware({
+router.use('/gerentes', createProxyMiddleware({
     target: 'http://gerente-service:8080',
     changeOrigin: true,
     pathRewrite: (path) => {

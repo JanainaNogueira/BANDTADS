@@ -1,7 +1,8 @@
 import { Router } from 'express';
 
 import {
-  buscarClienteCompleto
+  buscarClienteCompleto,
+  buscarClienteCompletoCPF,
 } from '../services/composition.service';
 
 const router = Router();
@@ -25,6 +26,26 @@ router.get('/clientes/:id', async (req, res) => {
 
       error: 'Erro ao compor cliente'
 
+    });
+
+  }
+
+});
+
+router.get('/clientes/:cpf', async (req, res) => {
+
+  try {
+
+    const { cpf } = req.params;
+
+    const resultado = await buscarClienteCompletoCPF(cpf);
+
+    return res.json(resultado);
+
+  } catch (error) {
+
+    return res.status(404).json({
+      error: 'Cliente não encontrado'
     });
 
   }

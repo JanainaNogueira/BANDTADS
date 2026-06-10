@@ -71,6 +71,24 @@ public class SagaController {
 
         producer.enviarParaCliente(mensagem);
 
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        try {
+            ResponseEntity<Boolean> check = restTemplate.getForEntity(
+                    "http://cliente-service:8080/clientes/existe/" + dto.getCpf(),
+                    Boolean.class
+            );
+            if (!Boolean.TRUE.equals(check.getBody())) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
+        } catch (Exception e) {
+
+        }
+
         return ResponseEntity.status(HttpStatus.CREATED).body(dto);
     }
 

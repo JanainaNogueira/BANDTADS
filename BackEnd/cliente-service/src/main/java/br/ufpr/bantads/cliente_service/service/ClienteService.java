@@ -112,7 +112,7 @@ public class ClienteService {
     }
 
     public List<Cliente> listarClientes() {
-        return clienteRepository.findAll(Sort.by(Sort.Direction.ASC, "nome"));
+        return clienteRepository.findByStatus(StatusEnum.APROVADO, Sort.by(Sort.Direction.ASC, "nome"));
     }
 
     public Cliente buscarClientePorId(Integer id) {
@@ -148,7 +148,7 @@ public class ClienteService {
     }
 
     public List<Cliente> buscarClientesPorStatus(String status) {
-        return clienteRepository.findByStatus(StatusEnum.valueOf(status.toUpperCase()));
+        return clienteRepository.findByStatus(StatusEnum.valueOf(status.toUpperCase()), Sort.by(Sort.Direction.ASC, "nome"));
     }
 
     public Cliente atualizarCliente(Cliente cliente) {

@@ -41,6 +41,7 @@ public class RebootController {
         Conta c = new Conta();
 
         c.setClienteId(clienteId);
+        c.setCpf(cpfCliente);
         c.setNumeroConta(numeroConta);
         c.setDataCriacao(LocalDateTime.now());
 

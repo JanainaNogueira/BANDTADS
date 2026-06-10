@@ -9,6 +9,7 @@ public record ContaSyncEvent(
         String operacao,
         Integer contaId,
         Integer clienteId,
+        String cpf,
         String numeroConta,
         LocalDateTime dataCriacao,
         BigDecimal saldo,
@@ -20,6 +21,7 @@ public record ContaSyncEvent(
                 operacao,
                 conta.getContaId(),
                 conta.getClienteId(),
+                conta.getCpf(),
                 conta.getNumeroConta(),
                 conta.getDataCriacao(),
                 conta.getSaldo(),
@@ -28,6 +30,6 @@ public record ContaSyncEvent(
     }
 
     public static ContaSyncEvent deletada(Integer contaId) {
-        return new ContaSyncEvent("DELETE", contaId, null, null, null, null, null, null);
+        return new ContaSyncEvent("DELETE", contaId, null, null, null, null, null, null, null);
     }
 }

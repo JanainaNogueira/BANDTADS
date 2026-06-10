@@ -24,7 +24,7 @@ public class SagaOrchestratorListener {
 
     @RabbitListener(queues = RabbitMQConstants.SAGA_CLIENTE_APROVADO_QUEUE)
     public void onClienteAprovado(ClienteAprovadoEvent event) {
-        ContaCriarCommand command = new ContaCriarCommand(event.getSagaId(), event.getClienteId());
+        ContaCriarCommand command = new ContaCriarCommand(event.getSagaId(), event.getClienteId(), event.getCpf());
 
         rabbitTemplate.convertAndSend(
                 RabbitMQConstants.EXCHANGE,

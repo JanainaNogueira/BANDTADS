@@ -20,6 +20,9 @@ public class Conta {
     @Column(name = "cliente_id", nullable = false)
     private Integer clienteId;
 
+    @Column(name = "cpf")
+    private String cpf;
+
     @Column(name = "numero_conta", nullable = false, unique = true)
     private String numeroConta;
 
@@ -38,8 +41,9 @@ public class Conta {
     public Conta() {
     }
 
-    public Conta(Integer clienteId, String numeroConta, LocalDateTime dataCriacao, BigDecimal saldo, BigDecimal limite, Integer gerenteId) {
+    public Conta(Integer clienteId, String cpf, String numeroConta, LocalDateTime dataCriacao, BigDecimal saldo, BigDecimal limite, Integer gerenteId) {
         this.clienteId = clienteId;
+        this.cpf = cpf;
         this.numeroConta = numeroConta;
         this.dataCriacao = dataCriacao;
         this.saldo = saldo;
@@ -61,6 +65,14 @@ public class Conta {
 
     public void setClienteId(Integer clienteId) {
         this.clienteId = clienteId;
+    }
+
+    public String getCpf() {
+        return cpf;
+    }
+
+    public void setCpf(String cpf) {
+        this.cpf = cpf;
     }
 
     public String getNumeroConta() {

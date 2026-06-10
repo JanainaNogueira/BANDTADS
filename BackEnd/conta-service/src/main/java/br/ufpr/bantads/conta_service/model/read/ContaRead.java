@@ -22,6 +22,9 @@ public class ContaRead {
     @Column(name = "cliente_id", nullable = false)
     private Integer clienteId;
 
+    @Column(name = "cpf")
+    private String cpf;
+
     @Column(name = "numero_conta", nullable = false, unique = true)
     private String numeroConta;
 
@@ -54,6 +57,14 @@ public class ContaRead {
 
     public void setClienteId(Integer clienteId) {
         this.clienteId = clienteId;
+    }
+
+    public String getCpf() {
+        return cpf;
+    }
+
+    public void setCpf(String cpf) {
+        this.cpf = cpf;
     }
 
     public String getNumeroConta() {

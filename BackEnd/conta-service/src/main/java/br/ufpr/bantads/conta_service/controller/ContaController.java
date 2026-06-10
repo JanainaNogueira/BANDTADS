@@ -144,6 +144,7 @@ public class ContaController {
     private Conta toConta(AdicionarContaDTO dto) {
         return new Conta(
                 dto.clienteId(),
+                null,
                 dto.numeroConta(),
                 dto.dataCriacao(),
                 dto.saldo(),
@@ -155,6 +156,7 @@ public class ContaController {
         return new LerContaDTO(
                 conta.getContaId(),
                 conta.getClienteId(),
+                conta.getCpf(),
                 conta.getNumeroConta(),
                 conta.getDataCriacao(),
                 conta.getSaldo(),
@@ -166,6 +168,7 @@ public class ContaController {
         return new LerContaDTO(
                 conta.getContaId(),
                 conta.getClienteId(),
+                conta.getCpf(),
                 conta.getNumeroConta(),
                 conta.getDataCriacao(),
                 conta.getSaldo(),

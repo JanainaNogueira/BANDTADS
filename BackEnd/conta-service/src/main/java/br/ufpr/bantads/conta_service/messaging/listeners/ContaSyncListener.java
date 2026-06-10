@@ -36,9 +36,11 @@ public class ContaSyncListener {
         ContaRead conta = contaReadRepository.findById(event.contaId()).orElseGet(ContaRead::new);
         conta.setContaId(event.contaId());
         conta.setClienteId(event.clienteId());
+        conta.setCpf(event.cpf());
         conta.setNumeroConta(event.numeroConta());
         conta.setDataCriacao(event.dataCriacao());
         conta.setSaldo(event.saldo());
+        conta.setLimite(event.limite());
         conta.setGerenteId(event.gerenteId());
         contaReadRepository.save(conta);
     }

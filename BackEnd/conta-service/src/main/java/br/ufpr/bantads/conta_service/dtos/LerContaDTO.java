@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 public record LerContaDTO(
     Integer contaId,
     Integer clienteId,
+    String cpf,
     String numeroConta,
     LocalDateTime dataCriacao,
     BigDecimal saldo,

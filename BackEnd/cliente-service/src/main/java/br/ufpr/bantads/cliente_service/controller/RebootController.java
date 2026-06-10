@@ -19,7 +19,7 @@ public class RebootController {
     private final EnderecoRepository enderecoRepo;
 
     public RebootController(ClienteRepository clienteRepo,
-                            EnderecoRepository enderecoRepo) {
+            EnderecoRepository enderecoRepo) {
         this.clienteRepo = clienteRepo;
         this.enderecoRepo = enderecoRepo;
     }
@@ -54,7 +54,7 @@ public class RebootController {
 
     // helper endereço
     private Endereco criarEndereco(String cep, String rua, String numero,
-                                   String complemento, String cidade, String estado) {
+            String complemento, String cidade, String estado) {
         Endereco e = new Endereco();
         e.setCep(cep);
         e.setRua(rua);
@@ -67,7 +67,7 @@ public class RebootController {
 
     // helper cliente
     private Cliente criarCliente(String nome, String email, String cpf,
-                                 Double salario, Endereco endereco) {
+            Double salario, Endereco endereco) {
         Cliente c = new Cliente();
         c.setNome(nome);
         c.setEmail(email);
@@ -75,7 +75,7 @@ public class RebootController {
         c.setTelefone("(41) 99999-9999");
         c.setSalario(salario);
         c.setEndereco(endereco);
-        c.setStatus(StatusEnum.PENDENTE);
+        c.setStatus(StatusEnum.APROVADO);
         return c;
     }
 }

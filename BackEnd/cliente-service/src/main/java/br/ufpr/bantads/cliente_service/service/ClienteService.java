@@ -61,6 +61,7 @@ public class ClienteService {
                     clienteExiste.setTelefone(clienteDTO.telefone());
                     clienteExiste.setEmail(clienteDTO.email());
                     clienteExiste.setEndereco(endereco);
+                    clienteExiste.setSalario(clienteDTO.salario());
 
                     clienteExiste.setStatus(StatusEnum.PENDENTE);
                     clienteExiste.setMotivoReprovacao(null);
@@ -88,6 +89,7 @@ public class ClienteService {
         cliente.setTelefone(clienteDTO.telefone());
         cliente.setEmail(clienteDTO.email());
         cliente.setEndereco(endereco);
+        cliente.setSalario(clienteDTO.salario());
         cliente.setStatus(StatusEnum.PENDENTE);
 
         Cliente salvo = clienteRepository.save(cliente);

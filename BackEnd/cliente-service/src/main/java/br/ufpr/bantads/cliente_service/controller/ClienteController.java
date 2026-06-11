@@ -46,13 +46,15 @@ public class ClienteController {
             @RequestParam(required = false) String filtro,
             @RequestHeader(value = "X-User-Tipo", required = false) String tipo) {
 
-        if ("adm_relatorio_clientes".equals(filtro)) {
-
+        if ("adm_relatorio_clientes".equals(filtro) || "melhores_clientes".equals(filtro)) {
             if (!"ADMINISTRADOR".equals(tipo)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
-
             return ResponseEntity.ok(clienteService.listarClientes());
+        }
+
+        if ("para_aprovar".equals(filtro)) {
+            return ResponseEntity.ok(clienteService.buscarClientesPorStatus("PENDENTE"));
         }
 
         return ResponseEntity.ok(clienteService.listarClientes());

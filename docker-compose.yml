@@ -143,16 +143,18 @@ services:
       - bantads-network
 
   rabbitmq:
-    image: rabbitmq:3-management
+    image: rabbitmq:3.12-management
     ports:
       - "5672:5672"
       - "15672:15672"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
     networks:
       - bantads-network
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "ping"]
       interval: 10s
-      timeout: 5s
+      timeout: 60s
       retries: 5
 
 volumes:
@@ -161,6 +163,7 @@ volumes:
   db-conta-data:
   mongo-conta-data:
   db-gerente-data:
+  rabbitmq-data:
 
 networks:
   bantads-network:

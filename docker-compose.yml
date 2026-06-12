@@ -80,10 +80,12 @@ services:
       - "8081:8080"
     depends_on:
       - mongo-auth
+      - rabbitmq
     networks:
       - bantads-network
     environment:
       JWT_SECRET: "bantads-jwt-secret-key-minimo-32-chars"
+      SPRING_RABBITMQ_HOST: rabbitmq
       
   cliente-service:
     build: ./BackEnd/cliente-service

@@ -17,4 +17,11 @@ router.get('/clientes/:id', async (req, res) => {
         });
     }
 });
+router.get('/gerentes', async (req, res, next) => {
+    if (req.query.filtro === 'dashboard') {
+        const resultado = await (0, composition_service_1.buscarDashboardGerentes)();
+        return res.json(resultado);
+    }
+    next();
+});
 exports.default = router;

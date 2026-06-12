@@ -154,7 +154,7 @@ services:
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "ping"]
       interval: 10s
-      timeout: 60s
+      timeout: 200s
       retries: 5
 
 volumes:

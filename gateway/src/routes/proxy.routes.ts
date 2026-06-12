@@ -42,20 +42,6 @@ router.post('/clientes', createProxyMiddleware({ // adicionado: POST para saga-s
   logger: console,
 }));
 
-// router.post('/gerentes', createProxyMiddleware({
-//   target: 'http://saga-service:8080',
-//   changeOrigin: true,
-//   pathRewrite: rewriteWithPrefix('/gerentes'),
-//   logger: console,
-// }));
-
-// router.delete('/gerentes/:cpf', createProxyMiddleware({
-//   target: 'http://saga-service:8080',
-//   changeOrigin: true,
-//   pathRewrite: rewriteWithPrefix('/gerentes'),
-//   logger: console,
-// }));
-
 router.get('/clientes', createProxyMiddleware({
   target: 'http://cliente-service:8080',
   changeOrigin: true,

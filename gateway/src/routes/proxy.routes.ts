@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import jwt from 'jsonwebtoken';
+import { buscarClienteCompletoEmail } from '../services/composition.service';
 
 const router = Router();
 
@@ -80,6 +81,11 @@ router.get('/clientes/:id', createProxyMiddleware({
   },
   logger: console,
 }));
+
+router.get('/clientes/email/:email', async (req, res) => {
+  const resultado = await buscarClienteCompletoEmail(req.params.email);
+  return res.json(resultado);
+});
 
 router.use(
   '/gerentes',

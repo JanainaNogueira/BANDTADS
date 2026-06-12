@@ -17,7 +17,7 @@ import { forkJoin } from 'rxjs';
   styleUrl: './home.css',
 })
 export class Home implements OnInit {
-  login: Customer | null = null;
+  cliente: Customer | null = null;
   transactions: any[] = [];
 
   constructor(
@@ -36,7 +36,8 @@ export class Home implements OnInit {
     if (email) {
       this.customerService.buscarClientePorEmail(email).subscribe({
         next: (cliente) => {
-          this.login = cliente;
+          this.cliente = cliente;
+          console.log(this.cliente)
           this.carregarUltimasTransacoes();
         },
         error: (err) => console.error('Erro ao carregar dados do cliente', err)
@@ -45,21 +46,21 @@ export class Home implements OnInit {
   }
 
   carregarUltimasTransacoes() {
-    if (!this.login || !this.login.numberAccount) return;
+    if (!this.cliente || !this.cliente.conta[0]) return;
 
     const hoje = new Date();
     const inicio = new Date();
     inicio.setDate(hoje.getDate() - 30);
 
     forkJoin({
-      extrato: this.transactionService.consultarExtrato(this.login.numberAccount, inicio, hoje),
+      extrato: this.transactionService.consultarExtrato(this.cliente.numberAccount, inicio, hoje),
       clientes: this.customerService.obterTodosClientes()
     }).subscribe({
       next: (resp) => {
         this.transactions = resp.extrato
           .slice(0, 3)
           .map(t => {
-            const isEntrada = t.valor > 0 || t.tipo === 'DEPOSITO' || (t.tipo === 'TRANSFERENCIA' && t.contaDestino === this.login?.numberAccount);
+            const isEntrada = t.valor > 0 || t.tipo === 'DEPOSITO' || (t.tipo === 'TRANSFERENCIA' && t.contaDestino === this.cliente?.numberAccount);
             let nomeOutro = '';
 
             if (t.tipo === 'TRANSFERENCIA') {
@@ -82,10 +83,10 @@ export class Home implements OnInit {
   }
 
   abrirOperacoes(tabInicial: number): void {
-    if (!this.login) return;
+    if (!this.cliente) return;
 
     const ref = this.dialog.open(Operacoes, {
-      data: { tabInicial, cliente: this.login },
+      data: { tabInicial, cliente: this.cliente },
       width: '760px',
       maxWidth: '96vw'
     });
@@ -98,11 +99,11 @@ export class Home implements OnInit {
   }
 
   get balanceClass(): string {
-    return (this.login?.balance ?? 0) < 0 ? 'text-red-500' : 'text-[#FFFFFF]';
+    return (this.cliente?.balance ?? 0) < 0 ? 'text-red-500' : 'text-[#FFFFFF]';
   }
 
   get formattedBalance(): string {
-    const balance = this.login?.balance ?? 0;
+    const balance = this.cliente?.balance ?? 0;
     return balance.toLocaleString('pt-BR', {
       style: 'currency',
       currency: 'BRL',

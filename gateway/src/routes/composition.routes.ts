@@ -1,7 +1,8 @@
 import { Router } from 'express';
 
 import {
-  buscarClienteCompleto
+  buscarClienteCompleto,
+  buscarClienteCompletoEmail
 } from '../services/composition.service';
 
 const router = Router();
@@ -30,5 +31,30 @@ router.get('/clientes/:id', async (req, res) => {
   }
 
 });
+
+router.get('/clientes/:email', async (req, res) => {
+
+  try {
+
+    const { email } = req.params;
+
+    const resultado = await buscarClienteCompletoEmail(email);
+
+    return res.json(resultado);
+
+  } catch (error: any) {
+
+    console.error(error.message);
+
+    return res.status(500).json({
+
+      error: 'Erro ao compor cliente'
+
+    });
+
+  }
+
+});
+
 
 export default router;

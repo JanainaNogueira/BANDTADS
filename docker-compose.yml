@@ -71,6 +71,8 @@ services:
       - "8080:8080"
     networks:
       - bantads-network
+    environment:
+      JWT_SECRET: "bantads-jwt-secret-key-minimo-32-chars"
 
   auth-service:
     build: ./BackEnd/auth-service
@@ -81,6 +83,8 @@ services:
       - rabbitmq
     networks:
       - bantads-network
+    environment:
+      JWT_SECRET: "bantads-jwt-secret-key-minimo-32-chars"
       
   cliente-service:
     build: ./BackEnd/cliente-service

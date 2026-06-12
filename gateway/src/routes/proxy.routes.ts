@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import { buscarDashboardGerentes } from '../services/composition.service';
+import jwt from 'jsonwebtoken';
 
 const router = Router();
 
@@ -12,12 +13,28 @@ const rewriteWithPrefix = (prefix: string) => (path: string) => {
   return `${prefix}${path}`;
 };
 
+const JWT_SECRET = process.env.JWT_SECRET || 'bantads-jwt-secret-key-minimo-32-chars';
+
+const injectUserType = (proxyReq: any, req: any) => {
+  const auth = req.headers.authorization;
+  if (auth) {
+    try {
+      const token = auth.replace('Bearer ', '');
+      const decoded: any = jwt.verify(token, JWT_SECRET);
+      proxyReq.setHeader('X-User-Tipo', decoded.tipo);
+      proxyReq.setHeader('X-User-Email', decoded.email);
+    } catch (e) {
+      // token inválido — deixa passar, o serviço decide
+    }
+  }
+};
+
 router.use('/login', createProxyMiddleware({
   target: 'http://auth-service:8080', // corrigido: era 8080
   changeOrigin: true,
   pathRewrite: () => '/auth/login',
   logger: console,
-  proxyTimeout: 30000,  
+  proxyTimeout: 30000,
   timeout: 30000,
 }));
 
@@ -35,10 +52,22 @@ router.use('/logout', createProxyMiddleware({
   }
 } as any));
 
+router.get('/clientes/:id', createProxyMiddleware({
+  target: 'http://cliente-service:8080',
+  changeOrigin: true,
+  pathRewrite: { '^/clientes': '/clientes' },
+  logger: console,
+  on: {
+    proxyReq: injectUserType
+  }
+}));
+
 router.post('/clientes', createProxyMiddleware({ // adicionado: POST para saga-service
   target: 'http://saga-service:8080',
   changeOrigin: true,
-  pathRewrite: rewriteWithPrefix('/clientes'),
+  pathRewrite: {
+    '^/clientes': '/clientes'
+  },
   logger: console,
 }));
 
@@ -49,12 +78,17 @@ router.get('/clientes', createProxyMiddleware({
     '^/clientes': '/clientes'
   },
   logger: console,
+  on: {
+    proxyReq: injectUserType
+  }
 }));
 
 router.get('/clientes/:id', createProxyMiddleware({
   target: 'http://cliente-service:8080',
   changeOrigin: true,
-  pathRewrite: rewriteWithPrefix('/clientes'),
+  pathRewrite: {
+    '^/clientes': '/clientes'
+  },
   logger: console,
 }));
 

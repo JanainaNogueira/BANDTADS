@@ -7,10 +7,12 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import br.ufpr.bantads.cliente_service.config.ClienteRepository;
 import br.ufpr.bantads.cliente_service.config.EnderecoRepository;
 import br.ufpr.bantads.cliente_service.dtos.AutocadastroDTO;
+import br.ufpr.bantads.cliente_service.dtos.ClienteComContaDTO;
 import br.ufpr.bantads.cliente_service.model.Cliente;
 import br.ufpr.bantads.cliente_service.model.Endereco;
 import br.ufpr.bantads.cliente_service.model.StatusEnum;
@@ -27,6 +29,9 @@ public class ClienteService {
 
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private RestTemplate restTemplate;
 
     public Cliente salvarCliente(AutocadastroDTO clienteDTO) {
 
@@ -107,7 +112,7 @@ public class ClienteService {
     }
 
     public List<Cliente> listarClientes() {
-        return clienteRepository.findAll(Sort.by(Sort.Direction.ASC, "nome"));
+        return clienteRepository.findByStatus(StatusEnum.APROVADO, Sort.by(Sort.Direction.ASC, "nome"));
     }
 
     public Cliente buscarClientePorId(Integer id) {
@@ -143,7 +148,7 @@ public class ClienteService {
     }
 
     public List<Cliente> buscarClientesPorStatus(String status) {
-        return clienteRepository.findByStatus(StatusEnum.valueOf(status.toUpperCase()));
+        return clienteRepository.findByStatus(StatusEnum.valueOf(status.toUpperCase()), Sort.by(Sort.Direction.ASC, "nome"));
     }
 
     public Cliente atualizarCliente(Cliente cliente) {
@@ -187,6 +192,39 @@ public class ClienteService {
         emailService.enviarEmail(cliente.getEmail(), subject, text);
 
         return salvo;
+    }
+
+    public ClienteComContaDTO buscarClienteComConta(String cpf) {
+        Cliente cliente = buscarClientePorCpf(cpf);
+
+        ClienteComContaDTO dto = new ClienteComContaDTO();
+        dto.setId(cliente.getId());
+        dto.setNome(cliente.getNome());
+        dto.setEmail(cliente.getEmail());
+        dto.setCpf(cliente.getCpf());
+        dto.setTelefone(cliente.getTelefone());
+        dto.setSalario(cliente.getSalario());
+        dto.setStatus(cliente.getStatus().name());
+        dto.setEndereco(cliente.getEndereco());
+        dto.setDataReprovacao(cliente.getDataReprovacao());
+
+        try {
+            var contas = restTemplate.getForObject(
+                    "http://conta-service:8080/contas/cliente/" + cliente.getId(),
+                    java.util.List.class
+            );
+            if (contas != null && !contas.isEmpty()) {
+                var conta = (java.util.Map<?, ?>) contas.get(0);
+                dto.setConta(String.valueOf(conta.get("numeroConta")));
+                dto.setSaldo(Double.parseDouble(String.valueOf(conta.get("saldo"))));
+                dto.setLimite(Double.parseDouble(String.valueOf(conta.get("limite"))));
+                dto.setGerente(String.valueOf(conta.get("gerenteId")));
+            }
+        } catch (Exception e) {
+            // conta-service indisponível — retorna sem dados de conta
+        }
+
+        return dto;
     }
 
 }

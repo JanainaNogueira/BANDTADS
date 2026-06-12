@@ -38,7 +38,6 @@ public class AuthService {
         }
 
         Usuario usuario = usuarioOpt.get();
-
         String senhaCriptografada = gerarSHA256(dto.getSenha(), SALT);
 
         if (!senhaCriptografada.equals(usuario.getSenha())) {
@@ -57,17 +56,20 @@ public class AuthService {
     }
 
     private String gerarToken(String login, String tipo) {
-        SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
-
-        long now = System.currentTimeMillis();
-
-        return Jwts.builder()
-                .setSubject(login)
-                .claim("email", login)
-                .claim("tipo", tipo)
-                .setIssuedAt(new java.util.Date(now))
-                .signWith(key, SignatureAlgorithm.HS256)
-                .compact();
+        try {
+            SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+            long now = System.currentTimeMillis();
+            String token = Jwts.builder()
+                    .setSubject(login)
+                    .claim("email", login)
+                    .claim("tipo", tipo)
+                    .setIssuedAt(new java.util.Date(now))
+                    .signWith(key, SignatureAlgorithm.HS256)
+                    .compact();
+            return token;
+        } catch (Exception e) {
+            throw e;
+        }
     }
 
     public String getEmailFromToken(String jwt) {

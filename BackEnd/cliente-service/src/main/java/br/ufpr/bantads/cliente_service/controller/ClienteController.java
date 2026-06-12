@@ -2,6 +2,7 @@ package br.ufpr.bantads.cliente_service.controller;
 
 import java.util.List;
 
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,10 +12,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.ufpr.bantads.cliente_service.dtos.AutocadastroDTO;
+import br.ufpr.bantads.cliente_service.dtos.ClienteComContaDTO;
 import br.ufpr.bantads.cliente_service.model.Cliente;
 import br.ufpr.bantads.cliente_service.service.ClienteService;
 
@@ -25,10 +29,10 @@ public class ClienteController {
     @Autowired
     private ClienteService clienteService;
 
-    @PostMapping
-    public ResponseEntity<Cliente> autocadastro(@RequestBody AutocadastroDTO cliente) {
-        Cliente clienteSalvo = clienteService.salvarCliente(cliente);
-        return ResponseEntity.status(HttpStatus.CREATED).body(clienteSalvo);
+    @RabbitListener(queues = "cliente.criar")
+    public Cliente criarCliente(AutocadastroDTO dto) {
+
+        return clienteService.salvarCliente(dto);
     }
 
     @DeleteMapping("/{id}")
@@ -38,26 +42,38 @@ public class ClienteController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Cliente>> listarClientes() {
-        List<Cliente> clientes = clienteService.listarClientes();
-        return ResponseEntity.ok(clientes);
+    public ResponseEntity<?> listarClientes(
+            @RequestParam(required = false) String filtro,
+            @RequestHeader(value = "X-User-Tipo", required = false) String tipo) {
+
+        if ("adm_relatorio_clientes".equals(filtro)) {
+
+            if (!"ADMINISTRADOR".equals(tipo)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+            }
+
+            return ResponseEntity.ok(clienteService.listarClientes());
+        }
+
+        return ResponseEntity.ok(clienteService.listarClientes());
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Cliente> buscarClientePorId(@PathVariable Integer id) {
-        Cliente cliente = clienteService.buscarClientePorId(id);
-        return ResponseEntity.ok(cliente);
+    @GetMapping("/{identificador}")
+    public ResponseEntity<?> buscarCliente(@PathVariable String identificador) {
+        try {
+            ClienteComContaDTO dto = clienteService.buscarClienteComConta(identificador);
+            if ("REPROVADO".equals(dto.getStatus())) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(dto);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @GetMapping("/email/{email}")
     public ResponseEntity<Cliente> buscarClientePorEmail(@PathVariable String email) {
         Cliente cliente = clienteService.buscarClientePorEmail(email);
-        return ResponseEntity.ok(cliente);
-    }
-
-    @GetMapping("/cpf/{cpf}")
-    public ResponseEntity<Cliente> buscarClientePorCpf(@PathVariable String cpf) {
-        Cliente cliente = clienteService.buscarClientePorCpf(cpf);
         return ResponseEntity.ok(cliente);
     }
 
@@ -90,5 +106,15 @@ public class ClienteController {
     public ResponseEntity<Cliente> rejeitarCliente(@PathVariable Integer id, @RequestBody String motivo) {
         Cliente clienteRejeitado = clienteService.rejeitarCliente(id, motivo);
         return ResponseEntity.ok(clienteRejeitado);
+    }
+
+    @GetMapping("/existe/{cpf}")
+    public ResponseEntity<Boolean> verificarExistencia(@PathVariable String cpf) {
+        try {
+            clienteService.buscarClientePorCpf(cpf);
+            return ResponseEntity.ok(true);
+        } catch (RuntimeException e) {
+            return ResponseEntity.ok(false);
+        }
     }
 }

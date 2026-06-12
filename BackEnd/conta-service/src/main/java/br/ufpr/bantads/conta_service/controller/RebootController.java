@@ -2,11 +2,14 @@ package br.ufpr.bantads.conta_service.controller;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 import br.ufpr.bantads.conta_service.model.Conta;
 import br.ufpr.bantads.conta_service.repository.write.ContaWriteRepository;
@@ -25,18 +28,29 @@ public class RebootController {
 
         repo.deleteAll();
 
-        Conta c1 = criarConta(1, "1291", "12912861012");
-        Conta c2 = criarConta(2, "0950", "09506382000");
-        Conta c3 = criarConta(3, "8573", "85733854057");
-        Conta c4 = criarConta(4, "5887", "58872160006");
-        Conta c5 = criarConta(5, "7617", "76179646090");
+        RestTemplate restTemplate = new RestTemplate();
+        List<Map<String, Object>> clientes = restTemplate.getForObject(
+                "http://cliente-service:8080/clientes", List.class);
 
-        repo.saveAll(List.of(c1, c2, c3, c4, c5));
+        Map<String, Integer> cpfParaId = new HashMap<>();
+        if (clientes != null) {
+            for (Map<String, Object> c : clientes) {
+                cpfParaId.put((String) c.get("cpf"), (Integer) c.get("id"));
+            }
+        }
+
+        repo.saveAll(List.of(
+                criarConta(cpfParaId.getOrDefault("12912861012", 1), "1291"),
+                criarConta(cpfParaId.getOrDefault("09506382000", 2), "0950"),
+                criarConta(cpfParaId.getOrDefault("85733854057", 3), "8573"),
+                criarConta(cpfParaId.getOrDefault("58872160006", 4), "5887"),
+                criarConta(cpfParaId.getOrDefault("76179646090", 5), "7617")
+        ));
 
         return ResponseEntity.ok().build();
     }
 
-    private Conta criarConta(Integer clienteId, String numeroConta, String cpfCliente) {
+    private Conta criarConta(Integer clienteId, String numeroConta) {
 
         Conta c = new Conta();
 

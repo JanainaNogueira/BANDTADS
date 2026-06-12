@@ -3,6 +3,7 @@ package br.ufpr.bantads.cliente_service.config;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -18,6 +19,6 @@ public interface ClienteRepository extends JpaRepository<Cliente, Integer> {
 
     Optional<Cliente> findByNome(String nome);
 
-    List<Cliente> findByStatus(StatusEnum status);
+    List<Cliente> findByStatus(StatusEnum status, Sort sort);
 
 }

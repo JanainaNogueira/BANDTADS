@@ -29,7 +29,10 @@ public class ContaConsumer {
 
     @RabbitListener(queues = br.ufpr.bantads.conta_service.messaging.RabbitMQConstants.CONTA_CRIAR_QUEUE)
     public void criarConta(ContaCriarCommand command) {
-        contaService.criarContaParaCliente(command.getClienteId(), command.getSagaId());
+        contaService.criarContaParaCliente(
+                command.getClienteId(),
+                command.getSagaId(),
+                command.getSalario() != null ? command.getSalario() : 0.0);
     }
 
     @RabbitListener(queues = ContaRabbitConfig.FILA_MS)

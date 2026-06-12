@@ -1,7 +1,10 @@
 package br.ufpr.bantads.cliente_service.service;
 
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +19,9 @@ import br.ufpr.bantads.cliente_service.model.Endereco;
 import br.ufpr.bantads.cliente_service.model.StatusEnum;
 
 @Service
-
 public class ClienteService {
+
+    private static final SecureRandom RANDOM = new SecureRandom();
 
     @Autowired
     private ClienteRepository clienteRepository;
@@ -32,7 +36,6 @@ public class ClienteService {
 
         Optional<Cliente> existeOpt = clienteRepository.findByCpf(clienteDTO.cpf());
 
-        //validação de cadastro existente ou duplicado
         if (existeOpt.isPresent()) {
             Cliente clienteExiste = existeOpt.get();
 
@@ -55,8 +58,8 @@ public class ClienteService {
                     clienteExiste.setNome(clienteDTO.nome());
                     clienteExiste.setTelefone(clienteDTO.telefone());
                     clienteExiste.setEmail(clienteDTO.email());
+                    clienteExiste.setSalario(clienteDTO.salario());
                     clienteExiste.setEndereco(endereco);
-
                     clienteExiste.setStatus(StatusEnum.PENDENTE);
                     clienteExiste.setMotivoReprovacao(null);
                     clienteExiste.setDataReprovacao(null);
@@ -82,6 +85,7 @@ public class ClienteService {
         cliente.setCpf(clienteDTO.cpf());
         cliente.setTelefone(clienteDTO.telefone());
         cliente.setEmail(clienteDTO.email());
+        cliente.setSalario(clienteDTO.salario());
         cliente.setEndereco(endereco);
         cliente.setStatus(StatusEnum.PENDENTE);
 
@@ -110,20 +114,20 @@ public class ClienteService {
         return clienteRepository.findAll(Sort.by(Sort.Direction.ASC, "nome"));
     }
 
+    public List<Cliente> listarClientesPendentes() {
+        return clienteRepository.findByStatus(StatusEnum.PENDENTE);
+    }
+
     public Cliente buscarClientePorId(Integer id) {
-        Cliente cliente = clienteRepository.findById(id).orElseThrow(
+        return clienteRepository.findById(id).orElseThrow(
                 () -> new RuntimeException("Cliente não encontrado com o ID: " + id)
         );
-
-        return cliente;
     }
 
     public Cliente buscarClientePorEmail(String email) {
-        Cliente cliente = clienteRepository.findByEmail(email).orElseThrow(
+        return clienteRepository.findByEmail(email).orElseThrow(
                 () -> new RuntimeException("Cliente não encontrado com o email: " + email)
         );
-
-        return cliente;
     }
 
     public Cliente buscarClientePorCpf(String cpf) {
@@ -131,15 +135,25 @@ public class ClienteService {
                 () -> new RuntimeException("Cliente não encontrado com o CPF: " + cpf)
         );
 
+        if (cliente.getStatus() == StatusEnum.REPROVADO) {
+            throw new RuntimeException("Cliente não encontrado com o CPF: " + cpf);
+        }
+
         return cliente;
     }
 
+    public Cliente buscarClientePorIdentificador(String identificador) {
+        if (identificador != null && identificador.matches("\\d{11}")) {
+            return buscarClientePorCpf(identificador);
+        }
+
+        return buscarClientePorId(Integer.parseInt(identificador));
+    }
+
     public Cliente buscarClientePorNome(String nome) {
-        Cliente cliente = clienteRepository.findByNome(nome).orElseThrow(
+        return clienteRepository.findByNome(nome).orElseThrow(
                 () -> new RuntimeException("Cliente não encontrado com o nome: " + nome)
         );
-
-        return cliente;
     }
 
     public List<Cliente> buscarClientesPorStatus(String status) {
@@ -153,26 +167,65 @@ public class ClienteService {
         return clienteRepository.save(cliente);
     }
 
-    public Cliente aprovarCliente(Integer id) {
+    public Map<String, Object> aprovarCliente(Integer id) {
         Cliente cliente = buscarClientePorId(id);
 
-        cliente.setStatus(StatusEnum.APROVADO);
+        if (cliente.getStatus() != StatusEnum.PENDENTE) {
+            throw new RuntimeException("Apenas clientes pendentes podem ser aprovados");
+        }
 
+        cliente.setStatus(StatusEnum.APROVADO);
         Cliente salvo = clienteRepository.save(cliente);
 
+        String senha = gerarSenhaAleatoria();
+        enviarEmailAprovacao(salvo, senha);
+
+        return montarRespostaAprovacao(salvo, senha);
+    }
+
+    public Map<String, Object> aprovarClientePorCpf(String cpf) {
+        Cliente cliente = clienteRepository.findByCpf(cpf).orElseThrow(
+                () -> new RuntimeException("Cliente não encontrado com o CPF: " + cpf)
+        );
+
+        if (cliente.getStatus() != StatusEnum.PENDENTE) {
+            throw new RuntimeException("Apenas clientes pendentes podem ser aprovados");
+        }
+
+        return aprovarCliente(cliente.getId());
+    }
+
+    private Map<String, Object> montarRespostaAprovacao(Cliente cliente, String senha) {
+        Map<String, Object> resposta = new LinkedHashMap<>();
+        resposta.put("id", cliente.getId());
+        resposta.put("nome", cliente.getNome());
+        resposta.put("cpf", cliente.getCpf());
+        resposta.put("email", cliente.getEmail());
+        resposta.put("telefone", cliente.getTelefone());
+        resposta.put("salario", cliente.getSalario());
+        resposta.put("status", cliente.getStatus());
+        resposta.put("senha", senha);
+        return resposta;
+    }
+
+    private void enviarEmailAprovacao(Cliente cliente, String senha) {
         String subject = "BANTADS - Cadastro Aprovado!";
         String text = "Olá " + cliente.getNome() + ",\n\n"
                 + "Parabéns! Seu cadastro no BANTADS foi aprovado.\n"
-                + "Você já pode acessar sua conta utilizando seu e-mail e CPF como senha inicial (apenas números).\n"
+                + "Sua senha de acesso é: " + senha + "\n"
+                + "Utilize seu e-mail e essa senha para realizar o login.\n"
                 + "Recomendamos a alteração da senha no seu primeiro acesso.\n\n"
                 + "Atenciosamente,\nEquipe BANTADS";
         emailService.enviarEmail(cliente.getEmail(), subject, text);
-
-        return salvo;
     }
 
     public Cliente rejeitarCliente(Integer id, String motivo) {
         Cliente cliente = buscarClientePorId(id);
+
+        if (cliente.getStatus() != StatusEnum.PENDENTE) {
+            throw new RuntimeException("Apenas clientes pendentes podem ser rejeitados");
+        }
+
         cliente.setStatus(StatusEnum.REPROVADO);
         cliente.setMotivoReprovacao(motivo);
         cliente.setDataReprovacao(LocalDateTime.now());
@@ -182,6 +235,7 @@ public class ClienteService {
         String subject = "BANTADS - Cadastro Reprovado";
         String text = "Olá " + cliente.getNome() + ",\n\n"
                 + "Lamentamos informar que seu cadastro no BANTADS foi reprovado após análise.\n"
+                + "Motivo: " + motivo + "\n"
                 + "Você pode tentar realizar um novo cadastro corrigindo suas informações.\n\n"
                 + "Atenciosamente,\nEquipe BANTADS";
         emailService.enviarEmail(cliente.getEmail(), subject, text);
@@ -189,4 +243,19 @@ public class ClienteService {
         return salvo;
     }
 
+    public Cliente rejeitarClientePorCpf(String cpf, String motivo) {
+        Cliente cliente = clienteRepository.findByCpf(cpf).orElseThrow(
+                () -> new RuntimeException("Cliente não encontrado com o CPF: " + cpf)
+        );
+
+        if (cliente.getStatus() != StatusEnum.PENDENTE) {
+            throw new RuntimeException("Apenas clientes pendentes podem ser rejeitados");
+        }
+
+        return rejeitarCliente(cliente.getId(), motivo);
+    }
+
+    private String gerarSenhaAleatoria() {
+        return String.valueOf(1000 + RANDOM.nextInt(9000));
+    }
 }

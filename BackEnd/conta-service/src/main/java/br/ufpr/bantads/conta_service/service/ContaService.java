@@ -174,11 +174,16 @@ public class ContaService {
 
     @Transactional(transactionManager = "writeTransactionManager")
     public Conta criarContaParaCliente(Integer clienteId) {
-        return criarContaParaCliente(clienteId, UUID.randomUUID().toString());
-        }
+        return criarContaParaCliente(clienteId, UUID.randomUUID().toString(), 0.0);
+    }
 
-        @Transactional(transactionManager = "writeTransactionManager")
-        public Conta criarContaParaCliente(Integer clienteId, String sagaId) {
+    @Transactional(transactionManager = "writeTransactionManager")
+    public Conta criarContaParaCliente(Integer clienteId, String sagaId) {
+        return criarContaParaCliente(clienteId, sagaId, 0.0);
+    }
+
+    @Transactional(transactionManager = "writeTransactionManager")
+    public Conta criarContaParaCliente(Integer clienteId, String sagaId, Double salario) {
         List<Conta> contasExistentes = repository.findByClienteId(clienteId);
         if (!contasExistentes.isEmpty()) {
             Conta contaExistente = contasExistentes.get(0);
@@ -190,20 +195,25 @@ public class ContaService {
             return contaExistente;
         }
 
+        BigDecimal limite = salario != null && salario >= 2000.0
+                ? BigDecimal.valueOf(salario / 2.0)
+                : BigDecimal.ZERO;
+
         Conta conta = new Conta();
         conta.setClienteId(clienteId);
         conta.setNumeroConta(gerarNumeroConta(clienteId));
         conta.setDataCriacao(LocalDateTime.now());
         conta.setSaldo(BigDecimal.ZERO);
-        conta.setLimite(BigDecimal.ZERO);
+        conta.setLimite(limite);
         conta.setGerenteId(null);
 
         return salvarConta(conta, sagaId);
     }
 
     private String gerarNumeroConta(Integer clienteId) {
-        long sufixo = System.currentTimeMillis() % 100000;
-        return String.format("%06d-%05d", clienteId, sufixo);
+        // Especificação: 4 dígitos; usa nanoTime + clienteId para minimizar colisões
+        int digitos = (int) Math.abs((System.nanoTime() + clienteId) % 10000);
+        return String.format("%04d", digitos);
     }
 
     public void redistribuirConta(Integer idNovoGerente) {

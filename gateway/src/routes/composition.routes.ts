@@ -1,7 +1,8 @@
 import { Router } from 'express';
 
 import {
-  buscarClienteCompleto
+  buscarClienteCompleto,
+  ClienteNaoEncontradoError
 } from '../services/composition.service';
 
 const router = Router();
@@ -18,6 +19,10 @@ router.get('/clientes/:id', async (req, res) => {
     return res.json(resultado);
 
   } catch (error: any) {
+
+    if (error instanceof ClienteNaoEncontradoError) {
+      return res.status(error.status).json({ error: error.message });
+    }
 
     console.error(error.message);
 

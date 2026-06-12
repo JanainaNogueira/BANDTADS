@@ -17,6 +17,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'bantads-jwt-secret-key-minimo-32-c
 const injectUserType = (proxyReq: any, req: any) => {
   const auth = req.headers.authorization;
   if (auth) {
+    proxyReq.setHeader('Authorization', auth);
     try {
       const token = auth.replace('Bearer ', '');
       const decoded: any = jwt.verify(token, JWT_SECRET);
@@ -27,6 +28,20 @@ const injectUserType = (proxyReq: any, req: any) => {
     }
   }
 };
+
+const clienteServiceProxy = createProxyMiddleware({
+  target: 'http://cliente-service:8080',
+  changeOrigin: true,
+  pathRewrite: {
+    '^/clientes': '/clientes'
+  },
+  logger: console,
+  proxyTimeout: 30000,
+  timeout: 30000,
+  on: {
+    proxyReq: injectUserType
+  }
+});
 
 router.use('/login', createProxyMiddleware({
   target: 'http://auth-service:8080', // corrigido: era 8080
@@ -60,26 +75,25 @@ router.post('/clientes', createProxyMiddleware({ // adicionado: POST para saga-s
   logger: console,
 }));
 
-router.get('/clientes', createProxyMiddleware({
-  target: 'http://cliente-service:8080',
+router.get('/clientes', clienteServiceProxy);
+
+const sagaApprovalProxy = createProxyMiddleware({
+  target: 'http://saga-service:8080',
   changeOrigin: true,
-  pathRewrite: {
-    '^/clientes': '/clientes'
-  },
   logger: console,
+  proxyTimeout: 30000,
+  timeout: 30000,
   on: {
     proxyReq: injectUserType
   }
-}));
+});
 
-router.get('/clientes/:id', createProxyMiddleware({
-  target: 'http://cliente-service:8080',
-  changeOrigin: true,
-  pathRewrite: {
-    '^/clientes': '/clientes'
-  },
-  logger: console,
-}));
+router.post('/clientes/:id/aprovar', sagaApprovalProxy);
+
+router.post('/clientes/:id/rejeitar', sagaApprovalProxy);
+
+// GET /clientes/:id é tratado pelo compositionRoutes (agrega conta + gerente)
+// Não registrar aqui para não sombrear o handler de composição
 
 router.use(
   '/gerentes',

@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
@@ -61,6 +62,8 @@ public class SagaController {
                         .body(Map.of("erro", "CPF já cadastrado: " + cpf));
             } catch (HttpClientErrorException.NotFound ignored) {
                 // CPF não existe — pode prosseguir
+            } catch (HttpServerErrorException ignored) {
+                // cliente-service com erro interno — assume não encontrado e prossegue
             }
         }
 
@@ -73,6 +76,8 @@ public class SagaController {
                         .body(Map.of("erro", "E-mail já cadastrado: " + email));
             } catch (HttpClientErrorException.NotFound ignored) {
                 // E-mail não existe — pode prosseguir
+            } catch (HttpServerErrorException ignored) {
+                // cliente-service com erro interno — assume não encontrado e prossegue
             }
         }
 

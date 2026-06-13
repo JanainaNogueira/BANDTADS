@@ -62,8 +62,12 @@ public class ClienteController {
 
     @GetMapping("/email/{email}")
     public ResponseEntity<Cliente> buscarClientePorEmail(@PathVariable String email) {
-        Cliente cliente = clienteService.buscarClientePorEmail(email);
-        return ResponseEntity.ok(cliente);
+        try {
+            Cliente cliente = clienteService.buscarClientePorEmail(email);
+            return ResponseEntity.ok(cliente);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @GetMapping("/cpf/{cpf}")

@@ -5,6 +5,7 @@ public record AutocadastroDTO(
         String cpf,
         String telefone,
         String email,
+        Double salario,
         EnderecoDTO endereco
         ) {
 

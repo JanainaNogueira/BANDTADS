@@ -7,9 +7,6 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -31,8 +28,6 @@ import org.springframework.web.client.RestTemplate;
 
 import br.ufpr.bantads.saga_service.messaging.SagaProducer;
 import br.ufpr.bantads.saga_service.messaging.dto.AdicionarGerenteDTO;
-import br.ufpr.bantads.saga_service.messaging.dto.SagaMessageDTO;
-import br.ufpr.bantads.saga_service.service.SagaSyncService;
 import br.ufpr.bantads.saga_service.messaging.dto.AutocadastroDTO;
 import br.ufpr.bantads.saga_service.messaging.dto.SagaMessageDTO;
 import br.ufpr.bantads.saga_service.service.SagaSyncService;
@@ -149,10 +144,16 @@ public class SagaController {
     @PostMapping("/clientes/{identificador}/aprovar")
     public ResponseEntity<Object> aprovarCliente(
             @PathVariable String identificador,
-            @RequestHeader(value = "Authorization", required = false) String authorization) {
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @RequestHeader(value = "X-User-Tipo", required = false) String tipo) {
+
+        if (!"GERENTE".equals(tipo)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
 
         HttpHeaders headers = new HttpHeaders();
-        headers.set("X-User-Tipo", "GERENTE");
+        headers.set("X-User-Tipo", tipo);
+
         if (authorization != null) {
             headers.set("Authorization", authorization);
         }
@@ -210,7 +211,13 @@ public class SagaController {
     public ResponseEntity<Object> rejeitarCliente(
             @PathVariable String identificador,
             @RequestBody(required = false) Map<String, Object> body,
-            @RequestHeader(value = "Authorization", required = false) String authorization) {
+            @RequestHeader(value = "Authorization", required = false) String authorization,
+            @RequestHeader(value = "X-User-Tipo", required = false) String tipo) 
+        {
+
+        if (!"GERENTE".equals(tipo)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("X-User-Tipo", "GERENTE");

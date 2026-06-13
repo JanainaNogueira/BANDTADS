@@ -9,7 +9,7 @@ export async function rebootAllServices() {
   await Promise.all([
     axios.get(`${AUTH_URL}/reboot`),
     axios.get(`${CLIENTE_URL}/reboot`),
-    axios.get(`${CONTA_URL}/reboot`),
-    axios.get(`${GERENTE_URL}/reboot`)
+    axios.get(`${GERENTE_URL}/reboot`),
+    axios.get(`${CONTA_URL}/reboot`)
   ]);
 }

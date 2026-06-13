@@ -3,6 +3,7 @@ package br.ufpr.bantads.cliente_service.controller;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import br.ufpr.bantads.cliente_service.dtos.AutocadastroDTO;
+import br.ufpr.bantads.cliente_service.dtos.ClienteComContaDTO;
 import br.ufpr.bantads.cliente_service.messaging.ClienteProducer;
 import br.ufpr.bantads.cliente_service.messaging.dtos.SagaMessageDTO;
 import br.ufpr.bantads.cliente_service.model.Cliente;
@@ -29,6 +32,11 @@ public class ClienteController {
     @Autowired
     private ClienteService clienteService;
 
+    @RabbitListener(queues = "cliente.criar")
+    public Cliente criarCliente(AutocadastroDTO dto) {
+
+        return clienteService.salvarCliente(dto);
+    }
     @Autowired
     private ClienteProducer clienteProducer;
 
@@ -43,7 +51,7 @@ public class ClienteController {
             @RequestParam(required = false) String filtro,
             @RequestHeader(value = "X-User-Tipo", required = false) String tipo) {
 
-        if ("adm_relatorio_clientes".equals(filtro)) {
+        if ("adm_relatorio_clientes".equals(filtro) || "melhores_clientes".equals(filtro)) {
             if (!"ADMINISTRADOR".equals(tipo)) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             }
@@ -51,13 +59,23 @@ public class ClienteController {
         }
 
         if ("para_aprovar".equals(filtro)) {
-            if (!"GERENTE".equals(tipo)) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-            }
-            return ResponseEntity.ok(clienteService.listarClientesPendentes());
+            return ResponseEntity.ok(clienteService.buscarClientesPorStatus("PENDENTE"));
         }
 
         return ResponseEntity.ok(clienteService.listarClientes());
+    }
+
+    @GetMapping("/{identificador}")
+    public ResponseEntity<?> buscarCliente(@PathVariable String identificador) {
+        try {
+            ClienteComContaDTO dto = clienteService.buscarClienteComConta(identificador);
+            if ("REPROVADO".equals(dto.getStatus())) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(dto);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @GetMapping("/email/{email}")
@@ -90,16 +108,6 @@ public class ClienteController {
     public ResponseEntity<List<Cliente>> buscarClientesPorStatus(@PathVariable String status) {
         List<Cliente> clientes = clienteService.buscarClientesPorStatus(status);
         return ResponseEntity.ok(clientes);
-    }
-
-    @GetMapping("/{identificador}")
-    public ResponseEntity<Cliente> buscarCliente(@PathVariable String identificador) {
-        try {
-            Cliente cliente = clienteService.buscarClientePorIdentificador(identificador);
-            return ResponseEntity.ok(cliente);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
     }
 
     @PutMapping("/{id}")
@@ -150,5 +158,15 @@ public class ClienteController {
                 : clienteService.rejeitarCliente(Integer.parseInt(identificador), motivo);
 
         return ResponseEntity.ok(clienteRejeitado);
+    }
+
+    @GetMapping("/existe/{cpf}")
+    public ResponseEntity<Boolean> verificarExistencia(@PathVariable String cpf) {
+        try {
+            clienteService.buscarClientePorCpf(cpf);
+            return ResponseEntity.ok(true);
+        } catch (RuntimeException e) {
+            return ResponseEntity.ok(false);
+        }
     }
 }

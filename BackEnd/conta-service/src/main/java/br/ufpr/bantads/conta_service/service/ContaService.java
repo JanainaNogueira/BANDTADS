@@ -45,13 +45,13 @@ public class ContaService {
     @Transactional(transactionManager = "writeTransactionManager")
     public Conta salvarConta(Conta conta) {
         return salvarConta(conta, UUID.randomUUID().toString());
-        }
+    }
 
-        @Transactional(transactionManager = "writeTransactionManager")
-        public Conta salvarConta(Conta conta, String sagaId) {
+    @Transactional(transactionManager = "writeTransactionManager")
+    public Conta salvarConta(Conta conta, String sagaId) {
         Conta salva = repository.save(conta);
         contaEventPublisher.publicarContaCriada(new ContaCriadaEvent(
-            sagaId,
+                sagaId,
                 salva.getClienteId(),
                 salva.getContaId(),
                 salva.getNumeroConta()));
@@ -174,75 +174,84 @@ public class ContaService {
 
     @Transactional(transactionManager = "writeTransactionManager")
     public Conta criarContaParaCliente(Integer clienteId) {
-        return criarContaParaCliente(clienteId, UUID.randomUUID().toString());
+        return criarContaParaCliente(clienteId, UUID.randomUUID().toString(), 0.0);
     }
 
     @Transactional(transactionManager = "writeTransactionManager")
     public Conta criarContaParaCliente(Integer clienteId, String sagaId) {
+        return criarContaParaCliente(clienteId, sagaId, 0.0);
+    }
+
+    @Transactional(transactionManager = "writeTransactionManager")
+    public Conta criarContaParaCliente(Integer clienteId, String sagaId, Double salario) {
         List<Conta> contasExistentes = repository.findByClienteId(clienteId);
         if (!contasExistentes.isEmpty()) {
             Conta contaExistente = contasExistentes.get(0);
             contaEventPublisher.publicarContaCriada(new ContaCriadaEvent(
-                sagaId,
-                contaExistente.getClienteId(),
-                contaExistente.getContaId(),
-                contaExistente.getNumeroConta()));
+                    sagaId,
+                    contaExistente.getClienteId(),
+                    contaExistente.getContaId(),
+                    contaExistente.getNumeroConta()));
             return contaExistente;
         }
+
+        BigDecimal limite = salario != null && salario >= 2000.0
+                ? BigDecimal.valueOf(salario / 2.0)
+                : BigDecimal.ZERO;
 
         Conta conta = new Conta();
         conta.setClienteId(clienteId);
         conta.setNumeroConta(gerarNumeroConta(clienteId));
         conta.setDataCriacao(LocalDateTime.now());
         conta.setSaldo(BigDecimal.ZERO);
-        conta.setLimite(BigDecimal.ZERO);
+        conta.setLimite(limite);
         conta.setGerenteId(null);
 
         return salvarConta(conta, sagaId);
     }
 
     private String gerarNumeroConta(Integer clienteId) {
-        long sufixo = System.currentTimeMillis() % 100000;
-        return String.format("%06d-%05d", clienteId, sufixo);
+        // Especificação: 4 dígitos; usa nanoTime + clienteId para minimizar colisões
+        int digitos = (int) Math.abs((System.nanoTime() + clienteId) % 10000);
+        return String.format("%04d", digitos);
     }
 
     public void redistribuirConta(Integer idNovoGerente) {
         List<Conta> contas = repository.findAll();
 
-        Map<Integer, List<Conta>> contasPorGerente =
-                contas.stream()
+        Map<Integer, List<Conta>> contasPorGerente
+                = contas.stream()
                         .filter(c -> c.getGerenteId() != null)
                         .collect(Collectors.groupingBy(
                                 Conta::getGerenteId
                         ));
 
-        Optional<Map.Entry<Integer, List<Conta>>> gerenteOrigemOpt =
-                contasPorGerente.entrySet()
+        Optional<Map.Entry<Integer, List<Conta>>> gerenteOrigemOpt
+                = contasPorGerente.entrySet()
                         .stream()
                         .filter(e -> e.getValue().size() > 1)
                         .max(Comparator.comparingInt(
                                 e -> e.getValue().size()
                         ));
 
-        if(gerenteOrigemOpt.isEmpty()) {
+        if (gerenteOrigemOpt.isEmpty()) {
             return;
         }
 
-        List<Conta> contasGerente =
-                gerenteOrigemOpt.get().getValue();
+        List<Conta> contasGerente
+                = gerenteOrigemOpt.get().getValue();
 
+        Optional<Conta> contaOpt
+                = contasGerente.stream()
+                        .filter(c
+                                -> c.getSaldo()
+                                .compareTo(BigDecimal.ZERO) >= 0
+                        )
+                        .min(Comparator.comparing(
+                                Conta::getSaldo
+                        ));
 
-        Optional<Conta> contaOpt =
-            contasGerente.stream()
-                .filter(c ->
-                        c.getSaldo()
-                         .compareTo(BigDecimal.ZERO) >= 0
-                )
-                .min(Comparator.comparing(
-                        Conta::getSaldo
-                ));
-
-        if(contaOpt.isEmpty()) {
+        if (contaOpt.isEmpty()) {
             return;
         }
 
@@ -254,58 +263,56 @@ public class ContaService {
     }
 
     public void redistribuirContasRemocao(Integer idGerenteRemovido) {
-        List<Conta> contas =
-                repository.findAll();
+        List<Conta> contas
+                = repository.findAll();
 
-        List<Conta> contasGerenteRemovido =
-                contas.stream()
-                        .filter(c ->
-                                c.getGerenteId() != null
-                                &&
-                                c.getGerenteId().equals(idGerenteRemovido)
+        List<Conta> contasGerenteRemovido
+                = contas.stream()
+                        .filter(c
+                                -> c.getGerenteId() != null
+                        && c.getGerenteId().equals(idGerenteRemovido)
                         )
                         .toList();
 
-        if(contasGerenteRemovido.isEmpty()) {
+        if (contasGerenteRemovido.isEmpty()) {
             return;
         }
 
-        Map<Integer, List<Conta>> contasPorGerente =
-                contas.stream()
-                        .filter(c ->
-                                c.getGerenteId() != null
-                                &&
-                                !c.getGerenteId().equals(idGerenteRemovido)
+        Map<Integer, List<Conta>> contasPorGerente
+                = contas.stream()
+                        .filter(c
+                                -> c.getGerenteId() != null
+                        && !c.getGerenteId().equals(idGerenteRemovido)
                         )
                         .collect(Collectors.groupingBy(
                                 Conta::getGerenteId
                         ));
 
-        if(contasPorGerente.isEmpty()) {
+        if (contasPorGerente.isEmpty()) {
 
             throw new RuntimeException(
                     "Não é possível remover o último gerente"
             );
         }
 
-        Optional<Map.Entry<Integer, List<Conta>>> gerenteDestinoOpt =
-                contasPorGerente.entrySet()
+        Optional<Map.Entry<Integer, List<Conta>>> gerenteDestinoOpt
+                = contasPorGerente.entrySet()
                         .stream()
                         .min(Comparator.comparingInt(
                                 e -> e.getValue().size()
                         ));
 
-        if(gerenteDestinoOpt.isEmpty()) {
+        if (gerenteDestinoOpt.isEmpty()) {
 
             throw new RuntimeException(
                     "Nenhum gerente disponível"
             );
         }
 
-        Integer idNovoGerente =
-                gerenteDestinoOpt.get().getKey();
+        Integer idNovoGerente
+                = gerenteDestinoOpt.get().getKey();
 
-        for(Conta conta : contasGerenteRemovido) {
+        for (Conta conta : contasGerenteRemovido) {
 
             conta.setGerenteId(idNovoGerente);
 

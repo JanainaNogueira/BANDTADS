@@ -2,7 +2,8 @@ import { Router } from 'express';
 
 import {
   buscarClienteCompleto,
-  buscarDashboardGerentes
+  buscarDashboardGerentes,
+  ClienteNaoEncontradoError
 } from '../services/composition.service';
 
 const router = Router();
@@ -20,6 +21,10 @@ router.get('/clientes/:id', async (req, res) => {
 
   } catch (error: any) {
 
+    if (error instanceof ClienteNaoEncontradoError) {
+      return res.status(error.status).json({ error: error.message });
+    }
+
     console.error(error.message);
 
     return res.status(500).json({
@@ -30,6 +35,17 @@ router.get('/clientes/:id', async (req, res) => {
 
   }
 
+});
+
+router.get('/gerentes', async (req, res, next) => {
+
+  if (req.query.filtro === 'dashboard') {
+
+      const resultado = await buscarDashboardGerentes();
+
+      return res.json(resultado);
+  }
+  next(); 
 });
 
 router.get('/gerentes', async (req, res, next) => {

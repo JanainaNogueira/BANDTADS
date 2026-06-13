@@ -9,7 +9,6 @@ public record AdicionarGerenteDTO(
     @NotBlank(message = "CPF é obrigatório")
     String cpf,
 
-    @NotBlank(message = "Telefone é obrigatório")
     String telefone,
 
     @NotBlank(message = "Email é obrigatório")

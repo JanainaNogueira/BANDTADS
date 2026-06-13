@@ -8,17 +8,19 @@ const cors_1 = __importDefault(require("cors"));
 const proxy_routes_1 = __importDefault(require("./routes/proxy.routes"));
 const saga_routes_1 = __importDefault(require("./routes/saga.routes"));
 const composition_routes_1 = __importDefault(require("./routes/composition.routes"));
+const reboot_routes_1 = __importDefault(require("./routes/reboot.routes"));
 const app = (0, express_1.default)();
 const port = 8080;
 app.use((0, cors_1.default)());
-app.use(express_1.default.json());
 app.use((req, res, next) => {
     console.log(`[${req.method}] ${req.originalUrl}`);
     next();
 });
-app.use(proxy_routes_1.default);
-app.use(saga_routes_1.default);
+app.use(reboot_routes_1.default);
+app.use(saga_routes_1.default); // saga primeiro
 app.use(composition_routes_1.default);
+app.use(proxy_routes_1.default); // proxy depois
+app.use(express_1.default.json());
 app.get('/health', (req, res) => {
     res.json({
         status: 'ok',

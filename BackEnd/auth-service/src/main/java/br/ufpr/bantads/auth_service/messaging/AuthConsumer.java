@@ -1,6 +1,7 @@
 package br.ufpr.bantads.auth_service.messaging;
 
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,10 +10,14 @@ import br.ufpr.bantads.auth_service.dto.SagaMessageDTO;
 import br.ufpr.bantads.auth_service.dto.UsuarioCriadoDTO;
 import br.ufpr.bantads.auth_service.model.Usuario;
 import br.ufpr.bantads.auth_service.repository.UsuarioRepository;
+import br.ufpr.bantads.auth_service.service.AuthService;
 
 @Component
 public class AuthConsumer {
 
+    @Autowired
+    private AuthService authService;
+    
     private final UsuarioRepository usuarioRepository;
     private final AuthProducer producer;
     private final ObjectMapper objectMapper;
@@ -31,11 +36,11 @@ public class AuthConsumer {
     public void consumir(SagaMessageDTO dto) {
 
         System.out.println("AUTH RECEBEU: " + dto.getAcao());
-        
-        if(dto.getAcao().equals("CRIAR_USUARIO_AUTH")) {
 
-            UsuarioCriadoDTO gerente =
-                    objectMapper.convertValue(
+        if (dto.getAcao().equals("CRIAR_USUARIO_AUTH")) {
+
+            UsuarioCriadoDTO gerente
+                    = objectMapper.convertValue(
                             dto.getDados(),
                             UsuarioCriadoDTO.class
                     );
@@ -53,7 +58,7 @@ public class AuthConsumer {
                 );
 
                 usuario.setSenha(
-                        gerente.senha()
+                        authService.gerarSHA256(gerente.senha(), "tads")
                 );
 
                 usuario.setTipo(
@@ -62,8 +67,8 @@ public class AuthConsumer {
 
                 usuarioRepository.save(usuario);
 
-                SagaMessageDTO resposta =
-                        new SagaMessageDTO();
+                SagaMessageDTO resposta
+                        = new SagaMessageDTO();
 
                 resposta.setIdSaga(
                         dto.getIdSaga()
@@ -81,10 +86,10 @@ public class AuthConsumer {
                         resposta
                 );
 
-            } catch(Exception e) {
+            } catch (Exception e) {
 
-                SagaMessageDTO erro =
-                        new SagaMessageDTO();
+                SagaMessageDTO erro
+                        = new SagaMessageDTO();
 
                 erro.setIdSaga(
                         dto.getIdSaga()

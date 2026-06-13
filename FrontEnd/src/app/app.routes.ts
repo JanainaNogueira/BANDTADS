@@ -68,7 +68,7 @@ export const routes: Routes = [
         canActivate: [authGuard]
     },
     {
-        path: 'adm-gerentes',
+        path: 'lista-gerentes',
         component: AdmManager,
         canActivate: [authGuard]
     },

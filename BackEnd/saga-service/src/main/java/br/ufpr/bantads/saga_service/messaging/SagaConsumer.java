@@ -2,8 +2,6 @@ package br.ufpr.bantads.saga_service.messaging;
 
 import java.util.Map;
 
-import java.util.Map;
-
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
@@ -13,7 +11,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import br.ufpr.bantads.saga_service.messaging.config.SagaRabbitConfig;
 import br.ufpr.bantads.saga_service.messaging.dto.SagaMessageDTO;
 import br.ufpr.bantads.saga_service.service.SagaSyncService;
-import br.ufpr.bantads.saga_service.service.SagaSyncService;
 
 @Component
 public class SagaConsumer {
@@ -21,7 +18,6 @@ public class SagaConsumer {
     private final SagaProducer producer;
     private final RabbitTemplate rabbitTemplate;
     private final ObjectMapper objectMapper;
-    private final SagaSyncService sagaSyncService;
     private final SagaSyncService sagaSyncService;
 
     public SagaConsumer(
@@ -35,14 +31,10 @@ public class SagaConsumer {
         this.rabbitTemplate = rabbitTemplate;
         this.objectMapper = objectMapper;
         this.sagaSyncService = sagaSyncService;
-        this.sagaSyncService = sagaSyncService;
     }
 
     @RabbitListener(queues = SagaRabbitConfig.FILA_SAGA)
-    @RabbitListener(queues = SagaRabbitConfig.FILA_SAGA)
     public void consumir(SagaMessageDTO dto) {
-
-        System.out.println("SAGA RECEBEU: " + dto.getAcao());
 
         System.out.println("SAGA RECEBEU: " + dto.getAcao());
 
@@ -79,22 +71,15 @@ public class SagaConsumer {
 
                 SagaMessageDTO auth
                         = new SagaMessageDTO();
-                SagaMessageDTO auth
-                        = new SagaMessageDTO();
 
                 auth.setIdSaga(dto.getIdSaga());
-                auth.setIdSaga(dto.getIdSaga());
 
-                auth.setAcao(
-                        "CRIAR_USUARIO_AUTH"
                 auth.setAcao(
                         "CRIAR_USUARIO_AUTH"
                 );
 
                 auth.setDados(dto.getDados());
-                auth.setDados(dto.getDados());
 
-                producer.enviarParaAuth(auth);
                 producer.enviarParaAuth(auth);
 
                 break;
@@ -110,26 +95,9 @@ public class SagaConsumer {
                 redistribuir.setAcao("REDISTRIBUIR_CONTA");
                 redistribuir.setDados(dto.getDados()); // repassa o objeto completo
                 producer.enviarParaConta(redistribuir);
-            
-
-
-    
-        case "USUARIO_AUTH_CRIADO": {
-                Map<String, Object> dadosGerente = objectMapper.convertValue(
-                        dto.getDados(), Map.class);
-                Integer idGerente = (Integer) dadosGerente.get("id");
-
-                SagaMessageDTO redistribuir = new SagaMessageDTO();
-                redistribuir.setIdSaga(dto.getIdSaga());
-                redistribuir.setAcao("REDISTRIBUIR_CONTA");
-                redistribuir.setDados(dto.getDados()); // repassa o objeto completo
-                producer.enviarParaConta(redistribuir);
                 break;
             }
 
-            case "ERRO_CRIAR_USUARIO_AUTH": {
-                Integer idGerente
-                        = objectMapper.convertValue(
             case "ERRO_CRIAR_USUARIO_AUTH": {
                 Integer idGerente
                         = objectMapper.convertValue(
@@ -139,15 +107,11 @@ public class SagaConsumer {
 
                 SagaMessageDTO remover
                         = new SagaMessageDTO();
-                SagaMessageDTO remover
-                        = new SagaMessageDTO();
 
                 remover.setIdSaga(dto.getIdSaga());
 
                 remover.setAcao("REMOVER_GERENTE");
-                remover.setAcao("REMOVER_GERENTE");
 
-                remover.setDados(idGerente);
                 remover.setDados(idGerente);
 
                 producer.enviarParaGerente(remover);
@@ -181,24 +145,8 @@ public class SagaConsumer {
                 SagaMessageDTO removerGerente = new SagaMessageDTO();
                 removerGerente.setIdSaga(dto.getIdSaga());
                 removerGerente.setAcao("REMOVER_GERENTE");
-                SagaMessageDTO removerGerente = new SagaMessageDTO();
-                removerGerente.setIdSaga(dto.getIdSaga());
-                removerGerente.setAcao("REMOVER_GERENTE");
                 removerGerente.setDados(cpf);
 
-                producer.enviarParaGerente(removerGerente);
-                break;
-            }
-
-            case "DELETAR_GERENTE": {
-                Map<String, Object> dados = objectMapper.convertValue(dto.getDados(), Map.class);
-
-                SagaMessageDTO redistribuir = new SagaMessageDTO();
-                redistribuir.setIdSaga(dto.getIdSaga());
-                redistribuir.setAcao("REDISTRIBUIR_CONTA_DELECAO_GERENTE");
-                redistribuir.setDados(dados);
-
-                producer.enviarParaConta(redistribuir);
                 producer.enviarParaGerente(removerGerente);
                 break;
             }
@@ -217,7 +165,6 @@ public class SagaConsumer {
 
             case "GERENTE_REMOVIDO": {
                 sagaSyncService.concluirSaga(dto.getIdSaga(), dto.getDados());
-                sagaSyncService.concluirSaga(dto.getIdSaga(), dto.getDados());
                 break;
             }
 
@@ -226,29 +173,6 @@ public class SagaConsumer {
                 System.out.println(
                         "Erro na remoção do gerente"
                 );
-
-                break;
-            }
-
-            case "GERENTE_ENCONTRADO": {
-
-                Map<String, Object> dados
-                        = objectMapper.convertValue(
-                                dto.getDados(),
-                                Map.class
-                        );
-
-                SagaMessageDTO redistribuir
-                        = new SagaMessageDTO();
-
-                redistribuir.setIdSaga(dto.getIdSaga());
-                redistribuir.setAcao(
-                        "REDISTRIBUIR_CONTA_DELECAO_GERENTE"
-                );
-
-                redistribuir.setDados(dados);
-
-                producer.enviarParaConta(redistribuir);
 
                 break;
             }

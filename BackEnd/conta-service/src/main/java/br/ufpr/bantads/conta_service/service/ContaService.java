@@ -175,10 +175,10 @@ public class ContaService {
     @Transactional(transactionManager = "writeTransactionManager")
     public Conta criarContaParaCliente(Integer clienteId) {
         return criarContaParaCliente(clienteId, UUID.randomUUID().toString());
-        }
+    }
 
-        @Transactional(transactionManager = "writeTransactionManager")
-        public Conta criarContaParaCliente(Integer clienteId, String sagaId) {
+    @Transactional(transactionManager = "writeTransactionManager")
+    public Conta criarContaParaCliente(Integer clienteId, String sagaId) {
         List<Conta> contasExistentes = repository.findByClienteId(clienteId);
         if (!contasExistentes.isEmpty()) {
             Conta contaExistente = contasExistentes.get(0);

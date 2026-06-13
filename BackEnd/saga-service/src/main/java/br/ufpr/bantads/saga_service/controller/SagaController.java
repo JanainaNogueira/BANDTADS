@@ -190,7 +190,7 @@ public class SagaController {
         } catch (Exception e) {
             return ResponseEntity.status(500).build();
         }
-        return ResponseEntity.ok().build();
+        
     }
 
     @PostMapping("/remover-gerente/{id}")

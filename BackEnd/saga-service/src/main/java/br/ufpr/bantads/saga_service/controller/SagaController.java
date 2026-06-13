@@ -7,6 +7,9 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -28,6 +31,8 @@ import org.springframework.web.client.RestTemplate;
 
 import br.ufpr.bantads.saga_service.messaging.SagaProducer;
 import br.ufpr.bantads.saga_service.messaging.dto.AdicionarGerenteDTO;
+import br.ufpr.bantads.saga_service.messaging.dto.SagaMessageDTO;
+import br.ufpr.bantads.saga_service.service.SagaSyncService;
 import br.ufpr.bantads.saga_service.messaging.dto.AutocadastroDTO;
 import br.ufpr.bantads.saga_service.messaging.dto.SagaMessageDTO;
 import br.ufpr.bantads.saga_service.service.SagaSyncService;
@@ -45,6 +50,9 @@ public class SagaController {
 
     @Value("${conta.service.url:http://conta-service:8080}")
     private String contaServiceUrl;
+
+    public SagaController(SagaProducer producer, SagaSyncService sagaSyncService) {
+    
 
     public SagaController(SagaProducer producer, SagaSyncService sagaSyncService) {
         this.producer = producer;
@@ -249,69 +257,87 @@ public class SagaController {
 
     @DeleteMapping("/gerentes/{cpf}")
     public ResponseEntity<Object> removerGerente(@PathVariable String cpf) {
+        @DeleteMapping("/gerentes/{cpf}")
+        public ResponseEntity<Object> removerGerente
+        (@PathVariable
+        String cpf
+            
+        ) {
         String idSaga = UUID.randomUUID().toString();
 
-        CompletableFuture<Object> future = sagaSyncService.criarSaga(idSaga);
+            CompletableFuture<Object> future = sagaSyncService.criarSaga(idSaga);
 
-        SagaMessageDTO mensagem = new SagaMessageDTO();
-        mensagem.setIdSaga(idSaga);
-        mensagem.setAcao("DELETAR_GERENTE");
-        mensagem.setDados(cpf);
+            CompletableFuture<Object> future = sagaSyncService.criarSaga(idSaga);
 
-        producer.enviarParaGerente(mensagem);
+            SagaMessageDTO mensagem = new SagaMessageDTO();
+            mensagem.setIdSaga(idSaga);
+            mensagem.setAcao("DELETAR_GERENTE");
+            mensagem.setDados(cpf);
+            mensagem.setAcao("DELETAR_GERENTE");
+            mensagem.setDados(cpf);
 
-        try {
-            Object resultado = future.get(30, TimeUnit.SECONDS);
-            return ResponseEntity.ok(resultado);
-        } catch (Exception e) {
-            return ResponseEntity.status(500).build();
+            producer.enviarParaGerente(mensagem);
+
+            try {
+                Object resultado = future.get(30, TimeUnit.SECONDS);
+                return ResponseEntity.ok(resultado);
+            } catch (Exception e) {
+                return ResponseEntity.status(500).build();
+            }
         }
-    }
 
-    @PostMapping("/gerentes")
-    public ResponseEntity<Object> criarGerente(@RequestBody AdicionarGerenteDTO dto) {
+        @PostMapping("/gerentes")
+        public ResponseEntity<Object> criarGerente
+        (@RequestBody
+        AdicionarGerenteDTO dto
+            
+        ) {
         String idSaga = UUID.randomUUID().toString();
 
-        CompletableFuture<Object> future = sagaSyncService.criarSaga(idSaga);
+            CompletableFuture<Object> future = sagaSyncService.criarSaga(idSaga);
 
-        SagaMessageDTO mensagem = new SagaMessageDTO();
-        mensagem.setIdSaga(idSaga);
-        mensagem.setAcao("CRIAR_GERENTE");
-        mensagem.setDados(dto);
+            SagaMessageDTO mensagem = new SagaMessageDTO();
+            mensagem.setIdSaga(idSaga);
+            mensagem.setAcao("CRIAR_GERENTE");
+            mensagem.setDados(dto);
 
-        producer.enviarParaGerente(mensagem);
+            producer.enviarParaGerente(mensagem);
 
-        try {
-            Object resultado = future.get(50, TimeUnit.SECONDS);
-            return ResponseEntity.status(201).body(resultado);
-        } catch (ExecutionException e) {
-            return ResponseEntity.status(409).build();
-        } catch (Exception e) {
-            return ResponseEntity.status(500).build();
+            try {
+                Object resultado = future.get(50, TimeUnit.SECONDS);
+                return ResponseEntity.status(201).body(resultado);
+            } catch (ExecutionException e) {
+                return ResponseEntity.status(409).build();
+            } catch (Exception e) {
+                return ResponseEntity.status(500).build();
+            }
+
         }
 
-    }
-
-    @PostMapping("/remover-gerente/{id}")
-    public ResponseEntity<String> removerGerente(
-            @PathVariable Integer id) {
+        @PostMapping("/remover-gerente/{id}")
+        public ResponseEntity<String> removerGerente
+        (
+            @PathVariable
+        Integer id
+            
+        ) {
 
         String idSaga
-                = UUID.randomUUID().toString();
+                    = UUID.randomUUID().toString();
 
-        SagaMessageDTO mensagem
-                = new SagaMessageDTO();
+            SagaMessageDTO mensagem
+                    = new SagaMessageDTO();
 
-        mensagem.setIdSaga(idSaga);
+            mensagem.setIdSaga(idSaga);
 
-        mensagem.setAcao("REDISTRIBUIR_CONTAS_REMOCAO");
+            mensagem.setAcao("REDISTRIBUIR_CONTAS_REMOCAO");
 
-        mensagem.setDados(id);
+            mensagem.setDados(id);
 
-        producer.enviarParaConta(mensagem);
+            producer.enviarParaConta(mensagem);
 
-        return ResponseEntity.ok(
-                "Saga de remoção iniciada: " + idSaga
-        );
+            return ResponseEntity.ok(
+                    "Saga de remoção iniciada: " + idSaga
+            );
+        }
     }
-}

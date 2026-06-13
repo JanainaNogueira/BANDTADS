@@ -48,4 +48,15 @@ router.get('/gerentes', async (req, res, next) => {
   next(); 
 });
 
+router.get('/gerentes', async (req, res, next) => {
+
+  if (req.query.filtro === 'dashboard') {
+
+      const resultado = await buscarDashboardGerentes();
+
+      return res.json(resultado);
+  }
+  next(); 
+});
+
 export default router;

@@ -126,6 +126,26 @@ router.use('/gerentes', createProxyMiddleware({
   logger: console,
 }));
 
+router.get('/gerentes', async (req, res, next) => {
+  if (req.query.filtro === 'dashboard') {
+    try {
+      const resultado = await buscarDashboardGerentes();
+      return res.json(resultado);
+    } catch (error: any) {
+      console.error(error.message);
+      return res.status(500).json({ error: 'Erro ao compor dashboard' });
+    }
+  }
+  next();
+});
+
+router.use('/gerentes', createProxyMiddleware({
+  target: 'http://gerente-service:8080',
+  changeOrigin: true,
+  pathRewrite: rewriteWithPrefix('/gerentes'),
+  logger: console,
+}));
+
 router.use('/contas', createProxyMiddleware({
   target: 'http://conta-service:8080',
   changeOrigin: true,

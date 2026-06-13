@@ -2,6 +2,8 @@ package br.ufpr.bantads.conta_service.messaging;
 
 import java.util.Map;
 
+import java.util.Map;
+
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 

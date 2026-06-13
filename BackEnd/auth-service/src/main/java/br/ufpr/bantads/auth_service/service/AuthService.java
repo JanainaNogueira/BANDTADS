@@ -28,7 +28,7 @@ import io.jsonwebtoken.security.Keys;
 public class AuthService {
 
     private static final String SALT = "tads";
-    private static final String FILA_MS = "fila-ms-auth";
+    private static final String FILA_MS = "fila-auth";
     private static final String FILA_SAGA = "fila-saga";
 
     @Value("${jwt.secret}")

@@ -142,19 +142,29 @@ services:
     environment:
       SPRING_RABBITMQ_HOST: rabbitmq
     depends_on:
-      - rabbitmq
-      - cliente-service
-      - conta-service
+      rabbitmq:
+        condition: service_healthy
+      cliente-service:
+        condition: service_started
+      conta-service:
+        condition: service_started
     networks:
       - bantads-network
 
   rabbitmq:
-    image: rabbitmq:3-management
+    image: rabbitmq:3.12-management
     ports:
       - "5672:5672"
       - "15672:15672"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
     networks:
       - bantads-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 200s
+      retries: 5
 
 volumes:
   mongo-auth-data:
@@ -162,6 +172,7 @@ volumes:
   db-conta-data:
   mongo-conta-data:
   db-gerente-data:
+  rabbitmq-data:
 
 networks:
   bantads-network:

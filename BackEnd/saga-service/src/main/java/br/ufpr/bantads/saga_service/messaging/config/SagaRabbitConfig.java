@@ -17,8 +17,8 @@ import br.ufpr.bantads.saga_service.messaging.RabbitMQConstants;
 
 @Configuration
 public class SagaRabbitConfig {
-        
-   public static final String FILA_SAGA = "fila-saga";
+
+    public static final String FILA_SAGA = "fila-saga";
 
     public static final String FILA_MS_GERENTE = "fila-ms-gerente";
 
@@ -26,12 +26,7 @@ public class SagaRabbitConfig {
 
     public static final String FILA_MS_CLIENTE = "fila-ms-cliente";
 
-    public static final String FILA_MS_AUTH = "fila-ms-auth";
-
-    @Bean
-    public Queue filaMsAuth() {
-        return new Queue(FILA_MS_AUTH);
-    }
+    public static final String FILA_MS_AUTH = "fila-auth";
 
     @Bean
     public Queue filaSaga() {
@@ -54,6 +49,11 @@ public class SagaRabbitConfig {
     }
 
     @Bean
+    public Queue filaMsAuth() {
+        return new Queue(FILA_MS_AUTH);
+    }
+
+    @Bean
     public MessageConverter jsonMessageConverter() {
         return new Jackson2JsonMessageConverter();
     }
@@ -63,8 +63,8 @@ public class SagaRabbitConfig {
             ConnectionFactory connectionFactory,
             MessageConverter jsonMessageConverter) {
 
-        RabbitTemplate template =
-                new RabbitTemplate(connectionFactory);
+        RabbitTemplate template
+                = new RabbitTemplate(connectionFactory);
 
         template.setMessageConverter(jsonMessageConverter);
 
@@ -76,8 +76,8 @@ public class SagaRabbitConfig {
             ConnectionFactory connectionFactory,
             MessageConverter jsonMessageConverter) {
 
-        SimpleRabbitListenerContainerFactory factory =
-                new SimpleRabbitListenerContainerFactory();
+        SimpleRabbitListenerContainerFactory factory
+                = new SimpleRabbitListenerContainerFactory();
 
         factory.setConnectionFactory(connectionFactory);
 

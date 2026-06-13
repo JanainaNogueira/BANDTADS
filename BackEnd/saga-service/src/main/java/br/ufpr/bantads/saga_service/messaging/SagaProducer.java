@@ -39,7 +39,8 @@ public class SagaProducer {
         );
     }
 
-    public void enviarParaAuth(SagaMessageDTO dto) {
+    public void enviarParaAuth(
+            SagaMessageDTO dto) {
 
         rabbitTemplate.convertAndSend(
                 SagaRabbitConfig.FILA_MS_AUTH,

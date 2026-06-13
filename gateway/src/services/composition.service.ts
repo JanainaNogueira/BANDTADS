@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { clienteCompletoDto } from '../dtos/clienteCompletoDto';
 
 export async function buscarClienteCompleto(id: string) {
 
@@ -42,7 +43,7 @@ export async function buscarClienteCompleto(id: string) {
 
 }
 
-export async function buscarClienteCompletoEmail(email: string) {
+export async function buscarClienteCompletoEmail(email: string): Promise<clienteCompletoDto> {
 
   const clienteResponse = await axios.get(
     `http://cliente-service:8080/clientes/email/${email}`
@@ -65,8 +66,14 @@ export async function buscarClienteCompletoEmail(email: string) {
   }
 
   return {
-    cliente,
+    id: cliente.id,
+    cpf: cliente.cpf,
+    nome: cliente.nome,
+    telefone: cliente.telefone,
+    email: cliente.email,
+    endereco: cliente.endereco,
+    status: cliente.status,
     conta: contaResponse.data,
-    gerente
+    gerente: gerente
   };
 }

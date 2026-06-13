@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, forkJoin, of } from 'rxjs';
 import { map, catchError, switchMap } from 'rxjs/operators';
-import { Customer } from '../models/customer.model';
+import { ClienteCompleto, Customer } from '../models/customer.model';
 import { Status } from '../models/status-enum.model';
 import { environment } from '../../enviroment';
 
@@ -45,8 +45,8 @@ export class CustomerService {
     return this.http.get<Customer>(`${this.clientesApiUrl}/cpf/${cpfLimpo}`);
   }
 
-  buscarClientePorEmail(email: string): Observable<Customer> {
-    return this.http.get<Customer>(`${this.clientesApiUrl}/email/${email}`);
+  buscarClientePorEmail(email: string): Observable<ClienteCompleto> {
+    return this.http.get<ClienteCompleto>(`${this.clientesApiUrl}/email/${email}`);
   }
 
   obterTodosClientes(): Observable<Customer[]> {
@@ -91,15 +91,15 @@ export class CustomerService {
     }
   }
 
-  getClienteLogado(): Observable<Customer | null> {
+  getClienteLogado(): Observable<ClienteCompleto | null> {
     if (typeof window === 'undefined') return of(null);
     const email = localStorage.getItem('email');
     if (!email) return of(null);
     return this.buscarClientePorEmail(email);
   }
 
-  atualizarCliente(cliente: Customer): Observable<Customer> {
-    return this.http.put<Customer>(`${this.clientesApiUrl}/${cliente.id}`, cliente);
+  atualizarCliente(cliente: ClienteCompleto): Observable<ClienteCompleto> {
+    return this.http.put<ClienteCompleto>(`${this.clientesApiUrl}/${cliente.id}`, cliente);
   }
 
   obterTodosClientesApi(): Observable<Customer[]> {

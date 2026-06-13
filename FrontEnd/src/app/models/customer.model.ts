@@ -1,5 +1,20 @@
-import { Manager } from "./manager.model";
+import { Conta } from "./conta.model";
+import { Endereco } from "./endereco.model";
+import { Gerente, Manager } from "./manager.model";
 import { Status } from "./status-enum.model";
+
+export interface ClienteCompleto {
+  id?: number;
+  cpf: string;
+  nome: string;
+  telefone?: string;
+  email: string;
+  salario?: number;
+  endereco: Endereco;
+  status: string;
+  conta: Conta;
+  gerente: Gerente | null;
+}
 
 export interface Customer {
   id?: number;

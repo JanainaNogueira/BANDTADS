@@ -32,14 +32,14 @@
         <div class="flex flex-col md:flex-row justify-between gap-6">
           <div>
             <p class="text-sm text-white/80">Saldo Atual</p>
-            <h2 class="text-4xl font-bold text-white">R$ {{ customer?.balance | number:'1.2-2':'pt-BR' }}</h2>
-            <p class="mt-4 font-semibold text-white">{{ customer?.name }}</p>
+            <h2 class="text-4xl font-bold text-white">R$ {{ customer?.conta?.saldo | number:'1.2-2':'pt-BR' }}</h2>
+            <p class="mt-4 font-semibold text-white">{{ customer?.nome }}</p>
             <p class="text-sm text-white/80">CPF: {{ formatCpf(customer?.cpf || '') }}</p>
           </div>
 
           <div class="self-start md:self-center">
             <p class="text-sm text-white/80">Limite de crédito total</p>
-            <h2 class="text-4xl font-bold text-white">R$ {{ customer?.limit | number:'1.2-2':'pt-BR' }}</h2>
+            <h2 class="text-4xl font-bold text-white">R$ {{ customer?.conta?.limite | number:'1.2-2':'pt-BR' }}</h2>
           </div>
         </div>
       </div>

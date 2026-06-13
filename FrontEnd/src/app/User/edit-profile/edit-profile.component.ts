@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { NgxMaskDirective, provideNgxMask } from 'ngx-mask';
 import { NgClass, CommonModule } from '@angular/common';
 import { CustomerService } from '../../services/customer.service';
-import { Customer } from '../../models/customer.model';
+import { ClienteCompleto, Customer } from '../../models/customer.model';
 import { CepService } from '../../services/cep.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
@@ -19,7 +19,7 @@ export class EditProfileComponent implements OnInit {
 
   perfilForm: FormGroup;
   isEditMode = false;
-  customer?: Customer;
+  customer?: ClienteCompleto;
 
   constructor(
     private fb: FormBuilder,
@@ -48,12 +48,12 @@ export class EditProfileComponent implements OnInit {
         if (cliente) {
           this.customer = cliente;
           this.perfilForm.patchValue({
-            nome: cliente.name,
+            nome: cliente.nome,
             email: cliente.email,
-            telefone: cliente.telephone,
-            salario: cliente.salary,
-            cidade: cliente.city,
-            estado: cliente.state
+            telefone: cliente.telefone,
+            salario: cliente.salario,
+            cidade: cliente.endereco.cidade,
+            estado: cliente.endereco.estado
           });
         }
       },
@@ -103,14 +103,17 @@ export class EditProfileComponent implements OnInit {
 
     const form = this.perfilForm.getRawValue();
 
-    const clienteAtualizado: Customer = {
+    const clienteAtualizado: ClienteCompleto = {
       ...this.customer,
-      name: form.nome,
+      nome: form.nome,
       email: form.email,
-      telephone: form.telefone,
-      salary: Number(form.salario),
-      city: form.cidade,
-      state: form.estado
+      telefone: form.telefone,
+      salario: Number(form.salario),
+      endereco: {
+        ...this.customer.endereco,
+        cidade: form.cidade,
+        estado: form.estado
+      }
     };
 
     this.customerService.atualizarCliente(clienteAtualizado).subscribe({

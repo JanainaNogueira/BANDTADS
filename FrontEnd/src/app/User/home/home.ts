@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { Customer } from '../../models/customer.model';
+import { ClienteCompleto } from '../../models/customer.model';
 import { CustomerService } from '../../services/customer.service';
 import { TransactionService, Transacao } from '../../services/transaction.service';
 import { Operacoes } from './components/operacoes/operacoes';
@@ -17,7 +17,7 @@ import { forkJoin } from 'rxjs';
   styleUrl: './home.css',
 })
 export class Home implements OnInit {
-  cliente: Customer | null = null;
+  cliente: ClienteCompleto | null = null;
   transactions: any[] = [];
 
   constructor(
@@ -46,21 +46,24 @@ export class Home implements OnInit {
   }
 
   carregarUltimasTransacoes() {
-    if (!this.cliente || !this.cliente.conta[0]) return;
+    if (!this.cliente || !this.cliente) return;
 
     const hoje = new Date();
     const inicio = new Date();
     inicio.setDate(hoje.getDate() - 30);
 
     forkJoin({
-      extrato: this.transactionService.consultarExtrato(this.cliente.numberAccount, inicio, hoje),
-      clientes: this.customerService.obterTodosClientes()
+      extrato: this.transactionService.consultarExtrato(
+        this.cliente.conta.numero,
+        inicio,
+        hoje
+      ),      clientes: this.customerService.obterTodosClientes()
     }).subscribe({
       next: (resp) => {
         this.transactions = resp.extrato
           .slice(0, 3)
           .map(t => {
-            const isEntrada = t.valor > 0 || t.tipo === 'DEPOSITO' || (t.tipo === 'TRANSFERENCIA' && t.contaDestino === this.cliente?.numberAccount);
+            const isEntrada = t.valor > 0 || t.tipo === 'DEPOSITO' || (t.tipo === 'TRANSFERENCIA' && t.contaDestino === this.cliente?.conta.numero);
             let nomeOutro = '';
 
             if (t.tipo === 'TRANSFERENCIA') {
@@ -99,11 +102,11 @@ export class Home implements OnInit {
   }
 
   get balanceClass(): string {
-    return (this.cliente?.balance ?? 0) < 0 ? 'text-red-500' : 'text-[#FFFFFF]';
+    return (this.cliente?.conta?.saldo ?? 0) < 0 ? 'text-red-500' : 'text-[#FFFFFF]';
   }
 
   get formattedBalance(): string {
-    const balance = this.cliente?.balance ?? 0;
+    const balance = this.cliente?.conta?.saldo ?? 0;
     return balance.toLocaleString('pt-BR', {
       style: 'currency',
       currency: 'BRL',

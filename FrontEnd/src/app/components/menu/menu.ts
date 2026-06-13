@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { MOCK_CUSTOMERS, MOCK_LOGIN_USER } from '../../../assets/mock/customers.mock';
 import { MOCK_MANAGERS, MOCK_MANAGERS_LIST } from '../../../assets/mock/managers.mock';
 import { MOCK_ADMINS } from '../../../assets/mock/admin.mock';
 import { Customer } from '../../models/customer.model';
@@ -18,7 +17,6 @@ import { MenuActions } from './components/menu-actions/menu-actions';
   styleUrl: './menu.css',
 })
 export class Menu implements OnInit{
-  cliente = MOCK_CUSTOMERS;
     gestores = MOCK_MANAGERS;
     admin = MOCK_ADMINS;
   
@@ -31,9 +29,10 @@ export class Menu implements OnInit{
     ngOnInit() {
       this.email = localStorage.getItem('email') || '';
       this.tipo = this.auth.getTipo();
-      if(this.tipo == "cliente"){
-        this.loginCliente = this.cliente.find(l =>l.email == this.email) || null;
-      }else if(this.tipo == "gerente"){
+      // if(this.tipo == "cliente"){
+      //   this.loginCliente = this.cliente.find(l =>l.email == this.email) || null;
+      // }else 
+      if(this.tipo == "gerente"){
         this.loginGestor = this.gestores.find(l =>l.email == this.email) || null;
       }else{
         this.loginAdmin = this.admin.find(l =>l.email == this.email) || null;

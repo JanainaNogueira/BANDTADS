@@ -10,7 +10,7 @@ import { MatNativeDateModule, MAT_DATE_LOCALE } from '@angular/material/core';
 import { Menu } from '../../components/menu/menu';
 import { Transacao, TransactionService } from '../../services/transaction.service';
 import { CustomerService} from '../../services/customer.service';
-import { Customer } from '../../models/customer.model';
+import { ClienteCompleto, Customer } from '../../models/customer.model';
 
 export interface TransacaoExtrato extends Transacao {
   isEntrada: boolean;
@@ -59,7 +59,7 @@ export class BankStatementComponent {
   pesquisaRealizada = false;
   erroValidacao = '';
 
-  login: Customer | null = null;
+  login: ClienteCompleto | null = null;
 
   ngOnInit() {
     this.carregarUsuarioLogado();
@@ -76,7 +76,7 @@ export class BankStatementComponent {
   }
 
   pesquisar(): void {
-  if (!this.login || !this.login.numberAccount) {
+  if (!this.login || !this.login.conta.numero) {
     this.erroValidacao = 'Cliente não carregado';
     return;
   }
@@ -109,7 +109,7 @@ export class BankStatementComponent {
 
   // Transações
   forkJoin({
-    extrato: this.transactionService.consultarExtrato(this.login.numberAccount, startDate, endDate),
+    extrato: this.transactionService.consultarExtrato(this.login.conta.numero, startDate, endDate),
     clientes: this.customerService.obterTodosClientes()
   }).subscribe({
     next: (resp) => {
@@ -124,7 +124,7 @@ export class BankStatementComponent {
         const grupo = mapaGrupos.get(key);
         if (!grupo) continue;
 
-        const isEntrada = t.valor >= 0 || t.tipo === 'DEPOSITO' || (t.tipo === 'TRANSFERENCIA' && t.contaDestino === this.login?.numberAccount);
+        const isEntrada = t.valor >= 0 || t.tipo === 'DEPOSITO' || (t.tipo === 'TRANSFERENCIA' && t.contaDestino === this.login?.conta.numero);
 
         let nomeOutro = '';
         if (t.tipo === 'TRANSFERENCIA') {
@@ -145,7 +145,7 @@ export class BankStatementComponent {
         grupo.push({ ...t, isEntrada, nomeOutro } as TransacaoExtrato);
       }
 
-      let saldoCorrente = this.login!.balance;
+      let saldoCorrente = this.login!.conta.saldo;
       const chavesOrdenadas = Array.from(mapaGrupos.keys()).sort().reverse();
       
       this.gruposDia = chavesOrdenadas.map(key => {

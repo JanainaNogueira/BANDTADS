@@ -6,7 +6,7 @@
     <!-- HEADER -->
     <header class="w-[95%] h-[6%] mt-4">
       <h1 class="font-medium text-xl mb-1.5">
-        Bem vindo, {{login?.name}}
+        Bem vindo, {{cliente?.nome}}
       </h1>
       <p class="text-[#4B5563] text-xs">
         Como está seu dinheiro hoje
@@ -26,13 +26,13 @@
         <div>
           <label class="text-[#C7D2FE]">Limite da Conta</label>
           <span class="text-[#C7D2FE] text-sm">
-            {{login?.limit | currency:'BRL':'symbol':'1.2-2':'pt-BR'}}
+            {{cliente?.conta[0]?.limite | currency:'BRL':'symbol':'1.2-2':'pt-BR'}}
           </span>
         </div>
 
         <div>
           <label class="text-[#C7D2FE]">Número da conta</label>
-          <p class="text-[#FFFFFF]">{{login?.numberAccount}}</p>
+          <p class="text-[#FFFFFF]">{{cliente?.conta?.numero}}</p>
         </div>
       </div>
     </div>

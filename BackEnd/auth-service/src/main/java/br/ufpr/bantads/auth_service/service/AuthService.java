@@ -5,6 +5,8 @@ import java.security.MessageDigest;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.crypto.SecretKey;
 
@@ -30,6 +32,7 @@ public class AuthService {
     private static final String SALT = "tads";
     private static final String FILA_MS = "fila-auth";
     private static final String FILA_SAGA = "fila-saga";
+    private final Set<String> blacklist = ConcurrentHashMap.newKeySet();
 
     @Value("${jwt.secret}")
     private String jwtSecret;
@@ -170,7 +173,12 @@ public class AuthService {
     }
 
     public String logout(String jwt) {
+        blacklist.add(jwt);
         return getEmailFromToken(jwt);
+    }
+
+    public boolean tokenRevogado(String jwt) {
+        return blacklist.contains(jwt);
     }
 
     public String gerarSHA256(String senha, String salt) {

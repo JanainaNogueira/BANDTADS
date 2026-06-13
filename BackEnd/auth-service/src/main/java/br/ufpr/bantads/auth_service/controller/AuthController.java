@@ -72,4 +72,18 @@ public class AuthController {
             ));
         }
     }
+
+    @PostMapping("/validar")
+    public ResponseEntity<?> validarToken(@RequestHeader("Authorization") String token) {
+        try {
+            String jwt = token.replace("Bearer ", "");
+            if (authService.tokenRevogado(jwt)) {
+                return ResponseEntity.status(401).build();
+            }
+            authService.getEmailFromToken(jwt);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(401).build();
+        }
+    }
 }

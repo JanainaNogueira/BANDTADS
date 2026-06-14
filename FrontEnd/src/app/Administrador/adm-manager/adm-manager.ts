@@ -23,7 +23,7 @@ interface ManagerDashboard extends ManagerSummary {
   selector: 'app-adm-manager',
   imports: [Menu, CommonModule, MatDialogModule, MatIconModule, FormsModule],
   templateUrl: './adm-manager.html',
-  styleUrl: './adm-manager.css',
+  styleUrls: ['./adm-manager.css'],
 })
 export class AdmManager implements OnInit {
   managers: ManagerDashboard[] = [];

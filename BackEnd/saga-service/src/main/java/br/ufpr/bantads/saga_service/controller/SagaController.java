@@ -196,6 +196,7 @@ public class SagaController {
                     if (contas != null && !contas.isEmpty()) {
                         Map<String, Object> conta = contas.get(0);
                         resultado.put("conta", conta.get("numeroConta"));
+                        resultado.put("saldo", conta.get("saldo"));
                         resultado.put("limite", conta.get("limite"));
                         break;
                     }

@@ -3,6 +3,10 @@ package br.ufpr.bantads.gerente_service.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -26,6 +30,21 @@ public class GerenteController {
 
         this.gerenteService = gerenteService;
     }
+
+        @PostMapping
+        public ResponseEntity<LerGerenteDTO> criar(@Valid @RequestBody br.ufpr.bantads.gerente_service.dtos.AdicionarGerenteDTO dto) {
+                var gerente = gerenteService.criarGerenteInterno(dto);
+                var ler = new LerGerenteDTO(
+                                gerente.getId(),
+                                gerente.getNome(),
+                                gerente.getCpf(),
+                                gerente.getEmail(),
+                                gerente.getTipoUsuario().name(),
+                                gerente.getTelefone()
+                );
+
+                return ResponseEntity.status(HttpStatus.CREATED).body(ler);
+        }
 
     @GetMapping
     public ResponseEntity<List<LerGerenteDTO>>

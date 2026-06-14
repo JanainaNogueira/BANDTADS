@@ -5,14 +5,14 @@ import { ButtonSubmit } from '../../../../components/button-submit/button-submit
 import { CommonModule } from '@angular/common';
 import { FormTitle } from '../../../../components/form-title/form-title';
 import { NgxMaskDirective } from 'ngx-mask';
-import { MatIcon } from '@angular/material/icon';
+import { MatIconModule } from '@angular/material/icon';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-form-manager',
-  imports: [ReactiveFormsModule, ButtonSubmit, CommonModule, FormsModule, NgxMaskDirective, MatIcon],
+  imports: [ReactiveFormsModule, ButtonSubmit, CommonModule, FormsModule, NgxMaskDirective, MatIconModule],
   templateUrl: './form-manager.html',
-  styleUrl: './form-manager.css',
+  styleUrls: ['./form-manager.css'],
 })
 export class FormManager {
   dadosPessoais: FormGroup;

@@ -33,7 +33,7 @@ interface RemoveManagerResult {
   standalone: true,
   imports: [CommonModule, MatDialogModule],
   templateUrl: './remove-manager.html',
-  styleUrl: './remove-manager.css',
+  styleUrls: ['./remove-manager.css'],
 })
 export class RemoveManager {
   private readonly MANAGERS_STORAGE_KEY = 'bantads_managers';

@@ -15,7 +15,7 @@ interface ClienteRelatorio extends Customer {
   selector: 'app-adm-customers',
   imports: [CommonModule, Menu, FormsModule, MatIconModule],
   templateUrl: './adm-customers.html',
-  styleUrl: './adm-customers.css', 
+  styleUrls: ['./adm-customers.css'],
 })
 export class AdmCustomers implements OnInit {
 

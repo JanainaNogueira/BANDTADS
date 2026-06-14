@@ -20,6 +20,7 @@ import br.ufpr.bantads.conta_service.messaging.events.ContaSyncEvent;
 import br.ufpr.bantads.conta_service.model.Conta;
 import br.ufpr.bantads.conta_service.model.Movimentacao;
 import br.ufpr.bantads.conta_service.model.TipoMovimentacao;
+import br.ufpr.bantads.conta_service.repository.read.ContaReadRepository;
 import br.ufpr.bantads.conta_service.repository.write.ContaWriteRepository;
 
 @Service
@@ -27,6 +28,7 @@ import br.ufpr.bantads.conta_service.repository.write.ContaWriteRepository;
 public class ContaService {
 
     private final ContaWriteRepository repository;
+    private final ContaReadRepository contaReadRepository;
     private final MovimentacaoService movimentacaoService;
     private final ContaEventPublisher contaEventPublisher;
     private final ContaSyncPublisher contaSyncPublisher;
@@ -35,11 +37,13 @@ public class ContaService {
             ContaWriteRepository repository,
             MovimentacaoService movimentacaoService,
             ContaEventPublisher contaEventPublisher,
-            ContaSyncPublisher contaSyncPublisher) {
+            ContaSyncPublisher contaSyncPublisher,
+            ContaReadRepository contaReadRepository) {
         this.repository = repository;
         this.movimentacaoService = movimentacaoService;
         this.contaEventPublisher = contaEventPublisher;
         this.contaSyncPublisher = contaSyncPublisher;
+        this.contaReadRepository = contaReadRepository;
     }
 
     @Transactional(transactionManager = "writeTransactionManager")
@@ -54,7 +58,9 @@ public class ContaService {
                 sagaId,
                 salva.getClienteId(),
                 salva.getContaId(),
-                salva.getNumeroConta()));
+                salva.getNumeroConta(),
+                salva.getLimite()
+            ));
         contaSyncPublisher.publicarContaSync(ContaSyncEvent.fromConta("UPSERT", salva));
         return salva;
     }
@@ -173,15 +179,15 @@ public class ContaService {
         return repository.findByClienteId(clienteId);
     }
 
-    @Transactional(transactionManager = "writeTransactionManager")
-    public Conta criarContaParaCliente(Integer clienteId) {
-        return criarContaParaCliente(clienteId, UUID.randomUUID().toString(), 0.0);
-    }
+    // @Transactional(transactionManager = "writeTransactionManager")
+    // public Conta criarContaParaCliente(Integer clienteId) {
+    //     return criarContaParaCliente(clienteId, UUID.randomUUID().toString(), 0.0);
+    // }
 
-    @Transactional(transactionManager = "writeTransactionManager")
-    public Conta criarContaParaCliente(Integer clienteId, String sagaId) {
-        return criarContaParaCliente(clienteId, sagaId, 0.0);
-    }
+    // @Transactional(transactionManager = "writeTransactionManager")
+    // public Conta criarContaParaCliente(Integer clienteId, String sagaId) {
+    //     return criarContaParaCliente(clienteId, sagaId, 0.0);
+    // }
 
     @Transactional(transactionManager = "writeTransactionManager")
     public Conta criarContaParaCliente(Integer clienteId, String sagaId, Double salario) {
@@ -192,7 +198,9 @@ public class ContaService {
                     sagaId,
                     contaExistente.getClienteId(),
                     contaExistente.getContaId(),
-                    contaExistente.getNumeroConta()));
+                    contaExistente.getNumeroConta(),
+                    contaExistente.getLimite()
+                ));
             return contaExistente;
         }
 

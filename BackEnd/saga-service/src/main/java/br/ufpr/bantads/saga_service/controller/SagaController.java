@@ -207,9 +207,9 @@ public class SagaController {
         return ResponseEntity.ok(resultado);
     }
 
-    @PostMapping("/clientes/{identificador}/rejeitar")
+    @PostMapping("/clientes/{cpf}/rejeitar")
     public ResponseEntity<Object> rejeitarCliente(
-            @PathVariable String identificador,
+            @PathVariable String cpf,
             @RequestBody(required = false) Map<String, Object> body,
             @RequestHeader(value = "Authorization", required = false) String authorization,
             @RequestHeader(value = "X-User-Tipo", required = false) String tipo) 
@@ -229,7 +229,7 @@ public class SagaController {
 
         try {
             ResponseEntity<Object> resp = restTemplate.exchange(
-                    clienteServiceUrl + "/clientes/" + identificador + "/rejeitar",
+                    clienteServiceUrl + "/clientes/" + cpf + "/rejeitar",
                     HttpMethod.POST, request, Object.class);
             return ResponseEntity.status(resp.getStatusCode()).body(resp.getBody());
         } catch (HttpStatusCodeException e) {

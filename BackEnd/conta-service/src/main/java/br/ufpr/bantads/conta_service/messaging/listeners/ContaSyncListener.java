@@ -40,6 +40,7 @@ public class ContaSyncListener {
         conta.setDataCriacao(event.dataCriacao());
         conta.setSaldo(event.saldo());
         conta.setGerenteId(event.gerenteId());
+        conta.setLimite(event.limite());
         contaReadRepository.save(conta);
     }
 

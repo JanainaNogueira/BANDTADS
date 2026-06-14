@@ -49,6 +49,17 @@ public class AuthService {
     public AuthenticatedUserDTO autenticar(AuthDTO dto) {
 
         Optional<Usuario> usuarioOpt = usuarioRepository.findByLogin(dto.getLogin());
+        System.out.println("LOGIN RECEBIDO: " + dto.getLogin());
+
+        System.out.println("USUARIO ENCONTRADO? " + usuarioOpt.isPresent());
+
+        if (usuarioOpt.isPresent()) {
+            Usuario u = usuarioOpt.get();
+            System.out.println("LOGIN BANCO = " + u.getLogin());
+            System.out.println("TIPO BANCO = " + u.getTipo());
+            System.out.println("CPF BANCO = " + u.getCpf());
+            System.out.println("HASH BANCO = " + u.getSenha());
+        }
 
         if (usuarioOpt.isEmpty()) {
             throw new RuntimeException("Usuário ou senha inválidos");
@@ -57,11 +68,20 @@ public class AuthService {
         Usuario usuario = usuarioOpt.get();
         String senhaCriptografada = gerarSHA256(dto.getSenha(), SALT);
 
+        System.out.println("HASH INFORMADO = " + senhaCriptografada);
+        System.out.println("HASH BANCO = " + usuario.getSenha());
+
         if (!senhaCriptografada.equals(usuario.getSenha())) {
             throw new RuntimeException("Usuário ou senha inválidos");
         }
 
         String token = gerarToken(usuario.getLogin(), usuario.getTipo());
+
+        System.out.println("USUARIO ENCONTRADO:");
+        System.out.println("EMAIL = " + usuario.getLogin());
+        System.out.println("TIPO = " + usuario.getTipo());
+        System.out.println("CPF = " + usuario.getCpf());
+        System.out.println("SENHA BANCO = " + usuario.getSenha());
 
         return new AuthenticatedUserDTO(
                 usuario.getId(),
@@ -117,12 +137,9 @@ public class AuthService {
         Optional<Usuario> existente = usuarioRepository.findByLogin(email);
 
         if (existente.isPresent()) {
-            Usuario usuario = existente.get();
-            usuario.setSenha(senhaHash);
-            usuario.setCpf(cpf);
-            usuario.setTipo("CLIENTE");
-            usuarioRepository.save(usuario);
-            return;
+            throw new RuntimeException(
+                    "Usuário já existe: " + email
+            );
         }
 
         usuarioRepository.save(new Usuario(null, email, senhaHash, "CLIENTE", cpf));

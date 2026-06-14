@@ -22,7 +22,7 @@ public class GerenteAdmin {
     @Column(name = "cpf", nullable = false, unique = true)
     private String cpf;
 
-    @Column(name = "telefone", nullable = false)
+    @Column(name = "telefone", nullable = true)
     private String telefone;
 
     @Column(name = "email", nullable = false, unique = true)
@@ -38,12 +38,13 @@ public class GerenteAdmin {
     public GerenteAdmin() {
     }
 
-    public GerenteAdmin(String nome, String cpf, String telefone, String email, String senha) {
+    public GerenteAdmin(String nome, String cpf, String telefone, String email, String senha, TipoUsuario tipo) {
         this.nome = nome;
         this.cpf = cpf;
         this.telefone = telefone;
         this.email = email;
         this.senha = senha;
+        this.tipoUsuario = tipo;
     }
     
     public Integer getId() {

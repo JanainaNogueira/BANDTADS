@@ -6,7 +6,6 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 
 public record OperacaoDTO(
-    @NotNull(message = "Numero da conta logada é obrigatório")
     String contaLogada,
     
     @NotNull(message = "Valor é obrigatório")

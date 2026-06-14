@@ -117,18 +117,18 @@ public class ClienteController {
         return ResponseEntity.ok(atualizado);
     }
 
-    @PostMapping("/{identificador}/aprovar")
+    @PostMapping("/{cpf}/aprovar")
     public ResponseEntity<?> aprovarCliente(
-            @PathVariable String identificador,
+            @PathVariable String cpf,
             @RequestHeader(value = "X-User-Tipo", required = false) String tipo) {
 
         if (!"GERENTE".equals(tipo)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        Map<String, Object> resultado = identificador.matches("\\d{11}")
-                ? clienteService.aprovarClientePorCpf(identificador)
-                : clienteService.aprovarCliente(Integer.parseInt(identificador));
+        Map<String, Object> resultado = cpf.matches("\\d{11}")
+                ? clienteService.aprovarClientePorCpf(cpf)
+                : clienteService.aprovarCliente(Integer.parseInt(cpf));
 
         String sagaId = java.util.UUID.randomUUID().toString();
 
@@ -141,9 +141,9 @@ public class ClienteController {
         return ResponseEntity.ok(resultado);
     }
 
-    @PostMapping("/{identificador}/rejeitar")
+    @PostMapping("/{cpf}/rejeitar")
     public ResponseEntity<Cliente> rejeitarCliente(
-            @PathVariable String identificador,
+            @PathVariable String cpf,
             @RequestBody(required = false) Map<String, String> payload,
             @RequestHeader(value = "X-User-Tipo", required = false) String tipo) {
 
@@ -153,9 +153,9 @@ public class ClienteController {
 
         String motivo = payload != null ? payload.get("motivo") : null;
 
-        Cliente clienteRejeitado = identificador.matches("\\d{11}")
-                ? clienteService.rejeitarClientePorCpf(identificador, motivo)
-                : clienteService.rejeitarCliente(Integer.parseInt(identificador), motivo);
+        Cliente clienteRejeitado = cpf.matches("\\d{11}")
+                ? clienteService.rejeitarClientePorCpf(cpf, motivo)
+                : clienteService.rejeitarCliente(Integer.parseInt(cpf), motivo);
 
         return ResponseEntity.ok(clienteRejeitado);
     }

@@ -148,17 +148,20 @@ public class ContaController {
         );
     }
 
-    @GetMapping("/{contaId}/extrato")
+    @GetMapping("/{conta}/extrato")
     public ResponseEntity<List<br.ufpr.bantads.conta_service.model.read.MovimentacaoRead>> consultarExtrato(
-            @PathVariable Integer contaId,
+            @PathVariable String conta,
             @org.springframework.web.bind.annotation.RequestParam @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate dataInicio,
-            @org.springframework.web.bind.annotation.RequestParam @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate dataFim) {
+            @org.springframework.web.bind.annotation.RequestParam @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate dataFim
+        ) {
         
-        java.time.LocalDateTime inicio = dataInicio.atStartOfDay();
-        java.time.LocalDateTime fim = dataFim.atTime(23, 59, 59, 999999999);
-        
-        List<br.ufpr.bantads.conta_service.model.read.MovimentacaoRead> extrato = movimentacaoQueryService.listarMovimentacoesPorContaEPeriodo(contaId, inicio, fim);
-        return ResponseEntity.ok(extrato);
+            java.time.LocalDateTime inicio = dataInicio.atStartOfDay();
+            java.time.LocalDateTime fim = dataFim.atTime(23, 59, 59, 999999999);
+            
+            Conta contaConsultar = this.contaService.buscarContaPorNumero(conta);
+
+            List<br.ufpr.bantads.conta_service.model.read.MovimentacaoRead> extrato = movimentacaoQueryService.listarMovimentacoesPorContaEPeriodo(contaConsultar.getContaId(), inicio, fim);
+            return ResponseEntity.ok(extrato);
     }
 
     private Conta toConta(AdicionarContaDTO dto) {

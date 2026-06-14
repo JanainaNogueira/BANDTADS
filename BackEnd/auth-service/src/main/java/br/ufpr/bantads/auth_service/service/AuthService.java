@@ -124,8 +124,14 @@ public class AuthService {
             usuarioRepository.save(usuario);
             return;
         }
+        System.out.println("CRIANDO AUTH");
+        System.out.println("EMAIL: " + email);
+        System.out.println("CPF: " + cpf);
+        System.out.println("SENHA: " + senhaPlana);
 
         usuarioRepository.save(new Usuario(null, email, senhaHash, "CLIENTE", cpf));
+
+        System.out.println("SALVOU USUARIO CLIENTE");
     }
 
     private void responderSaga(String idSaga, String acao, Object dados) {

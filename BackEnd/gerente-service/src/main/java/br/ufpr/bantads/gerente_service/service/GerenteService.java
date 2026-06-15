@@ -89,6 +89,14 @@ public class GerenteService {
         );
     }
 
+    public GerenteAdmin buscarGerenteAdminPorCPF(String cpf) {
+        return gerenteRepository.findByCpf(cpf)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, 
+                        "Gerente com cpf: " + cpf + " não encontrado"
+                ));
+    }
+
     public GerenteAdmin criarGerenteInterno(AdicionarGerenteDTO gerenteDto) {
 
         if (gerenteRepository.findByCpf(gerenteDto.cpf()).isPresent()) {
@@ -101,7 +109,7 @@ public class GerenteService {
         gerente.setEmail(gerenteDto.email());
         gerente.setSenha(gerenteDto.senha());
         gerente.setTipoUsuario(TipoUsuario.GERENTE);
-        
+
         if (gerenteDto.telefone() == null || gerenteDto.telefone().isEmpty()) {
             gerente.setTelefone("");
         } else {

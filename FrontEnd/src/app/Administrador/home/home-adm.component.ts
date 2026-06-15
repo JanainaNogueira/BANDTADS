@@ -1,17 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { Menu } from '../../components/menu/menu';
-
-interface Client {
-  name: string;
-  balance: number;
-}
-
-interface Admin {
-  name: string;
-  clients: Client[];
-}
+import { CompositionService } from '../../services/composition.services';
 
 interface ProcessedAdmin {
   name: string;
@@ -27,64 +18,29 @@ interface ProcessedAdmin {
   templateUrl: './home-adm.component.html',
   styleUrl: './home-adm.component.css'
 })
-export class HomeAdm {
+export class HomeAdm implements OnInit {
 
-  private admins: Admin[] = [
-    {
-      name: 'Ana Silva',
-      clients: [
-        { name: 'Cliente A', balance: 500 },
-        { name: 'Cliente B', balance: -200 },
-        { name: 'Cliente C', balance: 0 }
-      ]
-    },
-    {
-      name: 'Carlos Souza',
-      clients: [
-        { name: 'Cliente D', balance: 1200 },
-        { name: 'Cliente E', balance: -100 }
-      ]
-    },
-    {
-      name: 'Maria Oliveira',
-      clients: [
-        { name: 'Cliente F', balance: 3000 },
-        { name: 'Cliente G', balance: -500 }
-      ]
-    },
-    {
-      name: 'João Silva',
-      clients: [
-        { name: 'Cliente H', balance: 150 },
-        { name: 'Cliente I', balance: -80 }
-      ]
-    }
-  ];
+  processedAdmins: ProcessedAdmin[] = [];
+  carregando = true;
 
-  processedAdmins: ProcessedAdmin[] = this.processAdmins();
+  constructor(private compositionService: CompositionService) {}
 
-  private processAdmins(): ProcessedAdmin[] {
-    return this.admins
-      .map((admin) => {
-        const totalPositive = admin.clients
-          .filter((c) => c.balance >= 0)
-          .reduce((acc, c) => acc + c.balance, 0);
-
-        const totalNegativeRaw = admin.clients
-          .filter((c) => c.balance < 0)
-          .reduce((acc, c) => acc + c.balance, 0);
-
-        return {
-          name: admin.name,
-          totalClients: admin.clients.length,
-          totalPositive,
-          totalNegative: Math.abs(totalNegativeRaw)
-        };
-      })
-      .sort((a, b) => b.totalPositive - a.totalPositive);
+  ngOnInit(): void {
+    this.carregando = true;
+    this.compositionService.getDashboard().subscribe({
+      next: (data) => {
+        this.processedAdmins = data.sort((a, b) => b.totalPositive - a.totalPositive);
+        this.carregando = false;
+      },
+      error: (err) => {
+        console.error('Erro ao carregar dashboard', err);
+        this.carregando = false;
+      }
+    });
   }
 
   getInitials(name: string): string {
+    if (!name) return '??';
     return name
       .split(' ')
       .map(n => n[0])

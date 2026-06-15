@@ -53,6 +53,25 @@ export class CustomerService {
     return this.http.get<Customer[]>(this.clientesApiUrl);
   }
 
+  obterRelatorioClientes(): Observable<Customer[]> {
+    return this.http.get<any[]>(`${this.clientesApiUrl}?filtro=adm_relatorio_clientes`).pipe(
+      map(clientes => clientes.map(c => ({
+        idCliente: String(c.id),
+        cpf: c.cpf,
+        name: c.nome,
+        email: c.email,
+        salary: c.salario,
+        numberAccount: c.conta || '-',
+        balance: c.saldo ?? 0,
+        limit: c.limite ?? 0,
+        city: '',
+        state: '',
+        manager: { cpf: c.gerente?.cpf || '-', name: c.gerente?.nome || '-' },
+        status: c.status
+      })))
+    );
+  }
+
   obterClientesPendentes(): Observable<Customer[]> {
     return this.http
       .get<any[]>(`${this.clientesApiUrl}/status/PENDENTE`)

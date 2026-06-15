@@ -30,7 +30,6 @@ router.put('/clientes/:id', createProxyMiddleware({
 }));
 
 router.post('/gerentes', express.json(), async (req, res) => {
-   console.log("PASSOU PELA SAGA");
   try {
     const response = await axios.post(
       'http://saga-service:8080/gerentes',

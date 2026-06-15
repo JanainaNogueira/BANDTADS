@@ -12,17 +12,23 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ClienteRabbitConfig {
 
-    public static final String FILA_MS = "fila-ms-cliente";
-    public static final String FILA_SAGA = "fila-saga";
+    public static final String FILA_MS      = "fila-ms-cliente";
+    public static final String FILA_SAGA    = "fila-saga";
+    public static final String FILA_CRIAR   = "cliente.criar";
 
     @Bean
     public Queue filaMs() {
-        return new Queue(FILA_MS);
+        return new Queue(FILA_MS, true);
     }
 
     @Bean
     public Queue filaSaga() {
-        return new Queue(FILA_SAGA);
+        return new Queue(FILA_SAGA, true);
+    }
+
+    @Bean
+    public Queue filaClienteCriar() {
+        return new Queue(FILA_CRIAR, true);
     }
 
     @Bean

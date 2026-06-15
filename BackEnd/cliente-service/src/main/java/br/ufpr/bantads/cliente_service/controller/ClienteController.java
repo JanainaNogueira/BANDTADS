@@ -1,6 +1,7 @@
 package br.ufpr.bantads.cliente_service.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import br.ufpr.bantads.cliente_service.dtos.AutocadastroDTO;
 import br.ufpr.bantads.cliente_service.dtos.ClienteComContaDTO;
+import br.ufpr.bantads.cliente_service.messaging.ClienteProducer;
+import br.ufpr.bantads.cliente_service.messaging.dtos.SagaMessageDTO;
 import br.ufpr.bantads.cliente_service.model.Cliente;
 import br.ufpr.bantads.cliente_service.service.ClienteService;
 
@@ -34,6 +37,8 @@ public class ClienteController {
 
         return clienteService.salvarCliente(dto);
     }
+    @Autowired
+    private ClienteProducer clienteProducer;
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletarCliente(@PathVariable Integer id) {
@@ -75,8 +80,22 @@ public class ClienteController {
 
     @GetMapping("/email/{email}")
     public ResponseEntity<Cliente> buscarClientePorEmail(@PathVariable String email) {
-        Cliente cliente = clienteService.buscarClientePorEmail(email);
-        return ResponseEntity.ok(cliente);
+        try {
+            Cliente cliente = clienteService.buscarClientePorEmail(email);
+            return ResponseEntity.ok(cliente);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @GetMapping("/cpf/{cpf}")
+    public ResponseEntity<Cliente> buscarClientePorCpf(@PathVariable String cpf) {
+        try {
+            Cliente cliente = clienteService.buscarClientePorCpf(cpf);
+            return ResponseEntity.ok(cliente);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @GetMapping("/nome/{nome}")
@@ -91,22 +110,53 @@ public class ClienteController {
         return ResponseEntity.ok(clientes);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Cliente> atualizarCliente(@PathVariable Integer id, @RequestBody Cliente cliente) {
-        cliente.setId(id);
+    @PutMapping("/{cpf}")
+    public ResponseEntity<Cliente> atualizarCliente(@PathVariable String cpf, @RequestBody Cliente cliente) {
+        cliente.setCpf(cpf);
         Cliente atualizado = clienteService.atualizarCliente(cliente);
         return ResponseEntity.ok(atualizado);
     }
 
-    @PostMapping("/{id}/aprovar")
-    public ResponseEntity<Cliente> aprovarCliente(@PathVariable Integer id) {
-        Cliente clienteAprovado = clienteService.aprovarCliente(id);
-        return ResponseEntity.ok(clienteAprovado);
+    @PostMapping("/{cpf}/aprovar")
+    public ResponseEntity<?> aprovarCliente(
+            @PathVariable String cpf,
+            @RequestHeader(value = "X-User-Tipo", required = false) String tipo) {
+
+        if (!"GERENTE".equals(tipo)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        Map<String, Object> resultado = cpf.matches("\\d{11}")
+                ? clienteService.aprovarClientePorCpf(cpf)
+                : clienteService.aprovarCliente(Integer.parseInt(cpf));
+
+        String sagaId = java.util.UUID.randomUUID().toString();
+
+        SagaMessageDTO eventoAprovado = new SagaMessageDTO();
+        eventoAprovado.setIdSaga(sagaId);
+        eventoAprovado.setAcao("CLIENTE_APROVADO_SUCESSO");
+        eventoAprovado.setDados(resultado);  // mapa completo: id, nome, email, senha
+        clienteProducer.responderSaga(eventoAprovado);
+
+        return ResponseEntity.ok(resultado);
     }
 
-    @PostMapping("/{id}/rejeitar")
-    public ResponseEntity<Cliente> rejeitarCliente(@PathVariable Integer id, @RequestBody String motivo) {
-        Cliente clienteRejeitado = clienteService.rejeitarCliente(id, motivo);
+    @PostMapping("/{cpf}/rejeitar")
+    public ResponseEntity<Cliente> rejeitarCliente(
+            @PathVariable String cpf,
+            @RequestBody(required = false) Map<String, String> payload,
+            @RequestHeader(value = "X-User-Tipo", required = false) String tipo) {
+
+        if (!"GERENTE".equals(tipo)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        String motivo = payload != null ? payload.get("motivo") : null;
+
+        Cliente clienteRejeitado = cpf.matches("\\d{11}")
+                ? clienteService.rejeitarClientePorCpf(cpf, motivo)
+                : clienteService.rejeitarCliente(Integer.parseInt(cpf), motivo);
+
         return ResponseEntity.ok(clienteRejeitado);
     }
 

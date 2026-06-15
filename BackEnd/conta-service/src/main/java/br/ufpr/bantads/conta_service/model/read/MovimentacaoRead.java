@@ -3,6 +3,7 @@ package br.ufpr.bantads.conta_service.model.read;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import br.ufpr.bantads.conta_service.model.TipoMovimentacao;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -11,8 +12,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-
-import br.ufpr.bantads.conta_service.model.TipoMovimentacao;
 
 @Entity
 @Table(name = "movimentacao")
@@ -35,6 +34,12 @@ public class MovimentacaoRead {
 
     @Column(name = "valor", nullable = false, precision = 19, scale = 2)
     private BigDecimal valor;
+
+    @Column(name = "cliente_origem_id")
+    private Integer clienteOrigemId;
+
+    @Column(name = "cliente_destino_id")
+    private Integer clienteDestinoId;
 
     public MovimentacaoRead() {
     }
@@ -78,4 +83,21 @@ public class MovimentacaoRead {
     public void setValor(BigDecimal valor) {
         this.valor = valor;
     }
+
+    public Integer getClienteOrigemId() {
+        return clienteOrigemId;
+    }
+
+    public void setClienteOrigemId(Integer clienteOrigemId) {
+        this.clienteOrigemId = clienteOrigemId;
+    }
+
+    public Integer getClienteDestinoId() {
+        return clienteDestinoId;
+    }
+
+    public void setClienteDestinoId(Integer clienteDestinoId) {
+        this.clienteDestinoId = clienteDestinoId;
+    }
+    
 }

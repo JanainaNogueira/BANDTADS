@@ -7,6 +7,5 @@ public record AutocadastroDTO(
         String email,
         Double salario,
         EnderecoDTO endereco
-        ) {
-
+) {
 }

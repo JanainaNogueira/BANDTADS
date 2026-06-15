@@ -35,12 +35,14 @@ services:
     networks:
       - bantads-network
 
-  mongo-conta:
-    image: mongo:6
-    ports:
-      - "27019:27017"
+  db-conta-read:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: conta_db_read
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
     volumes:
-      - mongo-conta-data:/data/db
+      - db-conta-read-data:/var/lib/postgresql/data
     networks:
       - bantads-network
 
@@ -85,6 +87,7 @@ services:
       - bantads-network
     environment:
       JWT_SECRET: "bantads-jwt-secret-key-minimo-32-chars"
+      SPRING_RABBITMQ_HOST: rabbitmq
       
   cliente-service:
     build: ./BackEnd/cliente-service
@@ -95,6 +98,10 @@ services:
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
       SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_MAIL_HOST: smtp.gmail.com
+      SPRING_MAIL_PORT: 587
+      SPRING_MAIL_USERNAME: bantadsdacn@gmail.com
+      SPRING_MAIL_PASSWORD: jsqobhlecmmrmshw
     depends_on:
       - db-cliente
       - rabbitmq
@@ -109,13 +116,13 @@ services:
       APP_DATASOURCE_WRITE_URL: jdbc:postgresql://db-conta:5432/conta_db
       APP_DATASOURCE_WRITE_USERNAME: root
       APP_DATASOURCE_WRITE_PASSWORD: root
-      APP_DATASOURCE_READ_URL: jdbc:postgresql://db-conta:5432/conta_db
+      APP_DATASOURCE_READ_URL: jdbc:postgresql://db-conta-read:5432/conta_db_read
       APP_DATASOURCE_READ_USERNAME: root
       APP_DATASOURCE_READ_PASSWORD: root
       SPRING_RABBITMQ_HOST: rabbitmq
     depends_on:
       - db-conta
-      - mongo-conta
+      - db-conta-read
       - rabbitmq
     networks:
       - bantads-network
@@ -147,7 +154,7 @@ services:
       - bantads-network
 
   rabbitmq:
-    image: rabbitmq:3.12-management
+    image: rabbitmq:3
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -165,7 +172,7 @@ volumes:
   mongo-auth-data:
   db-cliente-data:
   db-conta-data:
-  mongo-conta-data:
+  db-conta-read-data:
   db-gerente-data:
   rabbitmq-data:
 

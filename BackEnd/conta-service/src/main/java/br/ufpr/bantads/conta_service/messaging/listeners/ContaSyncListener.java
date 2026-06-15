@@ -57,6 +57,8 @@ public class ContaSyncListener {
         movimentacao.setDataHora(event.dataHora());
         movimentacao.setTipo(event.tipo());
         movimentacao.setValor(event.valor());
+        movimentacao.setClienteOrigemId(event.clienteOrigemId());
+        movimentacao.setClienteDestinoId(event.clienteDestinoId());
         try {
             readTransactionService.saveMovimentacao(movimentacao);
         } catch (ObjectOptimisticLockingFailureException ex) {

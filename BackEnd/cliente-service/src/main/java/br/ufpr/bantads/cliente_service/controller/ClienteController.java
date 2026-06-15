@@ -110,9 +110,9 @@ public class ClienteController {
         return ResponseEntity.ok(clientes);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Cliente> atualizarCliente(@PathVariable Integer id, @RequestBody Cliente cliente) {
-        cliente.setId(id);
+    @PutMapping("/{cpf}")
+    public ResponseEntity<Cliente> atualizarCliente(@PathVariable String cpf, @RequestBody Cliente cliente) {
+        cliente.setCpf(cpf);
         Cliente atualizado = clienteService.atualizarCliente(cliente);
         return ResponseEntity.ok(atualizado);
     }

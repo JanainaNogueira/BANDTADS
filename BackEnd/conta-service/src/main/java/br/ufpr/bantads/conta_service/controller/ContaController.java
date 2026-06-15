@@ -2,6 +2,7 @@ package br.ufpr.bantads.conta_service.controller;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,13 +17,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.ufpr.bantads.conta_service.dtos.AdicionarContaDTO;
+import br.ufpr.bantads.conta_service.dtos.ExtratoDTO;
 import br.ufpr.bantads.conta_service.dtos.LerContaDTO;
+import br.ufpr.bantads.conta_service.dtos.MovimentacaoExtratoDTO;
 import br.ufpr.bantads.conta_service.dtos.OperacaoDTO;
 import br.ufpr.bantads.conta_service.dtos.OperacaoResponseDTO;
 import br.ufpr.bantads.conta_service.dtos.TransferenciaDTO;
 import br.ufpr.bantads.conta_service.dtos.TransferenciaResponseDTO;
 import br.ufpr.bantads.conta_service.model.Conta;
 import br.ufpr.bantads.conta_service.model.read.ContaRead;
+import br.ufpr.bantads.conta_service.model.read.MovimentacaoRead;
 import br.ufpr.bantads.conta_service.service.ContaQueryService;
 import br.ufpr.bantads.conta_service.service.ContaService;
 import br.ufpr.bantads.conta_service.service.MovimentacaoQueryService;
@@ -46,9 +50,9 @@ public class ContaController {
     @GetMapping
     public List<LerContaDTO> listarTodos() {
         return contaQueryService.listarContas()
-            .stream()
-            .map(this::toLerContaDTO)
-            .toList();
+                .stream()
+                .map(this::toLerContaDTO)
+                .toList();
     }
 
     @GetMapping("/{contaId}")
@@ -64,9 +68,23 @@ public class ContaController {
     @GetMapping("/cliente/{clienteId}")
     public List<LerContaDTO> buscarPorCliente(@PathVariable Integer clienteId) {
         return contaQueryService.buscarContasPorCliente(clienteId)
-            .stream()
-            .map(this::toLerContaDTO)
-            .toList();
+                .stream()
+                .map(this::toLerContaDTO)
+                .toList();
+    }
+
+    @GetMapping("/{conta}/saldo")
+    public ResponseEntity<?> consultarSaldo(
+            @PathVariable String conta) {
+
+        Conta c = contaService.buscarContaPorNumero(conta);
+
+        return ResponseEntity.ok(
+                Map.of(
+                        "conta", c.getNumeroConta(),
+                        "saldo", c.getSaldo()
+                )
+        );
     }
 
     @PostMapping
@@ -99,11 +117,11 @@ public class ContaController {
         );
 
         return ResponseEntity.ok(
-            new OperacaoResponseDTO(
-                contaRes.getNumeroConta(),
-                contaRes.getSaldo(),
-                LocalDateTime.now()
-            )
+                new OperacaoResponseDTO(
+                        contaRes.getNumeroConta(),
+                        contaRes.getSaldo(),
+                        LocalDateTime.now()
+                )
         );
     }
 
@@ -118,11 +136,11 @@ public class ContaController {
         );
 
         return ResponseEntity.ok(
-            new OperacaoResponseDTO(
-                contaRes.getNumeroConta(),
-                contaRes.getSaldo(),
-                LocalDateTime.now()
-            )
+                new OperacaoResponseDTO(
+                        contaRes.getNumeroConta(),
+                        contaRes.getSaldo(),
+                        LocalDateTime.now()
+                )
         );
     }
 
@@ -138,30 +156,75 @@ public class ContaController {
         );
 
         return ResponseEntity.ok(
-            new TransferenciaResponseDTO(
-                contaRes.getNumeroConta(),
-                dto.destino(),
-                dto.valor(),
-                contaRes.getSaldo(),
-                LocalDateTime.now()
-            )
+                new TransferenciaResponseDTO(
+                        contaRes.getNumeroConta(),
+                        dto.destino(),
+                        dto.valor(),
+                        contaRes.getSaldo(),
+                        LocalDateTime.now()
+                )
         );
     }
 
     @GetMapping("/{conta}/extrato")
-    public ResponseEntity<List<br.ufpr.bantads.conta_service.model.read.MovimentacaoRead>> consultarExtrato(
-            @PathVariable String conta,
-            @org.springframework.web.bind.annotation.RequestParam @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate dataInicio,
-            @org.springframework.web.bind.annotation.RequestParam @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate dataFim
-        ) {
-        
-            java.time.LocalDateTime inicio = dataInicio.atStartOfDay();
-            java.time.LocalDateTime fim = dataFim.atTime(23, 59, 59, 999999999);
-            
-            Conta contaConsultar = this.contaService.buscarContaPorNumero(conta);
+    public ResponseEntity<ExtratoDTO> consultarExtrato(
+            @PathVariable String conta) {
 
-            List<br.ufpr.bantads.conta_service.model.read.MovimentacaoRead> extrato = movimentacaoQueryService.listarMovimentacoesPorContaEPeriodo(contaConsultar.getContaId(), inicio, fim);
-            return ResponseEntity.ok(extrato);
+        Conta contaAtual
+                = contaService.buscarContaPorNumero(conta);
+
+        List<MovimentacaoRead> movimentacoes
+                = movimentacaoQueryService
+                        .listarMovimentacoesPorConta(
+                                contaAtual.getContaId());
+
+        List<MovimentacaoExtratoDTO> itens
+                = movimentacoes.stream()
+                        .map(m -> {
+
+                            String origem = conta;
+                            String destino = null;
+
+                            if ("transferência".equalsIgnoreCase(
+                                    m.getTipo().name())) {
+
+                                destino = buscarNumeroContaPorCliente(
+                                        m.getClienteDestinoId());
+                            }
+
+                            return new MovimentacaoExtratoDTO(
+                                    m.getTipo().name(),
+                                    origem,
+                                    destino,
+                                    m.getDataHora(),
+                                    m.getValor().abs()
+                            );
+                        })
+                        .toList();
+
+        return ResponseEntity.ok(
+                new ExtratoDTO(
+                        conta,
+                        contaAtual.getSaldo(),
+                        itens
+                )
+        );
+    }
+
+    private String buscarNumeroContaPorCliente(Integer clienteId) {
+
+        if (clienteId == null) {
+            return null;
+        }
+
+        List<ContaRead> contas
+                = contaQueryService.buscarContasPorCliente(clienteId);
+
+        if (contas.isEmpty()) {
+            return null;
+        }
+
+        return contas.get(0).getNumeroConta();
     }
 
     private Conta toConta(AdicionarContaDTO dto) {

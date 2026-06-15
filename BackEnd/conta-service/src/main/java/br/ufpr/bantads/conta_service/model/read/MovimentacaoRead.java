@@ -23,6 +23,9 @@ public class MovimentacaoRead {
 
     private BigDecimal valor;
 
+    private Integer clienteOrigemId;
+    private Integer clienteDestinoId;
+
     public MovimentacaoRead() {
     }
 
@@ -64,5 +67,21 @@ public class MovimentacaoRead {
 
     public void setValor(BigDecimal valor) {
         this.valor = valor;
+    }
+
+    public Integer getClienteOrigemId() {
+        return clienteOrigemId;
+    }
+
+    public void setClienteOrigemId(Integer clienteOrigemId) {
+        this.clienteOrigemId = clienteOrigemId;
+    }
+
+    public Integer getClienteDestinoId() {
+        return clienteDestinoId;
+    }
+
+    public void setClienteDestinoId(Integer clienteDestinoId) {
+        this.clienteDestinoId = clienteDestinoId;
     }
 }

@@ -40,6 +40,7 @@ public class ContaSyncListener {
         conta.setDataCriacao(event.dataCriacao());
         conta.setSaldo(event.saldo());
         conta.setGerenteId(event.gerenteId());
+        conta.setLimite(event.limite());
         contaReadRepository.save(conta);
     }
 
@@ -56,6 +57,8 @@ public class ContaSyncListener {
         movimentacao.setDataHora(event.dataHora());
         movimentacao.setTipo(event.tipo());
         movimentacao.setValor(event.valor());
+        movimentacao.setClienteOrigemId(event.clienteOrigemId());
+        movimentacao.setClienteDestinoId(event.clienteDestinoId());
         try {
             readTransactionService.saveMovimentacao(movimentacao);
         } catch (ObjectOptimisticLockingFailureException ex) {

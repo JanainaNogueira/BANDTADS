@@ -2,6 +2,7 @@ package br.ufpr.bantads.cliente_service.controller;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,7 @@ public class ClienteController {
     @Autowired
     private ClienteService clienteService;
 
-    @RabbitListener(queues = "cliente.criar")
+    @RabbitListener(queues = "fila-ms-cliente")
     public Cliente criarCliente(AutocadastroDTO dto) {
 
         return clienteService.salvarCliente(dto);
@@ -126,16 +127,15 @@ public class ClienteController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        Map<String, Object> resultado = cpf.matches("\\d{11}")
-                ? clienteService.aprovarClientePorCpf(cpf)
-                : clienteService.aprovarCliente(Integer.parseInt(cpf));
+        Map<String, Object> resultado = clienteService.aprovarClientePorCpf(cpf);
 
-        String sagaId = java.util.UUID.randomUUID().toString();
+        String sagaId = UUID.randomUUID().toString();
 
         SagaMessageDTO eventoAprovado = new SagaMessageDTO();
         eventoAprovado.setIdSaga(sagaId);
         eventoAprovado.setAcao("CLIENTE_APROVADO_SUCESSO");
-        eventoAprovado.setDados(resultado);  // mapa completo: id, nome, email, senha
+        eventoAprovado.setDados(resultado);
+
         clienteProducer.responderSaga(eventoAprovado);
 
         return ResponseEntity.ok(resultado);

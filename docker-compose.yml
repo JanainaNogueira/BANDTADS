@@ -152,7 +152,7 @@ services:
       - bantads-network
 
   rabbitmq:
-    image: rabbitmq:3.12-management
+    image: rabbitmq:3-management
     ports:
       - "5672:5672"
       - "15672:15672"

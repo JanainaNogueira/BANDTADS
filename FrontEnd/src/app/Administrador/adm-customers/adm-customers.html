@@ -47,7 +47,7 @@
               <td class="px-6 py-4 text-gray-600">{{ cliente.email || '-' }}</td>
               <td class="px-6 py-4 text-gray-600">{{ formatarValor(cliente.salary) }}</td>
               <td class="px-6 py-4 text-gray-900">{{ cliente.numberAccount || '-' }}</td>
-              <td class="px-6 py-4 text-right font-semibold" [ngClass]="(cliente.balance ?? 0) >= 0 ? 'text-green-600' : 'text-red-600'">
+              <td class="px-6 py-4 text-right font-semibold" [ngClass]="cliente.balance >= 0 ? 'text-green-600' : 'text-red-600'">
                 {{ formatarValor(cliente.balance) }}
               </td>
               <td class="px-6 py-4 text-right text-gray-600">{{ formatarValor(cliente.limit) }}</td>

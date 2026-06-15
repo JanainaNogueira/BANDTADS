@@ -207,10 +207,10 @@ public class ContaService {
     }
 
     public void redistribuirConta(Integer idNovoGerente) {
-        List<Conta> contas = repository.findAll();
+        List<Conta> todasContas = repository.findAll();
 
         Map<Integer, List<Conta>> contasPorGerente =
-                contas.stream()
+                todasContas.stream()
                         .filter(c -> c.getGerenteId() != null)
                         .collect(Collectors.groupingBy(
                                 Conta::getGerenteId
@@ -231,7 +231,6 @@ public class ContaService {
         List<Conta> contasGerente =
                 gerenteOrigemOpt.get().getValue();
 
-
         Optional<Conta> contaOpt =
             contasGerente.stream()
                 .filter(c ->
@@ -247,9 +246,7 @@ public class ContaService {
         }
 
         Conta conta = contaOpt.get();
-
         conta.setGerenteId(idNovoGerente);
-
         repository.save(conta);
     }
 

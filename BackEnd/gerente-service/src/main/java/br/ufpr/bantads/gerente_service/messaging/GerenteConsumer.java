@@ -35,13 +35,11 @@ public class GerenteConsumer {
 
     @RabbitListener(queues = GerenteAdminRabbitConfig.FILA_MS)
     public void consumir(SagaMessageDTO dto) {
-        System.out.println("GERENTE RECEBEU: " + dto.getAcao());
         if (dto.getAcao().equals("CRIAR_GERENTE")) {
 
             AdicionarGerenteDTO gerenteDTO = objectMapper.convertValue(dto.getDados(),
                     AdicionarGerenteDTO.class);
 
-                System.out.println("Recebi CRIAR_GERENTE");
             try {
 
                 GerenteAdmin gerente = gerenteService.criarGerenteInterno(gerenteDTO);
@@ -53,14 +51,12 @@ public class GerenteConsumer {
                         gerente.getSenha(),
                         gerente.getTipoUsuario().name());
 
-                        System.out.println("Gerente criado: " + gerente.getId());
                 SagaMessageDTO resposta = new SagaMessageDTO();
 
                 resposta.setIdSaga(dto.getIdSaga());
                 resposta.setAcao("GERENTE_CRIADO");
                 resposta.setDados(respostaDTO);
 
-                System.out.println("Enviando GERENTE_CRIADO");
                 producer.responderSaga(resposta);
 
             } catch (Exception e) {
@@ -71,7 +67,6 @@ public class GerenteConsumer {
                 erro.setAcao("ERRO_INSERIR_GERENTE");
                 erro.setDados(e.getMessage());
 
-                System.out.println("ERRO_INSERIR_GERENTE: " + e.getMessage());
                 producer.responderSaga(erro);
             }
         }
@@ -95,7 +90,7 @@ public class GerenteConsumer {
                     dto.getDados(),
                     String.class);
 
-            LerGerenteDTO gerente = gerenteService.buscarGerentePorCPF(cpf);
+            GerenteAdmin gerente = gerenteService.buscarGerenteAdminPorCPF(cpf);
 
             SagaMessageDTO resposta = new SagaMessageDTO();
 
@@ -104,8 +99,9 @@ public class GerenteConsumer {
 
             Map<String, Object> dados = new HashMap<>();
 
-            dados.put("cpf", gerente.cpf());
-            dados.put("id", gerente.id());
+            dados.put("cpf", gerente.getCpf());
+            dados.put("id", gerente.getId());
+            dados.put("email", gerente.getEmail());
 
             resposta.setDados(dados);
 

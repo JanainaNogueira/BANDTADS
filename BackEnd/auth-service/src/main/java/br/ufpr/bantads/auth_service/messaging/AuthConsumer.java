@@ -31,7 +31,7 @@ public class AuthConsumer {
     public void consumir(SagaMessageDTO dto) {
 
         System.out.println("AUTH RECEBEU: " + dto.getAcao());
-        
+
         if(dto.getAcao().equals("CRIAR_USUARIO_AUTH")) {
 
             UsuarioCriadoDTO gerente =

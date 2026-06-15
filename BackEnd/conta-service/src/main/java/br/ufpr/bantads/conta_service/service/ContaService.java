@@ -60,7 +60,7 @@ public class ContaService {
                 salva.getContaId(),
                 salva.getNumeroConta(),
                 salva.getLimite()
-            ));
+        ));
         contaSyncPublisher.publicarContaSync(ContaSyncEvent.fromConta("UPSERT", salva));
         return salva;
     }
@@ -139,6 +139,9 @@ public class ContaService {
         Conta origemSalva = repository.save(contaOrigem);
         Conta destinoSalva = repository.save(contaDestino);
 
+        repository.save(contaOrigem);
+        repository.save(contaDestino);
+
         Movimentacao movOrigem = new Movimentacao();
         movOrigem.setContaId(origemSalva.getContaId());
         movOrigem.setTipo(TipoMovimentacao.transferência);
@@ -183,12 +186,10 @@ public class ContaService {
     // public Conta criarContaParaCliente(Integer clienteId) {
     //     return criarContaParaCliente(clienteId, UUID.randomUUID().toString(), 0.0);
     // }
-
     // @Transactional(transactionManager = "writeTransactionManager")
     // public Conta criarContaParaCliente(Integer clienteId, String sagaId) {
     //     return criarContaParaCliente(clienteId, sagaId, 0.0);
     // }
-
     @Transactional(transactionManager = "writeTransactionManager")
     public Conta criarContaParaCliente(Integer clienteId, String sagaId, Double salario) {
         List<Conta> contasExistentes = repository.findByClienteId(clienteId);
@@ -200,7 +201,7 @@ public class ContaService {
                     contaExistente.getContaId(),
                     contaExistente.getNumeroConta(),
                     contaExistente.getLimite()
-                ));
+            ));
             return contaExistente;
         }
 

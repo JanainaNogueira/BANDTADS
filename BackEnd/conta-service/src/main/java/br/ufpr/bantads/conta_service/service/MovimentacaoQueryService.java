@@ -22,6 +22,6 @@ public class MovimentacaoQueryService {
     }
 
     public List<MovimentacaoRead> listarMovimentacoesPorConta(Integer contaId) {
-        return repository.findByContaIdOrderByDataHoraDesc(contaId);
+        return repository.findByContaIdOrderByDataHoraAsc(contaId);
     }
 }

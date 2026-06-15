@@ -12,4 +12,6 @@ public interface MovimentacaoReadRepository extends MongoRepository<Movimentacao
     List<MovimentacaoRead> findByContaIdOrderByDataHoraDesc(Integer contaId);
 
     List<MovimentacaoRead> findByContaIdAndDataHoraBetweenOrderByDataHoraAsc(Integer contaId, LocalDateTime start, LocalDateTime end);
+
+    List<MovimentacaoRead> findByContaIdOrderByDataHoraAsc(Integer contaId);
 }

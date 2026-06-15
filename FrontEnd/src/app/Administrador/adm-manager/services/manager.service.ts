@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { ManagerSummary, ManagerStatus } from '../../../models/manager.model';
+import { environment } from '../../../../enviroment';
 
 interface GerenteResponse {
   id: number;
@@ -9,6 +10,7 @@ interface GerenteResponse {
   email: string;
   telefone: string;
   status: string;
+  cpf: string;
 }
 
 @Injectable({
@@ -16,7 +18,7 @@ interface GerenteResponse {
 })
 export class ManagerService {
 
-  private API = 'http://localhost:8080/gerentes';
+  private API = `${environment.apiUrl}/gerentes`;
 
   constructor(private http: HttpClient) {}
 
@@ -27,7 +29,8 @@ export class ManagerService {
         name: item.nome,
         email: item.email,
         phone: item.telefone,
-        status: this.mapStatus(item.status)
+        status: this.mapStatus(item.status),
+        cpf: item.cpf
       })))
     );
   }

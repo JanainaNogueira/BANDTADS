@@ -222,48 +222,64 @@ public class ContaService {
     }
 
     public void redistribuirConta(Integer idNovoGerente) {
-        List<Conta> contas = repository.findAll();
+        List<Conta> todasContas = repository.findAll();
 
-        Map<Integer, List<Conta>> contasPorGerente
-                = contas.stream()
-                        .filter(c -> c.getGerenteId() != null)
-                        .collect(Collectors.groupingBy(
-                                Conta::getGerenteId
-                        ));
+        Map<Integer, List<Conta>> contasPorGerente = todasContas.stream()
+                .filter(c -> c.getGerenteId() != null)
+                .collect(Collectors.groupingBy(Conta::getGerenteId));
 
-        Optional<Map.Entry<Integer, List<Conta>>> gerenteOrigemOpt
-                = contasPorGerente.entrySet()
-                        .stream()
-                        .filter(e -> e.getValue().size() > 1)
-                        .max(Comparator.comparingInt(
-                                e -> e.getValue().size()
-                        ));
+        if (contasPorGerente.isEmpty()) {
+            return;
+        }
+
+        // Encontra o gerente com mais clientes
+        Optional<Map.Entry<Integer, List<Conta>>> gerenteOrigemOpt = contasPorGerente.entrySet()
+                .stream()
+                .max(Comparator.comparingInt(e -> e.getValue().size()));
 
         if (gerenteOrigemOpt.isEmpty()) {
             return;
         }
 
-        List<Conta> contasGerente
-                = gerenteOrigemOpt.get().getValue();
+        List<Conta> contasDoGerenteComMaisClientes = gerenteOrigemOpt.get().getValue();
 
-        Optional<Conta> contaOpt
-                = contasGerente.stream()
-                        .filter(c
-                                -> c.getSaldo()
-                                .compareTo(BigDecimal.ZERO) >= 0
-                        )
-                        .min(Comparator.comparing(
-                                Conta::getSaldo
-                        ));
-
-        if (contaOpt.isEmpty()) {
+        if (contasDoGerenteComMaisClientes.isEmpty()) {
             return;
         }
 
-        Conta conta = contaOpt.get();
+        // Desempate: menor saldo positivo (conforme R17)
+        // Se houver múltiplos gerentes com o mesmo número máximo de clientes,
+        // a lógica acima pega o primeiro. Para ser estritamente fiel a R17,
+        // deveríamos filtrar todos os "max" e depois aplicar o tie-break.
+        
+        int maxClientes = contasDoGerenteComMaisClientes.size();
+        
+        List<Map.Entry<Integer, List<Conta>>> gerentesCandidatos = contasPorGerente.entrySet().stream()
+                .filter(e -> e.getValue().size() == maxClientes)
+                .toList();
+        
+        Map.Entry<Integer, List<Conta>> gerenteEscolhido = gerentesCandidatos.get(0);
+        
+        if (gerentesCandidatos.size() > 1) {
+            gerenteEscolhido = gerentesCandidatos.stream()
+                .min(Comparator.comparing(e -> e.getValue().stream()
+                    .filter(c -> c.getSaldo().compareTo(BigDecimal.ZERO) > 0)
+                    .reduce(BigDecimal.ZERO, (acc, c) -> acc.add(c.getSaldo()), BigDecimal::add)))
+                .orElse(gerentesCandidatos.get(0));
+        }
 
+        // Do gerente escolhido, pega o cliente com menor saldo positivo para transferir
+        Optional<Conta> contaParaTransferir = gerenteEscolhido.getValue().stream()
+                .filter(c -> c.getSaldo().compareTo(BigDecimal.ZERO) >= 0)
+                .min(Comparator.comparing(Conta::getSaldo));
+
+        if (contaParaTransferir.isEmpty()) {
+            // Se não houver saldo positivo, pega qualquer uma
+            contaParaTransferir = Optional.of(gerenteEscolhido.getValue().get(0));
+        }
+
+        Conta conta = contaParaTransferir.get();
         conta.setGerenteId(idNovoGerente);
-
         repository.save(conta);
     }
 

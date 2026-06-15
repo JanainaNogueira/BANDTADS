@@ -72,34 +72,74 @@ public class AuthService {
         );
     }
 
-    @RabbitListener(queues = FILA_MS)
-    public void consumirMensagensSaga(Map<String, Object> mensagem) {
+    public void processarMensagemSaga(Map<String, Object> mensagem) {
         String acao = mensagem.get("acao") != null ? mensagem.get("acao").toString() : null;
 
-        if ("CRIAR_AUTH".equals(acao) || "CRIAR_AUTH_CLIENTE".equals(acao)) {
+        if ("CRIAR_AUTH".equals(acao) || "CRIAR_AUTH_CLIENTE".equals(acao) || "CRIAR_USUARIO_AUTH".equals(acao)) {
             processarCriacaoAuth(mensagem);
+        } else if ("DELETAR_USUARIO_AUTH".equals(acao)) {
+            processarDelecaoAuth(mensagem);
+        }
+    }
+
+    private void processarDelecaoAuth(Map<String, Object> mensagem) {
+        try {
+            String email = mensagem.get("dados").toString();
+            Optional<Usuario> usuario = usuarioRepository.findByLogin(email);
+            usuario.ifPresent(usuarioRepository::delete);
+        } catch (Exception e) {
+            // Log error in a real scenario
         }
     }
 
     private void processarCriacaoAuth(Map<String, Object> mensagem) {
         String idSaga = mensagem.get("idSaga") != null ? mensagem.get("idSaga").toString() : null;
+        String acao = mensagem.get("acao") != null ? mensagem.get("acao").toString() : null;
 
         try {
             Map<String, Object> credenciais = extrairCredenciais(mensagem);
-            String cpf = credenciais.get("cpf").toString();
-            String email = credenciais.get("email").toString();
-            String senha = credenciais.get("senha").toString();
+            String cpf = credenciais.get("cpf") != null ? credenciais.get("cpf").toString() : null;
+            String email = credenciais.get("email") != null ? credenciais.get("email").toString() : null;
+            String senha = credenciais.get("senha") != null ? credenciais.get("senha").toString() : null;
+            String tipo = credenciais.get("tipo") != null ? credenciais.get("tipo").toString() : "CLIENTE";
 
-            criarCredencialCliente(cpf, email, senha);
+            if (cpf == null || email == null || senha == null) {
+                throw new RuntimeException("Dados incompletos para criação de auth");
+            }
+
+            criarCredencial(cpf, email, senha, tipo);
 
             if (idSaga != null) {
-                responderSaga(idSaga, "AUTH_CRIADO_SUCESSO", cpf);
+                String acaoResposta = "CRIAR_USUARIO_AUTH".equals(acao) ? "USUARIO_AUTH_CRIADO" : "AUTH_CRIADO_SUCESSO";
+                responderSaga(idSaga, acaoResposta, credenciais);
             }
         } catch (Exception e) {
             if (idSaga != null) {
-                responderSaga(idSaga, "AUTH_CRIADO_ERRO", e.getMessage());
+                String acaoErro = "CRIAR_USUARIO_AUTH".equals(acao) ? "ERRO_CRIAR_USUARIO_AUTH" : "AUTH_CRIADO_ERRO";
+                responderSaga(idSaga, acaoErro, e.getMessage());
             }
         }
+    }
+
+    public void criarCredencial(String cpf, String email, String senhaPlana, String tipo) {
+        String senhaHash = gerarSHA256(senhaPlana, SALT);
+
+        Optional<Usuario> existente = usuarioRepository.findByLogin(email);
+
+        if (existente.isPresent()) {
+            Usuario usuario = existente.get();
+            usuario.setSenha(senhaHash);
+            usuario.setCpf(cpf);
+            usuario.setTipo(tipo);
+            usuarioRepository.save(usuario);
+            return;
+        }
+
+        usuarioRepository.save(new Usuario(null, email, senhaHash, tipo, cpf));
+    }
+
+    public void criarCredencialCliente(String cpf, String email, String senhaPlana) {
+        criarCredencial(cpf, email, senhaPlana, "CLIENTE");
     }
 
     @SuppressWarnings("unchecked")
@@ -109,29 +149,6 @@ public class AuthService {
         }
 
         return mensagem;
-    }
-
-    public void criarCredencialCliente(String cpf, String email, String senhaPlana) {
-        String senhaHash = gerarSHA256(senhaPlana, SALT);
-
-        Optional<Usuario> existente = usuarioRepository.findByLogin(email);
-
-        if (existente.isPresent()) {
-            Usuario usuario = existente.get();
-            usuario.setSenha(senhaHash);
-            usuario.setCpf(cpf);
-            usuario.setTipo("CLIENTE");
-            usuarioRepository.save(usuario);
-            return;
-        }
-        System.out.println("CRIANDO AUTH");
-        System.out.println("EMAIL: " + email);
-        System.out.println("CPF: " + cpf);
-        System.out.println("SENHA: " + senhaPlana);
-
-        usuarioRepository.save(new Usuario(null, email, senhaHash, "CLIENTE", cpf));
-
-        System.out.println("SALVOU USUARIO CLIENTE");
     }
 
     private void responderSaga(String idSaga, String acao, Object dados) {

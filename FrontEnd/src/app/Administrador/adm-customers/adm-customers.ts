@@ -35,7 +35,7 @@ export class AdmCustomers implements OnInit {
 
   private loadCustomers(): void {
     this.carregando = true;
-    this.customerService.obterTodosClientes().subscribe({
+    this.customerService.obterRelatorioClientes().subscribe({
       next: (clientes) => {
         this.customers = clientes
           .sort((a, b) => (a.name ?? '').localeCompare(b.name ?? ''))

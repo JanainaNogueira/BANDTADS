@@ -10,10 +10,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
 import br.ufpr.bantads.gerente_service.dtos.EditarGerenteDTO;
 import br.ufpr.bantads.gerente_service.dtos.LerGerenteDTO;
 import br.ufpr.bantads.gerente_service.service.GerenteService;
+
 
 @RestController
 @RequestMapping("/gerentes")

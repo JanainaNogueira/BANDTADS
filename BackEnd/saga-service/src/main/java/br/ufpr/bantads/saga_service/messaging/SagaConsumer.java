@@ -36,8 +36,6 @@ public class SagaConsumer {
     @RabbitListener(queues = SagaRabbitConfig.FILA_SAGA)
     public void consumir(SagaMessageDTO dto) {
 
-        System.out.println("SAGA RECEBEU: " + dto.getAcao());
-
         switch (dto.getAcao()) {
             case "CLIENTE_APROVADO_SUCESSO": {
 
@@ -184,6 +182,12 @@ public class SagaConsumer {
                                 dto.getDados(),
                                 Map.class
                         );
+
+                SagaMessageDTO deletarAuth = new SagaMessageDTO();
+                deletarAuth.setIdSaga(dto.getIdSaga());
+                deletarAuth.setAcao("DELETAR_USUARIO_AUTH");
+                deletarAuth.setDados(dados.get("email"));
+                producer.enviarParaAuth(deletarAuth);
 
                 SagaMessageDTO redistribuir
                         = new SagaMessageDTO();

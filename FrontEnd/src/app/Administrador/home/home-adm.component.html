@@ -17,8 +17,15 @@
       </p>
     </div>
 
+    <div *ngIf="carregando" class="text-center py-12">
+      <div class="inline-block animate-spin">
+        <mat-icon class="text-4xl text-indigo-600">refresh</mat-icon>
+      </div>
+      <p class="text-gray-600 mt-3">Carregando dashboard...</p>
+    </div>
+
     <!-- GRID -->
-    <div class="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-8">
+    <div *ngIf="!carregando" class="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-8">
 
       <div
         *ngFor="let admin of processedAdmins"

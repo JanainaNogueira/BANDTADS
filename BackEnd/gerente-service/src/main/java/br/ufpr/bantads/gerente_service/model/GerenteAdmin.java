@@ -34,7 +34,7 @@ public class GerenteAdmin {
     @Column(name = "tipo", nullable = false)
     @Enumerated(EnumType.STRING)
     private TipoUsuario tipoUsuario;
-    
+
     public GerenteAdmin() {
     }
 
@@ -46,7 +46,7 @@ public class GerenteAdmin {
         this.senha = senha;
         this.tipoUsuario = tipo;
     }
-    
+
     public Integer getId() {
         return id;
     }

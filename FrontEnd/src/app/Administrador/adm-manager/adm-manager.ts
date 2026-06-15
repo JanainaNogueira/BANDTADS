@@ -50,7 +50,7 @@ export class AdmManager implements OnInit {
     
     this.managerService.listar().subscribe({
       next: (gerentes) => {
-        this.customerService.obterTodosClientes().subscribe({
+        this.customerService.obterRelatorioClientes().subscribe({
           next: (clientes) => {
             this.construirDashboard(gerentes, clientes);
             this.carregando = false;

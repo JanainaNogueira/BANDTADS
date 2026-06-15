@@ -54,7 +54,9 @@ public class ContaService {
                 sagaId,
                 salva.getClienteId(),
                 salva.getContaId(),
-                salva.getNumeroConta()));
+                salva.getNumeroConta(),
+                salva.getLimite()
+            ));
         contaSyncPublisher.publicarContaSync(ContaSyncEvent.fromConta("UPSERT", salva));
         return salva;
     }
@@ -82,7 +84,7 @@ public class ContaService {
 
         Movimentacao movimentacao = new Movimentacao();
         movimentacao.setContaId(conta.getContaId());
-        movimentacao.setTipo(TipoMovimentacao.DEPOSITO);
+        movimentacao.setTipo(TipoMovimentacao.depósito);
         movimentacao.setValor(valor);
         movimentacao.setDataHora(LocalDateTime.now());
         movimentacaoService.registrarMovimentacao(movimentacao);
@@ -104,7 +106,7 @@ public class ContaService {
 
         Movimentacao movimentacao = new Movimentacao();
         movimentacao.setContaId(conta.getContaId());
-        movimentacao.setTipo(TipoMovimentacao.SAQUE);
+        movimentacao.setTipo(TipoMovimentacao.saque);
         movimentacao.setValor(valor);
         movimentacao.setDataHora(LocalDateTime.now());
         movimentacaoService.registrarMovimentacao(movimentacao);
@@ -135,7 +137,7 @@ public class ContaService {
 
         Movimentacao movOrigem = new Movimentacao();
         movOrigem.setContaId(origemSalva.getContaId());
-        movOrigem.setTipo(TipoMovimentacao.TRANSFERENCIA);
+        movOrigem.setTipo(TipoMovimentacao.transferência);
         movOrigem.setValor(valor.negate());
         movOrigem.setClienteOrigemId(origemSalva.getClienteId());
         movOrigem.setClienteDestinoId(destinoSalva.getClienteId());
@@ -144,7 +146,7 @@ public class ContaService {
 
         Movimentacao movDestino = new Movimentacao();
         movDestino.setContaId(destinoSalva.getContaId());
-        movDestino.setTipo(TipoMovimentacao.TRANSFERENCIA);
+        movDestino.setTipo(TipoMovimentacao.transferência);
         movDestino.setValor(valor);
         movDestino.setClienteOrigemId(origemSalva.getClienteId());
         movDestino.setClienteDestinoId(destinoSalva.getClienteId());
@@ -192,7 +194,9 @@ public class ContaService {
                     sagaId,
                     contaExistente.getClienteId(),
                     contaExistente.getContaId(),
-                    contaExistente.getNumeroConta()));
+                    contaExistente.getNumeroConta(),
+                    contaExistente.getLimite()
+                ));
             return contaExistente;
         }
 

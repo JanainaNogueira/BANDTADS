@@ -3,28 +3,38 @@ package br.ufpr.bantads.conta_service.model.read;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import org.springframework.data.mongodb.core.mapping.Document;
-
-import org.springframework.data.annotation.Id;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 import br.ufpr.bantads.conta_service.model.TipoMovimentacao;
 
-@Document(collection = "movimentacao_read")
+@Entity
+@Table(name = "movimentacao")
 public class MovimentacaoRead {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Integer id;
 
+    @Column(name = "conta_id", nullable = false)
     private Integer contaId;
 
+    @Column(name = "data_hora", nullable = false)
     private LocalDateTime dataHora;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo", nullable = false)
     private TipoMovimentacao tipo;
 
+    @Column(name = "valor", nullable = false, precision = 19, scale = 2)
     private BigDecimal valor;
-
-    private Integer clienteOrigemId;
-    private Integer clienteDestinoId;
 
     public MovimentacaoRead() {
     }
@@ -67,21 +77,5 @@ public class MovimentacaoRead {
 
     public void setValor(BigDecimal valor) {
         this.valor = valor;
-    }
-
-    public Integer getClienteOrigemId() {
-        return clienteOrigemId;
-    }
-
-    public void setClienteOrigemId(Integer clienteOrigemId) {
-        this.clienteOrigemId = clienteOrigemId;
-    }
-
-    public Integer getClienteDestinoId() {
-        return clienteDestinoId;
-    }
-
-    public void setClienteDestinoId(Integer clienteDestinoId) {
-        this.clienteDestinoId = clienteDestinoId;
     }
 }

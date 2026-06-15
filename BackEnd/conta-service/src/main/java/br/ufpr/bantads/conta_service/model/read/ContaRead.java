@@ -3,25 +3,38 @@ package br.ufpr.bantads.conta_service.model.read;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.annotation.Id;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
-@Document(collection = "conta")
+@Entity
+@Table(name = "conta")
 public class ContaRead {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Integer contaId;
 
+    @Column(name = "cliente_id", nullable = false)
     private Integer clienteId;
 
+    @Column(name = "numero_conta", nullable = false, unique = true)
     private String numeroConta;
 
+    @Column(name = "data_criacao", nullable = false)
     private LocalDateTime dataCriacao;
 
+    @Column(name = "saldo", nullable = false, precision = 19, scale = 2)
     private BigDecimal saldo;
 
+    @Column(name = "limite", nullable = false, precision = 19, scale = 2)
     private BigDecimal limite;
 
+    @Column(name = "gerente_id")
     private Integer gerenteId;
 
     public ContaRead() {

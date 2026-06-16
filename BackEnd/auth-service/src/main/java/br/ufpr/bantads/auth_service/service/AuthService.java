@@ -2,13 +2,21 @@ package br.ufpr.bantads.auth_service.service;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.crypto.SecretKey;
 
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import br.ufpr.bantads.auth_service.dto.AuthDTO;
 import br.ufpr.bantads.auth_service.dto.AuthenticatedUserDTO;
@@ -22,12 +30,21 @@ import io.jsonwebtoken.security.Keys;
 public class AuthService {
 
     private static final String SALT = "tads";
+    private static final String FILA_MS = "fila-auth";
+    private static final String FILA_SAGA = "fila-saga";
+    private final Set<String> blacklist = ConcurrentHashMap.newKeySet();
 
     @Value("${jwt.secret}")
     private String jwtSecret;
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     public AuthenticatedUserDTO autenticar(AuthDTO dto) {
 
@@ -55,21 +72,88 @@ public class AuthService {
         );
     }
 
-    private String gerarToken(String login, String tipo) {
-        try {
-            SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
-            long now = System.currentTimeMillis();
-            String token = Jwts.builder()
-                    .setSubject(login)
-                    .claim("email", login)
-                    .claim("tipo", tipo)
-                    .setIssuedAt(new java.util.Date(now))
-                    .signWith(key, SignatureAlgorithm.HS256)
-                    .compact();
-            return token;
-        } catch (Exception e) {
-            throw e;
+    @RabbitListener(queues = FILA_MS)
+    public void consumirMensagensSaga(Map<String, Object> mensagem) {
+        String acao = mensagem.get("acao") != null ? mensagem.get("acao").toString() : null;
+
+        if ("CRIAR_AUTH".equals(acao) || "CRIAR_AUTH_CLIENTE".equals(acao)) {
+            processarCriacaoAuth(mensagem);
         }
+    }
+
+    private void processarCriacaoAuth(Map<String, Object> mensagem) {
+        String idSaga = mensagem.get("idSaga") != null ? mensagem.get("idSaga").toString() : null;
+
+        try {
+            Map<String, Object> credenciais = extrairCredenciais(mensagem);
+            String cpf = credenciais.get("cpf").toString();
+            String email = credenciais.get("email").toString();
+            String senha = credenciais.get("senha").toString();
+
+            criarCredencialCliente(cpf, email, senha);
+
+            if (idSaga != null) {
+                responderSaga(idSaga, "AUTH_CRIADO_SUCESSO", cpf);
+            }
+        } catch (Exception e) {
+            if (idSaga != null) {
+                responderSaga(idSaga, "AUTH_CRIADO_ERRO", e.getMessage());
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> extrairCredenciais(Map<String, Object> mensagem) {
+        if (mensagem.containsKey("dados") && mensagem.get("dados") != null) {
+            return objectMapper.convertValue(mensagem.get("dados"), Map.class);
+        }
+
+        return mensagem;
+    }
+
+    public void criarCredencialCliente(String cpf, String email, String senhaPlana) {
+        String senhaHash = gerarSHA256(senhaPlana, SALT);
+
+        Optional<Usuario> existente = usuarioRepository.findByLogin(email);
+
+        if (existente.isPresent()) {
+            Usuario usuario = existente.get();
+            usuario.setSenha(senhaHash);
+            usuario.setCpf(cpf);
+            usuario.setTipo("CLIENTE");
+            usuarioRepository.save(usuario);
+            return;
+        }
+        System.out.println("CRIANDO AUTH");
+        System.out.println("EMAIL: " + email);
+        System.out.println("CPF: " + cpf);
+        System.out.println("SENHA: " + senhaPlana);
+
+        usuarioRepository.save(new Usuario(null, email, senhaHash, "CLIENTE", cpf));
+
+        System.out.println("SALVOU USUARIO CLIENTE");
+    }
+
+    private void responderSaga(String idSaga, String acao, Object dados) {
+        Map<String, Object> resposta = new LinkedHashMap<>();
+        resposta.put("idSaga", idSaga);
+        resposta.put("acao", acao);
+        resposta.put("dados", dados);
+
+        rabbitTemplate.convertAndSend(FILA_SAGA, resposta);
+    }
+
+    private String gerarToken(String login, String tipo) {
+        SecretKey key = Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+        long now = System.currentTimeMillis();
+
+        return Jwts.builder()
+                .setSubject(login)
+                .claim("email", login)
+                .claim("tipo", tipo)
+                .setIssuedAt(new java.util.Date(now))
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
     }
 
     public String getEmailFromToken(String jwt) {
@@ -95,7 +179,12 @@ public class AuthService {
     }
 
     public String logout(String jwt) {
+        blacklist.add(jwt);
         return getEmailFromToken(jwt);
+    }
+
+    public boolean tokenRevogado(String jwt) {
+        return blacklist.contains(jwt);
     }
 
     public String gerarSHA256(String senha, String salt) {
@@ -120,6 +209,5 @@ public class AuthService {
         } catch (Exception e) {
             throw new RuntimeException("Erro ao gerar hash SHA256");
         }
-
     }
 }

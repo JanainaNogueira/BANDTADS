@@ -71,17 +71,37 @@ public class ClienteConsumer {
             Integer clienteId = objectMapper.convertValue(dto.getDados(), Integer.class);
 
             try {
-                clienteService.aprovarCliente(clienteId);
+                java.util.Map<String, Object> resultado = clienteService.aprovarCliente(clienteId);
 
                 SagaMessageDTO resposta = new SagaMessageDTO();
                 resposta.setIdSaga(dto.getIdSaga());
                 resposta.setAcao("CLIENTE_APROVADO_SUCESSO");
+                resposta.setDados(resultado);
 
                 producer.responderSaga(resposta);
             } catch (Exception e) {
                 SagaMessageDTO resposta = new SagaMessageDTO();
                 resposta.setIdSaga(dto.getIdSaga());
                 resposta.setAcao("CLIENTE_APROVADO_ERRO");
+                producer.responderSaga(resposta);
+            }
+        }
+
+        if (dto.getAcao().equals("REJEITAR_CLIENTE")) {
+
+            Integer clienteId = objectMapper.convertValue(dto.getDados(), Integer.class);
+
+            try {
+                clienteService.rejeitarCliente(clienteId, "Cadastro reprovado pelo gerente");
+
+                SagaMessageDTO resposta = new SagaMessageDTO();
+                resposta.setIdSaga(dto.getIdSaga());
+                resposta.setAcao("CLIENTE_REJEITADO_SUCESSO");
+                producer.responderSaga(resposta);
+            } catch (Exception e) {
+                SagaMessageDTO resposta = new SagaMessageDTO();
+                resposta.setIdSaga(dto.getIdSaga());
+                resposta.setAcao("CLIENTE_REJEITADO_ERRO");
                 producer.responderSaga(resposta);
             }
         }

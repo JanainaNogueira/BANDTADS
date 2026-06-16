@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import { buscarDashboardGerentes } from '../services/composition.service';
 import jwt from 'jsonwebtoken';
+import axios from 'axios';
 
 const router = Router();
 
@@ -15,12 +16,43 @@ const rewriteWithPrefix = (prefix: string) => (path: string) => {
 
 const JWT_SECRET = process.env.JWT_SECRET || 'bantads-jwt-secret-key-minimo-32-chars';
 
+async function validarToken(req: any, res: any, next: any) {
+  const auth = req.headers.authorization;
+
+  if (!auth) {
+    return res.status(401).json({
+      message: 'Token não informado'
+    });
+  }
+
+  try {
+    await axios.post(
+      'http://auth-service:8080/auth/validar',
+      {},
+      {
+        headers: {
+          Authorization: auth
+        }
+      }
+    );
+
+    next();
+
+  } catch (e) {
+    return res.status(401).json({
+      message: 'Token inválido'
+    });
+  }
+}
+
 const injectUserType = (proxyReq: any, req: any) => {
   const auth = req.headers.authorization;
   if (auth) {
+    proxyReq.setHeader('Authorization', auth);
     try {
       const token = auth.replace('Bearer ', '');
-      const decoded: any = jwt.verify(token, JWT_SECRET);
+      const decoded: any = jwt.verify(token, JWT_SECRET); 
+      
       proxyReq.setHeader('X-User-Tipo', decoded.tipo);
       proxyReq.setHeader('X-User-Email', decoded.email);
     } catch (e) {
@@ -28,6 +60,18 @@ const injectUserType = (proxyReq: any, req: any) => {
     }
   }
 };
+
+const clienteServiceProxy = createProxyMiddleware({
+  target: 'http://cliente-service:8080',
+  changeOrigin: true,
+  logger: console,
+  pathRewrite: (path) => {
+    return `/clientes${path}`;
+  },
+  on: {
+    proxyReq: injectUserType
+  }
+});
 
 router.use('/login', createProxyMiddleware({
   target: 'http://auth-service:8080', // corrigido: era 8080
@@ -52,45 +96,68 @@ router.use('/logout', createProxyMiddleware({
   }
 } as any));
 
-router.get('/clientes/:id', createProxyMiddleware({
-  target: 'http://cliente-service:8080',
-  changeOrigin: true,
-  pathRewrite: { '^/clientes': '/clientes' },
-  logger: console,
-  on: {
-    proxyReq: injectUserType
-  }
-}));
 
-router.post('/clientes', createProxyMiddleware({ // adicionado: POST para saga-service
+// router.post('/clientes', createProxyMiddleware({ // adicionado: POST para saga-service
+//   target: 'http://saga-service:8080',
+//   changeOrigin: true,
+//   pathRewrite: {
+//     '^/clientes': '/clientes'
+//   },
+//   logger: console,
+// }));
+
+
+const sagaApprovalProxy = createProxyMiddleware({
   target: 'http://saga-service:8080',
   changeOrigin: true,
-  pathRewrite: {
-    '^/clientes': '/clientes'
-  },
   logger: console,
-}));
-
-router.get('/clientes', createProxyMiddleware({
-  target: 'http://cliente-service:8080',
-  changeOrigin: true,
-  pathRewrite: {
-    '^/clientes': '/clientes'
-  },
-  logger: console,
+  proxyTimeout: 30000,
+  timeout: 30000,
   on: {
     proxyReq: injectUserType
   }
-}));
+});
 
-router.get('/clientes/:id', createProxyMiddleware({
-  target: 'http://cliente-service:8080',
-  changeOrigin: true,
-  pathRewrite: {
-    '^/clientes': '/clientes'
-  },
-  logger: console,
-}));
+// router.get('/clientes/:id', createProxyMiddleware({
+//   target: 'http://cliente-service:8080',
+//   changeOrigin: true,
+//   pathRewrite: {
+//     '^/clientes': '/clientes'
+//   },
+//   logger: console,
+// }));
+
+
+router.post('/clientes/:id/aprovar', validarToken, sagaApprovalProxy);
+router.post('/clientes/:id/rejeitar', validarToken, sagaApprovalProxy);
+
+router.use('/clientes',
+  validarToken,
+  (req, res, next) => {
+    console.log(req.method, req.originalUrl);
+    if (req.method === 'GET') {
+      return clienteServiceProxy(req, res, next);
+    }
+
+    return sagaApprovalProxy(req, res, next);
+  }
+);
+// GET /clientes/:id é tratado pelo compositionRoutes (agrega conta + gerente)
+// Não registrar aqui para não sombrear o handler de composição
+
+router.get('/gerentes', async (req, res, next) => {
+  if (req.query.filtro === 'dashboard') {
+    try {
+      const resultado = await buscarDashboardGerentes();
+      return res.json(resultado);
+    } catch (error: any) {
+      console.error(error.message);
+      return res.status(500).json({ error: 'Erro ao compor dashboard' });
+    }
+  }
+  next();
+});
+
 
 router.get('/gerentes', async (req, res, next) => {
   if (req.query.filtro === 'dashboard') {
@@ -112,7 +179,7 @@ router.use('/gerentes', createProxyMiddleware({
   logger: console,
 }));
 
-router.use('/contas', createProxyMiddleware({
+router.use('/contas', validarToken,createProxyMiddleware({
   target: 'http://conta-service:8080',
   changeOrigin: true,
   pathRewrite: rewriteWithPrefix('/contas'),

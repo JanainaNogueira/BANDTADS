@@ -40,11 +40,11 @@ public class SagaProducer {
     }
 
     public void enviarParaAuth(
-        SagaMessageDTO dto) {
+            SagaMessageDTO dto) {
 
         rabbitTemplate.convertAndSend(
-            SagaRabbitConfig.FILA_MS_AUTH,
-            dto
+                SagaRabbitConfig.FILA_MS_AUTH,
+                dto
         );
     }
 }

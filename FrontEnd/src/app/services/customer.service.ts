@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, forkJoin, of } from 'rxjs';
+import { Observable, forkJoin, of, throwError } from 'rxjs';
 import { map, catchError, switchMap } from 'rxjs/operators';
 import { Customer } from '../models/customer.model';
 import { Status } from '../models/status-enum.model';
@@ -37,7 +37,14 @@ export class CustomerService {
   constructor(private http: HttpClient) { }
 
   criarCliente(dados: any): Observable<any> {
-    return this.http.post(this.clientesApiUrl, dados);
+    return this.http.post(this.clientesApiUrl, dados).pipe(
+      catchError((err) =>{
+        if(err.status === 409){
+          console.log("Cliente já cadastrado")
+        }
+        return throwError(()=>err)
+      })
+    );
   }
 
   buscarClientePorCpf(cpf: string): Observable<Customer> {

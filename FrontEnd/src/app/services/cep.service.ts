@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 interface ViaCepResponse {
   logradouro: string;
   localidade: string;
-  uf: string;
+  estado: string;
   erro?: boolean;
 }
 

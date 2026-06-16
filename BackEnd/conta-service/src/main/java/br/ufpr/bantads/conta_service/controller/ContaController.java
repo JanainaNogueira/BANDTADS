@@ -1,5 +1,6 @@
 package br.ufpr.bantads.conta_service.controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -17,12 +18,13 @@ import org.springframework.web.bind.annotation.RestController;
 import br.ufpr.bantads.conta_service.dtos.AdicionarContaDTO;
 import br.ufpr.bantads.conta_service.dtos.LerContaDTO;
 import br.ufpr.bantads.conta_service.dtos.OperacaoDTO;
+import br.ufpr.bantads.conta_service.dtos.OperacaoResponseDTO;
 import br.ufpr.bantads.conta_service.dtos.TransferenciaDTO;
+import br.ufpr.bantads.conta_service.dtos.TransferenciaResponseDTO;
 import br.ufpr.bantads.conta_service.model.Conta;
 import br.ufpr.bantads.conta_service.model.read.ContaRead;
-import br.ufpr.bantads.conta_service.model.read.MovimentacaoRead;
-import br.ufpr.bantads.conta_service.service.ContaService;
 import br.ufpr.bantads.conta_service.service.ContaQueryService;
+import br.ufpr.bantads.conta_service.service.ContaService;
 import br.ufpr.bantads.conta_service.service.MovimentacaoQueryService;
 import jakarta.validation.Valid;
 
@@ -86,59 +88,80 @@ public class ContaController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/{contaId}/deposito")
-    public ResponseEntity<Void> realizarDeposito(@PathVariable Integer contaId, @Valid @RequestBody OperacaoDTO operacaoDTO) {
-        if (!contaId.equals(operacaoDTO.contaIdLogada())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
+    @PostMapping("/{conta}/depositar")
+    public ResponseEntity<OperacaoResponseDTO> realizarDeposito(
+            @PathVariable String conta,
+            @Valid @RequestBody OperacaoDTO operacaoDTO) {
 
-        contaService.depositar(contaId, operacaoDTO.valor());
-        return ResponseEntity.ok().build();
+        Conta contaRes = contaService.depositar(
+                conta,
+                operacaoDTO.valor()
+        );
+
+        return ResponseEntity.ok(
+            new OperacaoResponseDTO(
+                contaRes.getNumeroConta(),
+                contaRes.getSaldo(),
+                LocalDateTime.now()
+            )
+        );
     }
 
-    @PostMapping("/{contaId}/saque")
-    public ResponseEntity<Void> realizarSaque(@PathVariable Integer contaId, @Valid @RequestBody OperacaoDTO operacaoDTO) {
-        if (!contaId.equals(operacaoDTO.contaIdLogada())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
+    @PostMapping("/{conta}/sacar")
+    public ResponseEntity<OperacaoResponseDTO> realizarSaque(
+            @PathVariable String conta,
+            @Valid @RequestBody OperacaoDTO operacaoDTO) {
 
-        try {
-            contaService.sacar(contaId, operacaoDTO.valor());
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
+        Conta contaRes = contaService.sacar(
+                conta,
+                operacaoDTO.valor()
+        );
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(
+            new OperacaoResponseDTO(
+                contaRes.getNumeroConta(),
+                contaRes.getSaldo(),
+                LocalDateTime.now()
+            )
+        );
     }
 
-    @PostMapping("/{contaId}/transferencia")
-    public ResponseEntity<Void> realizarTransferencia(@PathVariable Integer contaId, @Valid @RequestBody TransferenciaDTO dto) {
-        if (!contaId.equals(dto.contaIdLogada())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-        }
+    @PostMapping("/{conta}/transferir")
+    public ResponseEntity<TransferenciaResponseDTO> realizarTransferencia(
+            @PathVariable String conta,
+            @Valid @RequestBody TransferenciaDTO dto) {
 
-        try {
-            contaService.transferir(contaId, dto.numeroContaDestino(), dto.valor());
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        } catch (RuntimeException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+        Conta contaRes = contaService.transferir(
+                conta,
+                dto.destino(),
+                dto.valor()
+        );
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(
+            new TransferenciaResponseDTO(
+                contaRes.getNumeroConta(),
+                dto.destino(),
+                dto.valor(),
+                contaRes.getSaldo(),
+                LocalDateTime.now()
+            )
+        );
     }
 
-    @GetMapping("/{contaId}/extrato")
+    @GetMapping("/{conta}/extrato")
     public ResponseEntity<List<br.ufpr.bantads.conta_service.model.read.MovimentacaoRead>> consultarExtrato(
-            @PathVariable Integer contaId,
+            @PathVariable String conta,
             @org.springframework.web.bind.annotation.RequestParam @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate dataInicio,
-            @org.springframework.web.bind.annotation.RequestParam @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate dataFim) {
+            @org.springframework.web.bind.annotation.RequestParam @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE) java.time.LocalDate dataFim
+        ) {
         
-        java.time.LocalDateTime inicio = dataInicio.atStartOfDay();
-        java.time.LocalDateTime fim = dataFim.atTime(23, 59, 59, 999999999);
-        
-        List<br.ufpr.bantads.conta_service.model.read.MovimentacaoRead> extrato = movimentacaoQueryService.listarMovimentacoesPorContaEPeriodo(contaId, inicio, fim);
-        return ResponseEntity.ok(extrato);
+            java.time.LocalDateTime inicio = dataInicio.atStartOfDay();
+            java.time.LocalDateTime fim = dataFim.atTime(23, 59, 59, 999999999);
+            
+            Conta contaConsultar = this.contaService.buscarContaPorNumero(conta);
+
+            List<br.ufpr.bantads.conta_service.model.read.MovimentacaoRead> extrato = movimentacaoQueryService.listarMovimentacoesPorContaEPeriodo(contaConsultar.getContaId(), inicio, fim);
+            return ResponseEntity.ok(extrato);
     }
 
     private Conta toConta(AdicionarContaDTO dto) {

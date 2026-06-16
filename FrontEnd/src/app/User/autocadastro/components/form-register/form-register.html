@@ -125,8 +125,8 @@
  <app-form-title
         class="w-[80%]"
         tag="Etapa 2 de 2"
-        title="Endereço e Financeiro"
-        label="Informe seu endereço e renda mensal."
+        title="Endereço"
+        label="Informe seu endereço"
     ></app-form-title>
 <div class="flex mt-6 flex-col">
     <div class="flex flex-row w-full pt-4 pb-8">
@@ -136,13 +136,13 @@
   <form (ngSubmit)="enviarDados()" class="space-y-4 w-full gap-2 flex flex-col" [formGroup]="endereco">
     <div class="flex flex-row w-full gap-2">
         <div class="flex flex-col gap-4 w-[50%]">
-          <label class="font-medium" for="cep">CEP</label>
+          <label class="font-medium" for="CEP">CEP</label>
           <input
             type="text"
             placeholder="01001-000"
-            name="cep"
-            id="cep"
-            formControlName="cep"
+            name="CEP"
+            id="CEP"
+            formControlName="CEP"
             (blur)="consultaCEP()"
             (keydown.enter)="consultaCEP()"
             class="border border-gray-300 rounded-lg p-2 focus:outline-gray-400"
@@ -162,13 +162,13 @@
         </div>
     </div>
     <div class="flex flex-col gap-4">
-      <label class="font-medium" for="rua">Rua / Logradouro</label>
+      <label class="font-medium" for="endereco">Rua / Logradouro</label>
       <input
         type="text"
         placeholder="Rua das Flores"
-        name="rua"
-        id="rua"
-        formControlName="rua"
+        name="endereco"
+        id="endereco"
+        formControlName="endereco"
         class="border border-gray-300 rounded-lg p-2 focus:outline-gray-400"
       />
     </div>
@@ -196,13 +196,13 @@
           />
         </div>
         <div class="flex flex-col gap-4 w-[50%]">
-          <label class="font-medium" for="uf">Estado</label>
+          <label class="font-medium" for="estado">Estado</label>
           <input
             type="text"
             placeholder="São Paulo"
-            name="uf"
-            id="uf"
-            formControlName="uf"
+            name="estado"
+            id="estado"
+            formControlName="estado"
             class="border border-gray-300 rounded-lg p-2 focus:outline-gray-400"
           />
         </div>

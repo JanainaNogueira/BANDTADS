@@ -73,7 +73,7 @@ export class EditProfileComponent implements OnInit {
           this.perfilForm.patchValue({
             rua: dados.logradouro,
             cidade: dados.localidade,
-            estado: dados.uf
+            estado: dados.estado
           });
         } else {
           this.perfilForm.patchValue({ cep: '' });

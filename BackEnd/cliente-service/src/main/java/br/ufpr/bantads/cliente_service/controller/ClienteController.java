@@ -65,21 +65,7 @@ public class ClienteController {
 
         return ResponseEntity.ok(clienteService.listarClientes());
     }
-
-    @GetMapping("/{identificador}")
-    public ResponseEntity<?> buscarCliente(@PathVariable String identificador) {
-        try {
-            ClienteComContaDTO dto = clienteService.buscarClienteComConta(identificador);
-            if ("REPROVADO".equals(dto.getStatus())) {
-                return ResponseEntity.notFound().build();
-            }
-            return ResponseEntity.ok(dto);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @GetMapping("/email/{email}")
+     @GetMapping("/email/{email}")
     public ResponseEntity<Cliente> buscarClientePorEmail(@PathVariable String email) {
         try {
             Cliente cliente = clienteService.buscarClientePorEmail(email);
@@ -127,15 +113,16 @@ public class ClienteController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        Map<String, Object> resultado = clienteService.aprovarClientePorCpf(cpf);
+        Map<String, Object> resultado = cpf.matches("\\d{11}")
+                ? clienteService.aprovarClientePorCpf(cpf)
+                : clienteService.aprovarCliente(Integer.parseInt(cpf));
 
-        String sagaId = UUID.randomUUID().toString();
+        String sagaId = java.util.UUID.randomUUID().toString();
 
         SagaMessageDTO eventoAprovado = new SagaMessageDTO();
         eventoAprovado.setIdSaga(sagaId);
         eventoAprovado.setAcao("CLIENTE_APROVADO_SUCESSO");
-        eventoAprovado.setDados(resultado);
-
+        eventoAprovado.setDados(resultado);  // mapa completo: id, nome, email, senha
         clienteProducer.responderSaga(eventoAprovado);
 
         return ResponseEntity.ok(resultado);
@@ -167,6 +154,19 @@ public class ClienteController {
             return ResponseEntity.ok(true);
         } catch (RuntimeException e) {
             return ResponseEntity.ok(false);
+        }
+    }
+
+    @GetMapping("/{identificador}")
+    public ResponseEntity<?> buscarCliente(@PathVariable String identificador) {
+        try {
+            ClienteComContaDTO dto = clienteService.buscarClienteComConta(identificador);
+            if ("REPROVADO".equals(dto.getStatus())) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(dto);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
         }
     }
 }

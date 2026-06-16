@@ -37,10 +37,10 @@ export class FormRegister {
     });
 
     this.endereco = this.form.group({
-      cep: ['', Validators.required],
-      rua: [{ value: '', disabled: true }],
+      CEP: ['', Validators.required],
+      endereco: [{ value: '', disabled: true }],
       cidade: [{ value: '', disabled: true }],
-      uf: [{ value: '', disabled: true }],
+      estado: [{ value: '', disabled: true }],
       numero: ['', Validators.required],
       complemento: ['']
     });
@@ -64,14 +64,18 @@ export class FormRegister {
           this.router.navigate(['/login']);
         },
         error: (err) => {
-          this.showMessage('Ocorreu um erro ao enviar o cadastro. Tente novamente.');
+          if(err.status === 409){
+            this.showMessage('Usuário já cadastrado, aguarde o retorno do gerente por email')
+          }else{
+            this.showMessage('Ocorreu um erro ao enviar o cadastro. Tente novamente.');
+          }
           console.error('Erro ao cadastrar:', err);
         }
       });
   }
 
   consultaCEP() {
-    const cep = this.endereco.get('cep')?.value.replace(/\D/g, '');
+    const cep = this.endereco.get('CEP')?.value.replace(/\D/g, '');
 
     if (!cep || cep.length < 8) {
       return;
@@ -83,14 +87,14 @@ export class FormRegister {
       next: (dados) => {
         if (!dados.erro) {
           this.endereco.patchValue({
-            rua: dados.logradouro,
+            endereco: dados.logradouro,
             cidade: dados.localidade,
-            uf: dados.uf
+            estado: dados.estado
           })
         }
         else {
           this.endereco.patchValue({
-            cep: ''
+            CEP: ''
           });
           this.showMessage('CEP não encontrado.');
         }

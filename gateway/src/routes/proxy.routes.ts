@@ -64,12 +64,10 @@ const injectUserType = (proxyReq: any, req: any) => {
 const clienteServiceProxy = createProxyMiddleware({
   target: 'http://cliente-service:8080',
   changeOrigin: true,
-  pathRewrite: {
-    '^/clientes': '/clientes'
-  },
   logger: console,
-  proxyTimeout: 30000,
-  timeout: 30000,
+  pathRewrite: (path) => {
+    return `/clientes${path}`;
+  },
   on: {
     proxyReq: injectUserType
   }
@@ -98,26 +96,16 @@ router.use('/logout', createProxyMiddleware({
   }
 } as any));
 
-router.get('/clientes/:id', validarToken, createProxyMiddleware({
-  target: 'http://cliente-service:8080',
-  changeOrigin: true,
-  pathRewrite: { '^/clientes': '/clientes' },
-  logger: console,
-  on: {
-    proxyReq: injectUserType
-  }
-}));
 
-router.post('/clientes', createProxyMiddleware({ // adicionado: POST para saga-service
-  target: 'http://saga-service:8080',
-  changeOrigin: true,
-  pathRewrite: {
-    '^/clientes': '/clientes'
-  },
-  logger: console,
-}));
+// router.post('/clientes', createProxyMiddleware({ // adicionado: POST para saga-service
+//   target: 'http://saga-service:8080',
+//   changeOrigin: true,
+//   pathRewrite: {
+//     '^/clientes': '/clientes'
+//   },
+//   logger: console,
+// }));
 
-router.get('/clientes', validarToken, clienteServiceProxy);
 
 const sagaApprovalProxy = createProxyMiddleware({
   target: 'http://saga-service:8080',
@@ -139,20 +127,21 @@ const sagaApprovalProxy = createProxyMiddleware({
 //   logger: console,
 // }));
 
-router.use('/gerentes', createProxyMiddleware({
-    target: 'http://gerente-service:8080',
-    changeOrigin: true,
-    pathRewrite: (path) => {
-      return path === '/' ? '/gerentes' : `/gerentes${path}`;
-    },
-    logger: console,
-  })
-);
 
 router.post('/clientes/:id/aprovar', validarToken, sagaApprovalProxy);
 router.post('/clientes/:id/rejeitar', validarToken, sagaApprovalProxy);
 
+router.use('/clientes',
+  validarToken,
+  (req, res, next) => {
+    console.log(req.method, req.originalUrl);
+    if (req.method === 'GET') {
+      return clienteServiceProxy(req, res, next);
+    }
 
+    return sagaApprovalProxy(req, res, next);
+  }
+);
 // GET /clientes/:id é tratado pelo compositionRoutes (agrega conta + gerente)
 // Não registrar aqui para não sombrear o handler de composição
 
